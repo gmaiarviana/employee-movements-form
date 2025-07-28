@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dados da Saída de Funcionário - Sistema de Saída de Funcionários</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Sistema de Saída de Funcionários</h1>
+    </header>
+    
+    <main>
+        <div class="container">
+            <h2>Dados da Saída de Funcionário</h2>
+            
+            <div id="employee-info" class="employee-info-display">
+                <p>Carregando informações do funcionário...</p>
+            </div>
+            
+            <form id="exit-form" class="exit-form">
+                <div class="form-group">
+                    <label for="exit-date">Data de Saída</label>
+                    <input type="date" id="exit-date" name="exit-date" required class="form-field">
+                </div>
+                
+                <div class="form-group">
+                    <label for="exit-reason">Motivo da Saída</label>
+                    <textarea id="exit-reason" name="exit-reason" required class="form-field" 
+                        placeholder="Descreva o motivo da saída do funcionário..." rows="4"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Haverá replacement?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="replacement-yes" name="replacement" value="sim" required>
+                            <label for="replacement-yes">Sim</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="replacement-no" name="replacement" value="nao" required>
+                            <label for="replacement-no">Não</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="machine-id">Tombo da Máquina</label>
+                    <input type="text" id="machine-id" name="machine-id" required class="form-field" 
+                        placeholder="Ex: TOMB001">
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="button" id="back-button" class="secondary-button">Voltar</button>
+                    <button type="submit" id="continue-button" class="primary-button">Continuar</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="js/exit-form.js"></script>
+</body>
+</html>

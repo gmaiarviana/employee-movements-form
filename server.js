@@ -29,6 +29,16 @@ app.get('/select-employee', (req, res) => {
     res.sendFile(path.join(__dirname, 'src/public/select-employee.html'));
 });
 
+// Route for exit form page
+app.get('/exit-form', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/public/exit-form.html'));
+});
+
+// Route for summary page
+app.get('/summary', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/public/summary.html'));
+});
+
 // API route to get team members for a leader
 app.get('/api/employees/:leaderId/team-members', (req, res) => {
     const leaderId = req.params.leaderId;

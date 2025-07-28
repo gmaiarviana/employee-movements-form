@@ -181,6 +181,141 @@ main {
     border-radius: 5px;
 }
 
+/* Form styles */
+.exit-form {
+    margin-top: 2rem;
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+.form-field {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    font-family: inherit;
+}
+
+.form-field:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.form-field:invalid {
+    border-color: #e74c3c;
+}
+
+/* Textarea specific styles */
+textarea.form-field {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Radio button styles */
+.radio-group {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.radio-option input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+
+.radio-option label {
+    margin: 0;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+/* Form buttons */
+.form-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+}
+
+/* Employee info display */
+.employee-info-display {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.employee-display h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.employee-display p {
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.employee-display p:last-child {
+    margin-bottom: 0;
+}
+
+/* Summary styles */
+.summary-display {
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.summary-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.summary-section h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 0.5rem;
+}
+
+.summary-section p {
+    margin-bottom: 0.75rem;
+    color: #495057;
+    line-height: 1.5;
+}
+
+.summary-section p:last-child {
+    margin-bottom: 0;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .container {
@@ -210,5 +345,24 @@ main {
     
     .employees-list {
         margin: 1.5rem 0;
+    }
+    
+    /* Form responsive styles */
+    .form-buttons {
+        flex-direction: column-reverse;
+        gap: 0.75rem;
+    }
+    
+    .form-buttons button {
+        width: 100%;
+    }
+    
+    .radio-group {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .employee-info-display {
+        padding: 1rem;
     }
 }
