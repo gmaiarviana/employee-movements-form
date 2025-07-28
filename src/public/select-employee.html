@@ -16,11 +16,17 @@
             <h2>Selecionar Funcionário para Saída</h2>
             <p>Selecione o funcionário que está saindo:</p>
             
-            <div id="employees-list" class="employees-list">
-                <!-- Os cards dos funcionários serão carregados aqui via JavaScript -->
+            <div class="form-group">
+                <label for="employee-select">Funcionário:</label>
+                <select id="employee-select" class="form-field">
+                    <option value="">Selecione um funcionário...</option>
+                </select>
             </div>
             
-            <button id="back-button" class="secondary-button">Voltar</button>
+            <div class="form-buttons">
+                <button id="back-button" class="secondary-button">Voltar</button>
+                <button id="continue-button" class="primary-button" disabled>Continuar</button>
+            </div>
         </div>
     </main>
 

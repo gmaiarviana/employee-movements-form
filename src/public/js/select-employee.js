@@ -8,59 +8,54 @@ async function loadEmployees() {
         }
         
         const data = await response.json();
-        const employeesList = document.getElementById('employees-list');
+        const employeeSelect = document.getElementById('employee-select');
         
-        // Limpa a lista antes de adicionar novos elementos
-        employeesList.innerHTML = '';
+        // Limpa as opções antes de adicionar novas
+        employeeSelect.innerHTML = '<option value="">Selecione um funcionário...</option>';
         
         if (data.teamMembers && data.teamMembers.length > 0) {
             data.teamMembers.forEach(employee => {
-                const employeeCard = createEmployeeCard(employee);
-                employeesList.appendChild(employeeCard);
+                const option = document.createElement('option');
+                option.value = employee.id;
+                option.textContent = `${employee.name} - ${employee.role}`;
+                employeeSelect.appendChild(option);
             });
         } else {
-            employeesList.innerHTML = '<p class="no-employees">Nenhum membro da equipe encontrado.</p>';
+            const option = document.createElement('option');
+            option.value = "";
+            option.textContent = "Nenhum membro da equipe encontrado";
+            option.disabled = true;
+            employeeSelect.appendChild(option);
         }
-        
-        // Adiciona event listeners para os botões "Selecionar"
-        addSelectButtonListeners();
         
     } catch (error) {
         console.error('Erro ao carregar funcionários:', error);
-        const employeesList = document.getElementById('employees-list');
-        employeesList.innerHTML = '<p class="error-message">Erro ao carregar a lista de funcionários. Tente novamente.</p>';
+        const employeeSelect = document.getElementById('employee-select');
+        employeeSelect.innerHTML = '<option value="">Erro ao carregar funcionários. Tente novamente.</option>';
     }
 }
 
-// Função para criar um item de funcionário
-function createEmployeeCard(employee) {
-    const listItem = document.createElement('div');
-    listItem.className = 'employee-item';
+// Função para verificar se um funcionário foi selecionado e habilitar/desabilitar o botão
+function updateContinueButton() {
+    const employeeSelect = document.getElementById('employee-select');
+    const continueButton = document.getElementById('continue-button');
     
-    listItem.innerHTML = `
-        <div class="employee-info">
-            <span class="employee-name">${employee.name}</span>
-            <span class="employee-details">${employee.role} • ${employee.project}</span>
-        </div>
-        <button class="select-button" data-employee-id="${employee.id}">
-            Selecionar
-        </button>
-    `;
-    
-    return listItem;
+    continueButton.disabled = !employeeSelect.value;
 }
 
-// Função para adicionar event listeners aos botões de seleção
-function addSelectButtonListeners() {
-    const selectButtons = document.querySelectorAll('.select-button');
+// Event listener para mudanças na seleção
+function handleEmployeeSelection() {
+    const employeeSelect = document.getElementById('employee-select');
+    const continueButton = document.getElementById('continue-button');
     
-    selectButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const employeeId = this.getAttribute('data-employee-id');
-            
+    employeeSelect.addEventListener('change', updateContinueButton);
+    
+    continueButton.addEventListener('click', function() {
+        const selectedEmployeeId = employeeSelect.value;
+        if (selectedEmployeeId) {
             // Redireciona para a página de formulário de saída com o ID do funcionário
-            window.location.href = `/exit-form?employeeId=${employeeId}`;
-        });
+            window.location.href = `/exit-form?employeeId=${selectedEmployeeId}`;
+        }
     });
 }
 
@@ -71,6 +66,9 @@ document.addEventListener('DOMContentLoaded', function() {
     backButton.addEventListener('click', function() {
         window.location.href = '/';
     });
+    
+    // Configura os event listeners para seleção
+    handleEmployeeSelection();
     
     // Carrega a lista de funcionários quando a página é carregada
     loadEmployees();

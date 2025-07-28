@@ -100,71 +100,6 @@ main {
     transform: translateY(1px);
 }
 
-/* Employee list styles */
-.employees-list {
-    margin: 2rem 0;
-    background: white;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    overflow: hidden;
-}
-
-.employee-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid #f1f3f4;
-    transition: background-color 0.2s ease;
-}
-
-.employee-item:last-child {
-    border-bottom: none;
-}
-
-.employee-item:hover {
-    background-color: #f8f9fa;
-}
-
-.employee-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.employee-name {
-    font-weight: 600;
-    color: #2c3e50;
-    font-size: 1rem;
-}
-
-.employee-details {
-    font-size: 0.875rem;
-    color: #6c757d;
-}
-
-.select-button {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    padding: 6px 16px;
-    font-size: 0.875rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    font-weight: 500;
-    white-space: nowrap;
-}
-
-.select-button:hover {
-    background-color: #2980b9;
-}
-
-.select-button:active {
-    transform: translateY(1px);
-}
-
 /* Message styles */
 .no-employees,
 .error-message {
@@ -217,6 +152,38 @@ main {
 
 .form-field:invalid {
     border-color: #e74c3c;
+}
+
+/* Select field specific styles */
+select.form-field {
+    cursor: pointer;
+    background-color: white;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 40px;
+}
+
+select.form-field:disabled {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Disabled button styles */
+.primary-button:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.primary-button:disabled:hover {
+    background-color: #95a5a6;
+    transform: none;
 }
 
 /* Textarea specific styles */
@@ -329,22 +296,6 @@ textarea.form-field {
     
     .container h2 {
         font-size: 1.3rem;
-    }
-    
-    .employee-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
-        padding: 1rem;
-    }
-    
-    .select-button {
-        width: 100%;
-        padding: 8px 16px;
-    }
-    
-    .employees-list {
-        margin: 1.5rem 0;
     }
     
     /* Form responsive styles */
