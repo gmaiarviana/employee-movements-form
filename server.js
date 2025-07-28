@@ -119,6 +119,62 @@ app.get('/api/employees/:leaderId/subordinates', (req, res) => {
     res.json({ teamMembers });
 });
 
+// API route to get employee details with project information
+app.get('/api/employees/:id/details', (req, res) => {
+    const employeeId = req.params.id;
+    
+    // Load JSON data files
+    const employees = readJSONFile(path.join(__dirname, 'src/data/employees.json'));
+    const projects = readJSONFile(path.join(__dirname, 'src/data/projects.json'));
+    const assignments = readJSONFile(path.join(__dirname, 'src/data/employee_projects.json'));
+    
+    if (!employees || !projects || !assignments) {
+        return res.status(500).json({ error: 'Error loading data files' });
+    }
+    
+    // Find the employee
+    const employee = employees.employees.find(emp => emp.id === employeeId);
+    if (!employee) {
+        return res.status(404).json({ error: 'Employee not found' });
+    }
+    
+    // Find the employee's active project assignment
+    const assignment = assignments.assignments.find(
+        assignment => assignment.employeeId === employeeId && assignment.isActive
+    );
+    
+    let project = null;
+    if (assignment) {
+        project = projects.projects.find(proj => proj.id === assignment.projectId);
+    }
+    
+    // Prepare response
+    const response = {
+        employee: {
+            id: employee.id,
+            name: employee.name,
+            email: employee.email,
+            role: employee.role
+        }
+    };
+    
+    if (project) {
+        response.project = {
+            name: project.name,
+            type: project.type,
+            sow: project.sow
+        };
+    } else {
+        response.project = {
+            name: "Não atribuído",
+            type: "N/A",
+            sow: "N/A"
+        };
+    }
+    
+    res.json(response);
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

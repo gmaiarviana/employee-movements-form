@@ -366,3 +366,69 @@ textarea.form-field {
         padding: 1rem;
     }
 }
+
+/* Summary page specific styles */
+.summary-section {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.summary-section h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 0.5rem;
+}
+
+.data-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.data-item:last-child {
+    border-bottom: none;
+}
+
+.data-label {
+    font-weight: 600;
+    color: #555;
+    flex: 1;
+    margin-right: 1rem;
+}
+
+.data-value {
+    color: #333;
+    flex: 2;
+    text-align: right;
+    word-wrap: break-word;
+}
+
+/* Summary page responsive styles */
+@media (max-width: 768px) {
+    .summary-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .data-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .data-label {
+        margin-right: 0;
+    }
+    
+    .data-value {
+        text-align: left;
+    }
+}

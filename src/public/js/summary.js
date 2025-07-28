@@ -6,17 +6,86 @@ function getUrlParams() {
         exitDate: params.get('exitDate'),
         reason: params.get('reason'),
         replacement: params.get('replacement'),
-        machineId: params.get('machineId')
+        machineId: params.get('machineId'),
+        lastWorkingDay: params.get('lastWorkingDay'),
+        projects: params.get('projects'),
+        leaderComments: params.get('leaderComments')
     };
 }
 
-// Função para carregar o resumo
-function loadSummary() {
+// Função para carregar detalhes do funcionário e projeto
+async function loadEmployeeDetails() {
     const params = getUrlParams();
-    const summaryDiv = document.getElementById('summary-content');
+    const employeeSection = document.getElementById('employee-section');
+    const projectSection = document.getElementById('project-section');
     
-    if (!params.employeeId || !params.exitDate || !params.reason || !params.replacement || !params.machineId) {
-        summaryDiv.innerHTML = '<p class="error-message">Dados incompletos. Por favor, retorne ao formulário.</p>';
+    if (!params.employeeId) {
+        employeeSection.innerHTML = '<h3>Dados do Funcionário</h3><p class="error-message">ID do funcionário não encontrado.</p>';
+        projectSection.innerHTML = '<h3>Dados do Projeto</h3><p class="error-message">Não foi possível carregar os dados do projeto.</p>';
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/employees/${params.employeeId}/details`);
+        
+        if (!response.ok) {
+            throw new Error('Erro ao carregar dados do funcionário');
+        }
+        
+        const data = await response.json();
+        
+        // Popula seção do funcionário
+        employeeSection.innerHTML = `
+            <h3>Dados do Funcionário</h3>
+            <div class="data-item">
+                <span class="data-label">ID:</span>
+                <span class="data-value">${data.employee.id}</span>
+            </div>
+            <div class="data-item">
+                <span class="data-label">Nome:</span>
+                <span class="data-value">${data.employee.name}</span>
+            </div>
+            <div class="data-item">
+                <span class="data-label">Email:</span>
+                <span class="data-value">${data.employee.email}</span>
+            </div>
+            <div class="data-item">
+                <span class="data-label">Cargo:</span>
+                <span class="data-value">${data.employee.role}</span>
+            </div>
+        `;
+        
+        // Popula seção do projeto
+        projectSection.innerHTML = `
+            <h3>Dados do Projeto</h3>
+            <div class="data-item">
+                <span class="data-label">Nome do Projeto:</span>
+                <span class="data-value">${data.project.name}</span>
+            </div>
+            <div class="data-item">
+                <span class="data-label">Tipo:</span>
+                <span class="data-value">${data.project.type}</span>
+            </div>
+            <div class="data-item">
+                <span class="data-label">SOW:</span>
+                <span class="data-value">${data.project.sow}</span>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('Erro ao carregar detalhes:', error);
+        employeeSection.innerHTML = '<h3>Dados do Funcionário</h3><p class="error-message">Erro ao carregar dados do funcionário.</p>';
+        projectSection.innerHTML = '<h3>Dados do Projeto</h3><p class="error-message">Erro ao carregar dados do projeto.</p>';
+    }
+}
+
+// Função para exibir dados da saída
+function displayExitData() {
+    const params = getUrlParams();
+    const exitSection = document.getElementById('exit-section');
+    
+    if (!params.exitDate || !params.reason || !params.replacement || !params.machineId) {
+        exitSection.innerHTML = '<h3>Dados da Saída</h3><p class="error-message">Dados da saída incompletos.</p>';
         return;
     }
     
@@ -29,21 +98,43 @@ function loadSummary() {
     // Formatar replacement
     const replacementText = params.replacement === 'sim' ? 'Sim' : 'Não';
     
-    summaryDiv.innerHTML = `
-        <div class="summary-section">
-            <h3>Dados do Funcionário</h3>
-            <p><strong>ID:</strong> ${params.employeeId}</p>
-            <p><strong>Nome:</strong> Funcionário ${params.employeeId}</p>
+    exitSection.innerHTML = `
+        <h3>Dados da Saída</h3>
+        <div class="data-item">
+            <span class="data-label">Data de Saída:</span>
+            <span class="data-value">${formatDate(params.exitDate)}</span>
         </div>
-        
-        <div class="summary-section">
-            <h3>Detalhes da Saída</h3>
-            <p><strong>Data de Saída:</strong> ${formatDate(params.exitDate)}</p>
-            <p><strong>Motivo:</strong> ${params.reason}</p>
-            <p><strong>Haverá Replacement:</strong> ${replacementText}</p>
-            <p><strong>Tombo da Máquina:</strong> ${params.machineId}</p>
+        <div class="data-item">
+            <span class="data-label">Último Dia de Trabalho:</span>
+            <span class="data-value">${params.lastWorkingDay ? formatDate(params.lastWorkingDay) : 'Não informado'}</span>
+        </div>
+        <div class="data-item">
+            <span class="data-label">Motivo da Saída:</span>
+            <span class="data-value">${params.reason}</span>
+        </div>
+        <div class="data-item">
+            <span class="data-label">Haverá Replacement:</span>
+            <span class="data-value">${replacementText}</span>
+        </div>
+        <div class="data-item">
+            <span class="data-label">Tombo da Máquina:</span>
+            <span class="data-value">${params.machineId}</span>
+        </div>
+        <div class="data-item">
+            <span class="data-label">Projetos Pendentes:</span>
+            <span class="data-value">${params.projects || 'Não informado'}</span>
+        </div>
+        <div class="data-item">
+            <span class="data-label">Comentários da Liderança:</span>
+            <span class="data-value">${params.leaderComments || 'Nenhum comentário'}</span>
         </div>
     `;
+}
+
+// Função para lidar com a confirmação
+function handleConfirm() {
+    alert('Saída confirmada com sucesso!');
+    window.location.href = '/';
 }
 
 // Função para lidar com o botão voltar
@@ -52,16 +143,11 @@ function handleBackButton() {
     window.location.href = `/exit-form?employeeId=${params.employeeId}`;
 }
 
-// Função para lidar com a confirmação
-function handleConfirmButton() {
-    alert('Saída confirmada! Em uma implementação real, aqui seria enviado para o servidor.');
-    window.location.href = '/';
-}
-
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Carregar resumo quando a página carrega
-    loadSummary();
+    // Carregar detalhes do funcionário e dados da saída quando a página carrega
+    loadEmployeeDetails();
+    displayExitData();
     
     // Event listener para o botão voltar
     const backButton = document.getElementById('back-button');
@@ -69,5 +155,5 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Event listener para o botão confirmar
     const confirmButton = document.getElementById('confirm-button');
-    confirmButton.addEventListener('click', handleConfirmButton);
+    confirmButton.addEventListener('click', handleConfirm);
 });
