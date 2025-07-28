@@ -78,6 +78,109 @@ main {
     transform: translateY(1px);
 }
 
+/* Secondary button styles */
+.secondary-button {
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: 500;
+    margin-top: 1rem;
+}
+
+.secondary-button:hover {
+    background-color: #7f8c8d;
+}
+
+.secondary-button:active {
+    transform: translateY(1px);
+}
+
+/* Employee list styles */
+.employees-list {
+    margin: 2rem 0;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    overflow: hidden;
+}
+
+.employee-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f1f3f4;
+    transition: background-color 0.2s ease;
+}
+
+.employee-item:last-child {
+    border-bottom: none;
+}
+
+.employee-item:hover {
+    background-color: #f8f9fa;
+}
+
+.employee-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.employee-name {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1rem;
+}
+
+.employee-details {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.select-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    font-size: 0.875rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.select-button:hover {
+    background-color: #2980b9;
+}
+
+.select-button:active {
+    transform: translateY(1px);
+}
+
+/* Message styles */
+.no-employees,
+.error-message {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-style: italic;
+}
+
+.error-message {
+    color: #e74c3c;
+    background-color: #fdf2f2;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .container {
@@ -91,5 +194,21 @@ main {
     
     .container h2 {
         font-size: 1.3rem;
+    }
+    
+    .employee-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+    
+    .select-button {
+        width: 100%;
+        padding: 8px 16px;
+    }
+    
+    .employees-list {
+        margin: 1.5rem 0;
     }
 }

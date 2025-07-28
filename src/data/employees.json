@@ -20,6 +20,55 @@
       "email": "ana.costa@company.com",
       "role": "Desenvolvedora Pleno",
       "isLeader": false
+    },
+    {
+      "id": "EMP004",
+      "name": "Carlos Oliveira", 
+      "email": "carlos.oliveira@company.com",
+      "role": "Desenvolvedor Junior",
+      "isLeader": false
+    },
+    {
+      "id": "EMP005",
+      "name": "Fernanda Lima", 
+      "email": "fernanda.lima@company.com",
+      "role": "UX Designer",
+      "isLeader": false
+    },
+    {
+      "id": "EMP006",
+      "name": "Roberto Ferreira", 
+      "email": "roberto.ferreira@company.com",
+      "role": "QA Analyst",
+      "isLeader": false
+    },
+    {
+      "id": "EMP007",
+      "name": "Juliana Rocha", 
+      "email": "juliana.rocha@company.com",
+      "role": "Desenvolvedora Pleno",
+      "isLeader": false
+    },
+    {
+      "id": "EMP008",
+      "name": "Pedro Almeida", 
+      "email": "pedro.almeida@company.com",
+      "role": "DevOps Engineer",
+      "isLeader": false
+    },
+    {
+      "id": "EMP009",
+      "name": "Carla Mendes", 
+      "email": "carla.mendes@company.com",
+      "role": "Product Owner",
+      "isLeader": false
+    },
+    {
+      "id": "EMP010",
+      "name": "Gabriel Santos", 
+      "email": "gabriel.santos@company.com",
+      "role": "Desenvolvedor Junior",
+      "isLeader": false
     }
   ]
 }
