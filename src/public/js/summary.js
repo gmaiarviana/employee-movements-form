@@ -67,7 +67,7 @@ async function loadSummaryData() {
                     </div>
                     <div class="data-row">
                         <span class="data-label">Empresa:</span>
-                        <span class="data-value">Instituto Atlântico</span>
+                        <span class="data-value">${data.employee.company}</span>
                     </div>
                     <div class="data-row">
                         <span class="data-label">Projeto:</span>
