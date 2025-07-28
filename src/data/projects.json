@@ -1,0 +1,18 @@
+{
+  "projects": [
+    {
+      "id": "PROJ001",
+      "name": "Sistema ERP",
+      "type": "Desenvolvimento",
+      "sow": "SOW-2024-001",
+      "leaderId": "EMP001"
+    },
+    {
+      "id": "PROJ002",
+      "name": "App Mobile",
+      "type": "Mobile",
+      "sow": "SOW-2024-002", 
+      "leaderId": "EMP001"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "assignments": [
+    {
+      "employeeId": "EMP002",
+      "projectId": "PROJ001",
+      "isActive": true
+    },
+    {
+      "employeeId": "EMP003",
+      "projectId": "PROJ002", 
+      "isActive": true
+    }
+  ]
+}

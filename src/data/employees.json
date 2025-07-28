@@ -1,0 +1,25 @@
+{
+  "employees": [
+    {
+      "id": "EMP001",
+      "name": "Maria Santos",
+      "email": "maria.santos@company.com",
+      "role": "Tech Lead",
+      "isLeader": true
+    },
+    {
+      "id": "EMP002", 
+      "name": "João Silva",
+      "email": "joao.silva@company.com",
+      "role": "Desenvolvedor Senior",
+      "isLeader": false
+    },
+    {
+      "id": "EMP003",
+      "name": "Ana Costa", 
+      "email": "ana.costa@company.com",
+      "role": "Desenvolvedora Pleno",
+      "isLeader": false
+    }
+  ]
+}
