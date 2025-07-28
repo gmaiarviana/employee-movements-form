@@ -34,18 +34,16 @@ function handleFormSubmit(event) {
     // Obter dados do formulário
     const exitDate = document.getElementById('exit-date').value;
     const exitReason = document.getElementById('exit-reason').value;
-    const replacement = document.querySelector('input[name="replacement"]:checked')?.value;
-    const machineId = document.getElementById('machine-id').value;
     const { employeeId } = getUrlParams();
     
     // Validar se todos os campos estão preenchidos
-    if (!exitDate || !exitReason || !replacement || !machineId || !employeeId) {
+    if (!exitDate || !exitReason || !employeeId) {
         alert('Por favor, preencha todos os campos obrigatórios.');
         return;
     }
     
-    // Construir URL para a página de summary com todos os parâmetros
-    const summaryUrl = `/summary?employeeId=${encodeURIComponent(employeeId)}&exitDate=${encodeURIComponent(exitDate)}&reason=${encodeURIComponent(exitReason)}&replacement=${encodeURIComponent(replacement)}&machineId=${encodeURIComponent(machineId)}`;
+    // Construir URL para a página de summary com os parâmetros
+    const summaryUrl = `/summary?employeeId=${encodeURIComponent(employeeId)}&exitDate=${encodeURIComponent(exitDate)}&reason=${encodeURIComponent(exitReason)}`;
     
     // Redirecionar para a página de summary
     window.location.href = summaryUrl;

@@ -4,12 +4,7 @@ function getUrlParams() {
     return {
         employeeId: params.get('employeeId'),
         exitDate: params.get('exitDate'),
-        reason: params.get('reason'),
-        replacement: params.get('replacement'),
-        machineId: params.get('machineId'),
-        lastWorkingDay: params.get('lastWorkingDay'),
-        projects: params.get('projects'),
-        leaderComments: params.get('leaderComments')
+        reason: params.get('reason')
     };
 }
 
@@ -84,7 +79,7 @@ function displayExitData() {
     const params = getUrlParams();
     const exitSection = document.getElementById('exit-section');
     
-    if (!params.exitDate || !params.reason || !params.replacement || !params.machineId) {
+    if (!params.exitDate || !params.reason) {
         exitSection.innerHTML = '<h3>Dados da Saída</h3><p class="error-message">Dados da saída incompletos.</p>';
         return;
     }
@@ -95,8 +90,16 @@ function displayExitData() {
         return date.toLocaleDateString('pt-BR');
     };
     
-    // Formatar replacement
-    const replacementText = params.replacement === 'sim' ? 'Sim' : 'Não';
+    // Mapear valores para texto legível
+    const reasonMap = {
+        'interno-externo': 'Interno → Externo',
+        'externo-interno': 'Externo → Interno',
+        'interno-interno': 'Interno → Interno',
+        'externo-externo': 'Externo → Externo',
+        'saida-projeto': 'Saída do projeto'
+    };
+    
+    const reasonText = reasonMap[params.reason] || params.reason;
     
     exitSection.innerHTML = `
         <h3>Dados da Saída</h3>
@@ -105,28 +108,8 @@ function displayExitData() {
             <span class="data-value">${formatDate(params.exitDate)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">Último Dia de Trabalho:</span>
-            <span class="data-value">${params.lastWorkingDay ? formatDate(params.lastWorkingDay) : 'Não informado'}</span>
-        </div>
-        <div class="data-item">
             <span class="data-label">Motivo da Saída:</span>
-            <span class="data-value">${params.reason}</span>
-        </div>
-        <div class="data-item">
-            <span class="data-label">Haverá Replacement:</span>
-            <span class="data-value">${replacementText}</span>
-        </div>
-        <div class="data-item">
-            <span class="data-label">Tombo da Máquina:</span>
-            <span class="data-value">${params.machineId}</span>
-        </div>
-        <div class="data-item">
-            <span class="data-label">Projetos Pendentes:</span>
-            <span class="data-value">${params.projects || 'Não informado'}</span>
-        </div>
-        <div class="data-item">
-            <span class="data-label">Comentários da Liderança:</span>
-            <span class="data-value">${params.leaderComments || 'Nenhum comentário'}</span>
+            <span class="data-value">${reasonText}</span>
         </div>
     `;
 }

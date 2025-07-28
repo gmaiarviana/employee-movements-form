@@ -27,28 +27,14 @@
                 
                 <div class="form-group">
                     <label for="exit-reason">Motivo da Saída</label>
-                    <textarea id="exit-reason" name="exit-reason" required class="form-field" 
-                        placeholder="Descreva o motivo da saída do funcionário..." rows="4"></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label>Haverá replacement?</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="replacement-yes" name="replacement" value="sim" required>
-                            <label for="replacement-yes">Sim</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="replacement-no" name="replacement" value="nao" required>
-                            <label for="replacement-no">Não</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="machine-id">Tombo da Máquina</label>
-                    <input type="text" id="machine-id" name="machine-id" required class="form-field" 
-                        placeholder="Ex: TOMB001">
+                    <select id="exit-reason" name="exit-reason" required class="form-field">
+                        <option value="">Selecione o motivo da saída</option>
+                        <option value="interno-externo">Interno → Externo</option>
+                        <option value="externo-interno">Externo → Interno</option>
+                        <option value="interno-interno">Interno → Interno</option>
+                        <option value="externo-externo">Externo → Externo</option>
+                        <option value="saida-projeto">Saída do projeto</option>
+                    </select>
                 </div>
                 
                 <div class="form-buttons">
