@@ -5,70 +5,80 @@
       "name": "Maria Santos",
       "email": "maria.santos@company.com",
       "role": "Tech Lead",
-      "isLeader": true
+      "isLeader": true,
+      "company": "Instituto Atlântico"
     },
     {
       "id": "EMP002", 
       "name": "João Silva",
       "email": "joao.silva@company.com",
       "role": "Desenvolvedor Senior",
-      "isLeader": false
+      "isLeader": false,
+      "company": "Instituto Atlântico"
     },
     {
       "id": "EMP003",
       "name": "Ana Costa", 
       "email": "ana.costa@company.com",
       "role": "Desenvolvedora Pleno",
-      "isLeader": false
+      "isLeader": false,
+      "company": "Instituto Atlântico"
     },
     {
       "id": "EMP004",
       "name": "Carlos Oliveira", 
       "email": "carlos.oliveira@company.com",
       "role": "Desenvolvedor Junior",
-      "isLeader": false
+      "isLeader": false,
+      "company": "Instituto Atlântico"
     },
     {
       "id": "EMP005",
       "name": "Fernanda Lima", 
       "email": "fernanda.lima@company.com",
       "role": "UX Designer",
-      "isLeader": false
+      "isLeader": false,
+      "company": "Instituto Atlântico"
     },
     {
       "id": "EMP006",
       "name": "Roberto Ferreira", 
       "email": "roberto.ferreira@company.com",
       "role": "QA Analyst",
-      "isLeader": false
+      "isLeader": false,
+      "company": "Instituto Atlântico"
     },
     {
       "id": "EMP007",
       "name": "Juliana Rocha", 
       "email": "juliana.rocha@company.com",
       "role": "Desenvolvedora Pleno",
-      "isLeader": false
+      "isLeader": false,
+      "company": "Instituto Atlântico"
     },
     {
       "id": "EMP008",
       "name": "Pedro Almeida", 
       "email": "pedro.almeida@company.com",
       "role": "DevOps Engineer",
-      "isLeader": false
+      "isLeader": false,
+      "company": "Instituto Atlântico"
     },
     {
       "id": "EMP009",
       "name": "Carla Mendes", 
       "email": "carla.mendes@company.com",
       "role": "Product Owner",
-      "isLeader": false
+      "isLeader": false,
+      "company": "Instituto Atlântico"
     },
     {
       "id": "EMP010",
       "name": "Gabriel Santos", 
       "email": "gabriel.santos@company.com",
       "role": "Desenvolvedor Junior",
-      "isLeader": false
+      "isLeader": false,
+      "company": "Instituto Atlântico"
     }
   ]
 }

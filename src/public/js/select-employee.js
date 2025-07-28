@@ -1,7 +1,7 @@
-// Função para carregar funcionários subordinados
+// Função para carregar funcionários da equipe
 async function loadEmployees() {
     try {
-        const response = await fetch('/api/employees/EMP001/subordinates');
+        const response = await fetch('/api/employees/EMP001/team-members');
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -19,7 +19,7 @@ async function loadEmployees() {
                 employeesList.appendChild(employeeCard);
             });
         } else {
-            employeesList.innerHTML = '<p class="no-employees">Nenhum funcionário subordinado encontrado.</p>';
+            employeesList.innerHTML = '<p class="no-employees">Nenhum membro da equipe encontrado.</p>';
         }
         
         // Adiciona event listeners para os botões "Selecionar"

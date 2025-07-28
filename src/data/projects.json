@@ -6,27 +6,6 @@
       "type": "Desenvolvimento",
       "sow": "SOW-2024-001",
       "leaderId": "EMP001"
-    },
-    {
-      "id": "PROJ002",
-      "name": "App Mobile",
-      "type": "Mobile",
-      "sow": "SOW-2024-002", 
-      "leaderId": "EMP001"
-    },
-    {
-      "id": "PROJ003",
-      "name": "Portal Cliente",
-      "type": "Web",
-      "sow": "SOW-2024-003", 
-      "leaderId": "EMP001"
-    },
-    {
-      "id": "PROJ004",
-      "name": "API Gateway",
-      "type": "Backend",
-      "sow": "SOW-2024-004", 
-      "leaderId": "EMP001"
     }
   ]
 }
