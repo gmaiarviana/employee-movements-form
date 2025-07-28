@@ -99,11 +99,11 @@
 
 ## API Endpoints
 
-### GET /api/employees/:leaderId/subordinates
-Retorna liderados do usuário logado
+### GET /api/employees/:leaderId/team-members
+Retorna membros da equipe do usuário logado
 ```json
 {
-  "subordinates": [
+  "teamMembers": [
     {
       "id": "EMP002",
       "name": "João Silva", 

@@ -1,16 +1,9 @@
 # Roadmap - Employee Exit Process
 
-## ✅ **Fase 1: POC (Proof of Concept)**
+## ✅ **Fase 1: POC - CONCLUÍDA**
 **Objetivo**: Validar fluxo básico de saída de funcionários
 
-**Capacidades:**
-- Interface com 4 páginas HTML separadas
-- Dados mock em 3 arquivos JSON (employees, projects, employee_projects)
-- Fluxo completo: seleção → formulário → resumo → confirmação
-- Express.js servindo páginas + APIs simples
-- Docker single container
-- Usuário simulado fixo (Maria Santos)
-- Processo de saída apenas
+**Resultado**: POC funcional com 4 páginas, dados JSON e Docker
 
 ---
 
