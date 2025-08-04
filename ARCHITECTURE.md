@@ -20,8 +20,8 @@
 
 ### 1. Home Page (`/`)
 - Welcome message
-- Single button: "Saída de Funcionário"
-- Redirects to: `/select-employee`
+- Button: "Entrada de Funcionário" (redirects to `/entry-form`)
+- Button: "Saída de Funcionário" (redirects to `/select-employee`)
 
 ### 2. Select Employee (`/select-employee`)
 - Lista dos liderados do usuário logado (Maria Santos)
@@ -44,6 +44,25 @@
 - Dados combinados: funcionário + projeto + formulário
 - Botões: "Voltar" | "Confirmar Saída"
 - Após confirmação: volta para home
+
+### 5. Entry Form (`/entry-form`)
+- Fields:
+    - Nome Completo (text input)
+    - CPF (text input)
+    - E-mail (text input)
+    - Nome do Instituto (text input)
+    - Realizou o treinamento de compliance da HP? (radio: sim/não)
+    - É faturável? (radio: sim/não)
+    - Data de Início (date input)
+    - Papel do profissional (text input)
+    - Nome do projeto HP em que o profissional atuará (text input)
+- Buttons: "Voltar" | "Continuar"
+- Redirects to: `/summary-entry` with data via URL parameters
+
+### 6. Summary Entry (`/summary-entry`)
+- Displays a summary of all collected entry fields.
+- Buttons: "Voltar" | "Confirmar Entrada"
+- After confirmation: returns to home
 
 ## Data Schema
 
@@ -97,6 +116,22 @@
 }
 ```
 
+### entries.json
+```json
+[
+  {
+    "fullName": "Novo Funcionario Exemplo",
+    "cpf": "123.456.789-00",
+    "email": "novo.exemplo@company.com",
+    "instituteName": "Instituto XYZ",
+    "complianceTraining": "sim",
+    "billable": "sim",
+    "startDate": "2025-01-01",
+    "role": "Desenvolvedor Júnior",
+    "projectName": "Projeto Novo HP"
+  }
+]
+
 ## API Endpoints
 
 ### GET /api/employees/:leaderId/team-members
@@ -142,11 +177,13 @@ Retorna dados completos para o resumo
 ├── src/
 │   ├── data/
 │   │   ├── employees.json
+│   │   ├── entries.json
 │   │   ├── projects.json
 │   │   └── employee_projects.json  
 │   └── public/
 │       ├── index.html
 │       ├── select-employee.html
+│       ├── entry-form.html
 │       ├── exit-form.html
 │       ├── summary.html
 │       ├── css/
@@ -154,6 +191,7 @@ Retorna dados completos para o resumo
 │       └── js/
 │           ├── home.js
 │           ├── select-employee.js
+│           ├── entry-form.js
 │           ├── exit-form.js
 │           └── summary.js
 ```
@@ -164,6 +202,8 @@ Retorna dados completos para o resumo
 2. **Select Employee → Exit Form**: `?employeeId=EMP002`
 3. **Exit Form → Summary**: `?employeeId=EMP002&exitDate=2025-08-15&reason=Nova%20oportunidade&replacement=sim&machineId=TOMB001`
 4. **Summary → Home**: Reset após confirmação
+5. **Home → Entry Form**: No parameters
+6. **Entry Form → Summary Entry**: Example: `?fullName=Novo%20Funcionario%20Exemplo&cpf=123.456.789-00&email=novo.exemplo%40company.com&instituteName=Instituto%20XYZ&complianceTraining=sim&billable=sim&startDate=2025-01-01&role=Desenvolvedor%20Junior&projectName=Projeto%20Novo%20HP`
 
 ## Docker Configuration
 
