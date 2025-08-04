@@ -31,7 +31,33 @@ Este documento define **como trabalhar** no projeto Contract Movements. O **que 
 - Manter no máximo 3-6 tarefas por sessão de trabalho em uma funcionalidade.
 - Cada tarefa deve ser testável individualmente.
 
-### **3. TAREFAS → PROMPTS (Geração com Gemini para GitHub Copilot)**
+### 3. FLUXO DE TRABALHO: TAREFA A TAREFA (COM AUXÍLIO DO GEMINI/COPILOT)
+
+Para cada Funcionalidade, o trabalho será dividido e executado em tarefas sequenciais e validáveis, seguindo o seguinte ciclo:
+
+1.  **Definição da Funcionalidade Atual:**
+    * O Gemini indicará claramente qual Funcionalidade do Épico atual está em foco.
+
+2.  **Lista de Tarefas da Funcionalidade:**
+    * O Gemini apresentará uma lista numerada de todas as Tarefas necessárias para completar a Funcionalidade, incluindo passos de frontend e backend quando aplicável.
+    * Cada Tarefa será concisa e com um objetivo claro e **único**.
+
+3.  **Execução da Tarefa N:**
+    * O Gemini declarará explicitamente: "Vamos agora para a Tarefa N: [Descrição da Tarefa]".
+    * **Prompt para o Copilot:** O Gemini fornecerá o prompt específico para o GitHub Copilot para a tarefa atual.
+    * **Expectativa:** O Gemini descreverá o resultado esperado da execução da tarefa (ex: "O Copilot deve gerar o arquivo X.html com Y campos. Após isso, você deverá verificar e criar/atualizar o arquivo.").
+    * **Validação:** O desenvolvedor (você) confirmará a conclusão da tarefa e sua validação (ex: "Tarefa N concluída. Código revisado/aplicado.").
+    * **Commit:** Realizar um `git add <arquivos>` e `git commit -m "feat: [descrição da tarefa] - Funcionalidade X.Y"` para **cada tarefa validada**.
+
+4.  **Próxima Tarefa:**
+    * Após a validação da Tarefa N, o Gemini passará para a Tarefa N+1, repetindo o ciclo.
+
+**Critério de Conclusão da Funcionalidade:**
+* Uma Funcionalidade é considerada completa quando todas as suas Tarefas foram executadas, validadas e commitadas individualmente.
+* Ao final da Funcionalidade, será realizada uma validação abrangente no browser (`http://localhost:3000`) para confirmar o comportamento esperado.
+* Um commit final será feito para a conclusão da funcionalidade, referenciando-a.
+
+### **4. TAREFAS → PROMPTS (Geração com Gemini para GitHub Copilot)**
 - Para cada tarefa, **o Gemini irá gerar um prompt estruturado, seguindo o template específico abaixo, para ser utilizado diretamente com o GitHub Copilot no VSCode.**
 - Após a geração do prompt, aguardar a sua validação e execução, e então prosseguir para a próxima tarefa.
 
@@ -99,3 +125,13 @@ Critério de Aceite:
 - Altere arquivos não relacionados à tarefa atual.
 - Deixe o sistema em estado não funcional.
 - Assuma comandos Linux ou outros ambientes que não sejam PowerShell/Docker.
+
+#### 4.1. Dicas para Prompts e "Bloqueios" do Copilot
+
+* **Priorizar Especificidade:** Quanto mais específicos os requisitos (IDs, classes CSS únicas, nomes de variáveis, lógica de negócios customizada), menor a chance de colisões com código público.
+* **Dividir Tarefas Complexas:** Para grandes blocos de código (especialmente HTML de formulários complexos), pode ser mais eficaz pedir ao Copilot para gerar partes menores ou elementos específicos, e então montar o resultado final manualmente, se necessário.
+* **Refrasear Agresivamente:** Se um prompt for bloqueado, reformular de forma diferente, alterando a estrutura da frase ou focando em aspectos mais nichados, é a primeira linha de defesa.
+* **Compreender a Natureza do Conteúdo:**
+    * **HTML (Estruturas Comuns):** Formulários, tabelas, layouts básicos são altamente padronizados e mais propensos a serem bloqueados. Nesses casos, a criação manual ou prompts *muito* detalhados com nomes e classes únicas são preferíveis.
+    * **JavaScript (Lógica Específica):** Funções com lógica de negócios customizada, manipulação de dados específicos (com chaves únicas, como `newEntryData`), ou interações complexas tendem a ter menos "colisões genéricas" e o Copilot é mais eficaz.
+* **Intervenção Manual:** Em casos persistentes de bloqueio, o Gemini fornecerá o código diretamente, permitindo a continuidade do desenvolvimento. O objetivo é sempre avançar.
