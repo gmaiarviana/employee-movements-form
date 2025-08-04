@@ -56,6 +56,7 @@ Para cada Funcionalidade, o trabalho será dividido e executado em tarefas seque
 * Uma Funcionalidade é considerada completa quando todas as suas Tarefas foram executadas, validadas e commitadas individualmente.
 * Ao final da Funcionalidade, será realizada uma validação abrangente no browser (`http://localhost:3000`) para confirmar o comportamento esperado.
 * Um commit final será feito para a conclusão da funcionalidade, referenciando-a.
+* Atualizar a documentação relevante (ex: ARCHITECTURE.md, ROADMAP.md, DEVELOPMENT_GUIDELINES.md) para refletir as mudanças ou o status da funcionalidade concluída, se necessário.
 
 ### **4. TAREFAS → PROMPTS (Geração com Gemini para GitHub Copilot)**
 - Para cada tarefa, **o Gemini irá gerar um prompt estruturado, seguindo o template específico abaixo, para ser utilizado diretamente com o GitHub Copilot no VSCode.**

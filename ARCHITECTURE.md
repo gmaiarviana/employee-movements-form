@@ -186,6 +186,7 @@ Retorna dados completos para o resumo
 │       ├── entry-form.html
 │       ├── exit-form.html
 │       ├── summary.html
+│       ├── summary-entry.html
 │       ├── css/
 │       │   └── styles.css
 │       └── js/
@@ -193,7 +194,8 @@ Retorna dados completos para o resumo
 │           ├── select-employee.js
 │           ├── entry-form.js
 │           ├── exit-form.js
-│           └── summary.js
+│           ├── summary.js
+│           └── summary-entry.js
 ```
 
 ## Data Flow Between Pages
