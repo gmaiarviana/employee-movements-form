@@ -19,55 +19,51 @@ Este documento define **como trabalhar** no projeto Contract Movements. O **que 
 
 ## Processo de Refinamento
 
-### **1. ETAPAS → FUNCIONALIDADES**
-- Ler etapa no ROADMAP.md (ex: "Fase 2: MVP")
-- Quebrar em 2-4 funcionalidades específicas
-- Cada funcionalidade = valor demonstrável para usuário
-- Definir critérios de aceite comportamentais
+### **1. ÉPICOS → FUNCIONALIDADES**
+- Ler o Épico no `ROADMAP.md` (ex: "Épico 2: Protótipo Estendido").
+- **Com o auxílio do Gemini, quebrar o épico em 2-5 funcionalidades específicas.**
+- Cada funcionalidade deve entregar valor demonstrável para o usuário.
+- Definir critérios de aceite comportamentais para a funcionalidade completa.
 
 ### **2. FUNCIONALIDADES → TAREFAS**
-- Quebrar funcionalidade em tarefas de 5-15 minutos
-- Cada tarefa = 1 arquivo criado/modificado
-- Máximo 3-4 tarefas por sessão
-- Tarefas devem ser testáveis individualmente
+- Para cada funcionalidade, **o Gemini irá propor a quebra em tarefas de 5-15 minutos.**
+- Cada tarefa deve idealmente corresponder à criação ou modificação de um único arquivo.
+- Manter no máximo 3-6 tarefas por sessão de trabalho em uma funcionalidade.
+- Cada tarefa deve ser testável individualmente.
 
-### **3. TAREFAS → PROMPTS**
-- Cada tarefa = 1 prompt estruturado para GitHub Copilot
-- Template específico com validação PowerShell
-- Aguardar confirmação antes da próxima tarefa
+### **3. TAREFAS → PROMPTS (Geração com Gemini para GitHub Copilot)**
+- Para cada tarefa, **o Gemini irá gerar um prompt estruturado, seguindo o template específico abaixo, para ser utilizado diretamente com o GitHub Copilot no VSCode.**
+- Após a geração do prompt, aguardar a sua validação e execução, e então prosseguir para a próxima tarefa.
 
-## Reflexão Técnica Obrigatória
+## Reflexão Técnica Interna do Gemini
 
-Antes de qualquer implementação, SEMPRE executar:
+O Gemini realizará uma auto-reflexão técnica antes de gerar tarefas e prompts. Para isso, consultará o contexto existente (arquivos fornecidos, histórico da conversa) e, se necessário, **solicitará a visualização de arquivos específicos ou fará perguntas para esclarecer**:
+1.  **STACK**: Confirmar as tecnologias envolvidas (Node.js + Express + Docker + JSON/DB).
+2.  **COMPATIBILITY**: Garantir que os comandos gerados são compatíveis com PowerShell e o ambiente Docker.
+3.  **ARCHITECTURE**: Entender como a nova funcionalidade se encaixa na estrutura de páginas (`src/public`), APIs (`server.js`) e fluxo de dados existente.
+4.  **DATA**: Verificar a necessidade de criar ou atualizar arquivos JSON, ou antecipar alterações para o banco de dados futuro. Identificar quais APIs serão impactadas ou criadas.
+5.  **VALIDATION**: Definir a melhor forma de testar o comportamento esperado no browser após a implementação da tarefa.
 
-1. **STACK**: Node.js + Express + Docker + arquivos JSON
-2. **COMPATIBILITY**: PowerShell commands? Docker ports corretos?
-3. **ARCHITECTURE**: Como integra com estrutura existente?
-4. **DATA**: Arquivos JSON atualizados? APIs funcionando?
-5. **VALIDATION**: Como testar no browser após implementação?
-
-## Template para Prompts
+## Template para Prompts (Gerado pelo Gemini para o GitHub Copilot)
 
 ```markdown
-## 🎯 TAREFA: [Nome Específico]
+## 🎯 TAREFA: [Nome Específico da Tarefa]
 
 ### Para o GitHub Copilot:
-```
 [AÇÃO] arquivo [CAMINHO]
-- [Detalhe 1]: especificação técnica
-- [Detalhe 2]: especificação técnica
-```
+
+[Detalhe 1]: especificação técnica
+[Detalhe 2]: especificação técnica
+[Detalagem N]: especificação técnica
+
 
 ### Validação PowerShell:
 ```powershell
 docker-compose up -d
-# Testar: [comportamento esperado no browser]
-```
-
-**Critério de Aceite:**
-✅ Deve: [output específico]
-❌ NÃO deve: [erros específicos]
-```
+# Testar: [comportamento esperado no browser após a execução da tarefa]
+Critério de Aceite:
+✅ Deve: [output específico ou comportamento esperado no browser]
+❌ NÃO deve: [erros específicos ou comportamentos indesejados]
 
 ## Princípios de Qualidade
 
@@ -87,19 +83,19 @@ docker-compose up -d
 
 ### **Simples e Funcional**
 - Foco na funcionalidade sobre otimização
-- Arquivos JSON para dados (POC)
+- Arquivos JSON para dados (POC/Protótipo)
 - HTML/CSS/JS vanilla para interface
 
 ## Regras Fundamentais
 
 ✅ **SEMPRE:**
-- Reflexão técnica antes de implementar
-- Template estruturado para Copilot
-- Validação PowerShell + browser após tarefa
-- Commit específico quando funcionar
+- Valide cada tarefa no navegador (`http://localhost:3000`) antes do próximo commit.
+- Adicione apenas os arquivos modificados/criados ao `git` (`git add arquivo.js`).
+- Garanta que o sistema esteja sempre funcionando ao final de cada tarefa/commit.
+- Mantenha o foco na tarefa atual, evitando desvios para otimizações prematuras.
 
 ❌ **NUNCA:**
-- Comandos Linux no PowerShell
-- `git add .` em commits
-- Prosseguir com validação falhando
-- Implementar sem testar no browser
+- Use `git add .` ou `git commit -am "mensagem"`.
+- Altere arquivos não relacionados à tarefa atual.
+- Deixe o sistema em estado não funcional.
+- Assuma comandos Linux ou outros ambientes que não sejam PowerShell/Docker.
