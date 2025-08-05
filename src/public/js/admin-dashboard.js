@@ -134,6 +134,32 @@ function filterMovements() {
     loadMovements(startDate, endDate);
 }
 
+// Função para exportar dados (simulada)
+function exportData() {
+    const startDateInput = document.getElementById('start-date');
+    const endDateInput = document.getElementById('end-date');
+    const movementsList = document.getElementById('movements-list');
+    
+    // Verificar se há movimentações visíveis na tela
+    const visibleMovements = movementsList.querySelectorAll('.movement-item');
+    const movementsCount = visibleMovements.length;
+    
+    // Preparar informações sobre os filtros aplicados
+    let filterInfo = '';
+    if (startDateInput.value || endDateInput.value) {
+        const startDate = startDateInput.value ? new Date(startDateInput.value).toLocaleDateString('pt-BR') : 'não definida';
+        const endDate = endDateInput.value ? new Date(endDateInput.value).toLocaleDateString('pt-BR') : 'não definida';
+        filterInfo = `\n\nFiltros aplicados:\n- Data início: ${startDate}\n- Data fim: ${endDate}`;
+    } else {
+        filterInfo = '\n\nSem filtros aplicados (todos os dados).';
+    }
+    
+    // Simular a exportação com uma mensagem detalhada
+    const message = `⚠️ FUNCIONALIDADE EM DESENVOLVIMENTO ⚠️\n\nA exportação de dados não está implementada neste protótipo.\n\nSe estivesse implementada, seria exportado:\n- ${movementsCount} movimentação(ões) atualmente visível(is) na tela${filterInfo}\n\nFormatos que seriam suportados: CSV, Excel, PDF.`;
+    
+    alert(message);
+}
+
 // Initialize dashboard when page loads
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Admin Dashboard loaded successfully');
