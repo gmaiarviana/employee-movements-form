@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Employee Movements</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Admin Dashboard</h1>
+            <p>Painel de administração para gerenciar movimentações de funcionários</p>
+        </div>
+
+        <div class="content">
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>Entradas Recentes</h3>
+                    <p>Visualizar e gerenciar entradas de funcionários</p>
+                    <button class="btn-primary" onclick="viewEntries()">Ver Entradas</button>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Saídas Recentes</h3>
+                    <p>Visualizar e gerenciar saídas de funcionários</p>
+                    <button class="btn-primary" onclick="viewExits()">Ver Saídas</button>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Funcionários Ativos</h3>
+                    <p>Gerenciar funcionários atualmente ativos</p>
+                    <button class="btn-primary" onclick="viewEmployees()">Ver Funcionários</button>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Projetos</h3>
+                    <p>Gerenciar projetos e atribuições</p>
+                    <button class="btn-primary" onclick="viewProjects()">Ver Projetos</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn-secondary" onclick="goHome()">Voltar ao Menu Principal</button>
+        </div>
+    </div>
+
+    <script src="/js/admin-dashboard.js"></script>
+</body>
+</html>

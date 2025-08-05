@@ -44,6 +44,11 @@ app.get('/entry-form', (req, res) => {
     res.sendFile(path.join(__dirname, 'src/public/entry-form.html'));
 });
 
+// Route for admin dashboard page
+app.get('/admin-dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/public/admin-dashboard.html'));
+});
+
 // API route to get team members for a leader
 app.get('/api/employees/:leaderId/team-members', (req, res) => {
     const leaderId = req.params.leaderId;
