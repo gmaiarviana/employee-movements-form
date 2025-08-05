@@ -17,28 +17,7 @@ docker-compose up -d
 
 3. Acesse no navegador: **http://localhost:3000**
 
-## 🔧 Desenvolvimento com Hot Reload
-
-Para desenvolvimento, o sistema agora suporta hot reload automático que reinicia automaticamente quando arquivos são alterados:
-
-```bash
-# Inicia em modo desenvolvimento com hot reload
-docker-compose up
-
-# O servidor reinicia automaticamente quando arquivos backend são alterados
-# Acesse: http://localhost:3000 (aplicação principal)
-# Porta 3001 está disponível para browser-sync se necessário
-```
-
-**Portas utilizadas:**
-- **3000**: Aplicação principal (Express server)
-- **3001**: Browser-sync (se executado separadamente)
-
-**O que reinicia automaticamente:**
-- ✅ Mudanças em `server.js` e arquivos `.js` na raiz
-- ❌ Mudanças em arquivos frontend (`src/public/`) não reiniciam o servidor (por design)
-
-## 📋 Pré-requisitos
+##  Pré-requisitos
 
 - **Docker Desktop**: [Download aqui](https://www.docker.com/products/docker-desktop/)
 - **Git**: Para clonar o repositório
