@@ -7,18 +7,11 @@
   - **Armazenamento Provisório (JSON):** Utilização de arquivos JSON para simular o banco de dados e armazenar as informações.
   - **Resumo da Saída:** Exibição consolidada dos dados da saída antes da confirmação.
 
-## 🎯 Épico 2: Protótipo Estendido - Entrada de Funcionários e Visão Administrativa
-- Objetivo: Ampliar as capacidades do sistema para gerenciar entradas de funcionários e oferecer uma visão consolidada das movimentações, utilizando dados mock para validação inicial.
+## ✅ Épico 2: Protótipo Estendido - Entrada de Funcionários e Visão Administrativa
+- Objetivo: Ampliar as capacidades do sistema para gerenciar entradas de funcionários e oferecer uma visão consolidada das movimentações.
 - Funcionalidades:
-  - **Formulário de Entrada de Funcionários:**
-    - Criação de uma nova página (`/entry-form`) para coletar dados de entrada de funcionários.
-    - Campos específicos para o registro de entrada (dados mock).
-    - Fluxo de navegação com botões "Voltar" e "Continuar" para um resumo.
-  - **Página de Visão do Administrador:**
-    - Desenvolvimento de uma nova página (`/admin-dashboard`) para administradores.
-    - Exibição de um resumo das últimas movimentações (saídas e entradas), utilizando dados mock.
-    - Funcionalidade básica de filtro por mês/data (simulada).
-    - Simulação de um botão "Exportar Dados" (sem exportação real no protótipo).
+  - **Formulário de Entrada de Funcionários:** Página para registro de entrada com dados mock e fluxo de navegação.
+  - **Painel Administrativo:** Dashboard consolidado com visualização de movimentações em formato de tabela, filtros por período de data e simulação de exportação de dados.
 
 ## 🎯 Épico 3: Mínimo Produto Viável (MVP) - Persistência, Autenticação e Relatórios Básicos
 - Objetivo: Transformar o sistema em uma ferramenta funcional e utilizável por usuários selecionados, com persistência real de dados, segurança de acesso e capacidade de gerar relatórios.
