@@ -19,9 +19,11 @@
 ## Page Structure
 
 ### 1. Home Page (`/`)
-- Welcome message
-- Button: "Entrada de Funcionário" (redirects to `/entry-form`)
-- Button: "Saída de Funcionário" (redirects to `/select-employee`)
+- Ponto central de navegação pós-login (simulado)
+- Oferece ao usuário opções para:
+  - Iniciar uma "Nova Entrada" (redirects to `/entry-form`)
+  - Iniciar uma "Nova Saída" (redirects to `/select-employee`)
+  - Acessar a área de "Administrador" (redirects to `/admin-dashboard`)
 
 ### 2. Select Employee (`/select-employee`)
 - Lista dos liderados do usuário logado (Maria Santos)
@@ -63,6 +65,16 @@
 - Displays a summary of all collected entry fields.
 - Buttons: "Voltar" | "Confirmar Entrada"
 - After confirmation: returns to home
+
+### 7. Admin Dashboard (`/admin-dashboard`)
+- Página para administradores visualizarem todas as movimentações do sistema
+- Exibe tabela com entradas e saídas de funcionários ordenadas por data
+- Recursos disponíveis:
+  - Filtro por período (data início e fim)
+  - Botão "Exportar" (simulado)
+  - Navegação para formulários: "Nova Entrada" e "Nova Saída"
+- Colunas da tabela: Data, Tipo, Funcionário, Detalhes
+- Redirects to: `/entry-form` ou `/select-employee`
 
 ## Data Schema
 
@@ -178,10 +190,12 @@ Retorna dados completos para o resumo
 │   ├── data/
 │   │   ├── employees.json
 │   │   ├── entries.json
+│   │   ├── exits.json
 │   │   ├── projects.json
 │   │   └── employee_projects.json  
 │   └── public/
 │       ├── index.html
+│       ├── admin-dashboard.html
 │       ├── select-employee.html
 │       ├── entry-form.html
 │       ├── exit-form.html
@@ -191,6 +205,7 @@ Retorna dados completos para o resumo
 │       │   └── styles.css
 │       └── js/
 │           ├── home.js
+│           ├── admin-dashboard.js
 │           ├── select-employee.js
 │           ├── entry-form.js
 │           ├── exit-form.js
@@ -200,12 +215,13 @@ Retorna dados completos para o resumo
 
 ## Data Flow Between Pages
 
-1. **Home → Select Employee**: Nenhum parâmetro
-2. **Select Employee → Exit Form**: `?employeeId=EMP002`
-3. **Exit Form → Summary**: `?employeeId=EMP002&exitDate=2025-08-15&reason=Nova%20oportunidade&replacement=sim&machineId=TOMB001`
-4. **Summary → Home**: Reset após confirmação
-5. **Home → Entry Form**: No parameters
-6. **Entry Form → Summary Entry**: Example: `?fullName=Novo%20Funcionario%20Exemplo&cpf=123.456.789-00&email=novo.exemplo%40company.com&instituteName=Instituto%20XYZ&complianceTraining=sim&billable=sim&startDate=2025-01-01&role=Desenvolvedor%20Junior&projectName=Projeto%20Novo%20HP`
+1. **Home → Select Employee**: No parameters (para nova saída)
+2. **Home → Entry Form**: No parameters (para nova entrada)
+3. **Home → Admin Dashboard**: No parameters (para área administrativa)
+4. **Select Employee → Exit Form**: `?employeeId=EMP002`
+5. **Exit Form → Summary**: `?employeeId=EMP002&exitDate=2025-08-15&reason=Nova%20oportunidade&replacement=sim&machineId=TOMB001`
+6. **Summary → Home**: Reset após confirmação
+7. **Entry Form → Summary Entry**: Example: `?fullName=Novo%20Funcionario%20Exemplo&cpf=123.456.789-00&email=novo.exemplo%40company.com&instituteName=Instituto%20XYZ&complianceTraining=sim&billable=sim&startDate=2025-01-01&role=Desenvolvedor%20Junior&projectName=Projeto%20Novo%20HP`
 
 ## Docker Configuration
 
