@@ -1,7 +1,7 @@
 // Admin Dashboard functionality
 
 // Função para carregar e exibir movimentações
-async function loadMovements() {
+async function loadMovements(startDate = null, endDate = null) {
     const loadingElement = document.getElementById('movements-loading');
     const errorElement = document.getElementById('movements-error');
     const listElement = document.getElementById('movements-list');
@@ -19,7 +19,12 @@ async function loadMovements() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const movements = await response.json();
+        let movements = await response.json();
+        
+        // Aplicar filtro por data no frontend
+        if (startDate || endDate) {
+            movements = filterMovementsByDate(movements, startDate, endDate);
+        }
         
         // Esconder loading
         loadingElement.style.display = 'none';
@@ -88,6 +93,45 @@ function viewProjects() {
 
 function goHome() {
     window.location.href = '/';
+}
+
+// Função para filtrar movimentações por data
+function filterMovementsByDate(movements, startDate, endDate) {
+    return movements.filter(movement => {
+        const movementDate = new Date(movement.date);
+        
+        // Se startDate estiver definida, verificar se a data da movimentação é >= startDate
+        if (startDate) {
+            const start = new Date(startDate);
+            start.setHours(0, 0, 0, 0); // Início do dia
+            if (movementDate < start) {
+                return false;
+            }
+        }
+        
+        // Se endDate estiver definida, verificar se a data da movimentação é <= endDate
+        if (endDate) {
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999); // Final do dia
+            if (movementDate > end) {
+                return false;
+            }
+        }
+        
+        return true;
+    }).sort((a, b) => new Date(b.date) - new Date(a.date)); // Manter ordenação cronológica (mais recente primeiro)
+}
+
+// Função chamada pelo botão filtrar
+function filterMovements() {
+    const startDateInput = document.getElementById('start-date');
+    const endDateInput = document.getElementById('end-date');
+    
+    const startDate = startDateInput.value || null;
+    const endDate = endDateInput.value || null;
+    
+    // Carregar movimentações com os filtros aplicados
+    loadMovements(startDate, endDate);
 }
 
 // Initialize dashboard when page loads

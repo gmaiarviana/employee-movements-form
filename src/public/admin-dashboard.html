@@ -17,6 +17,22 @@
             <!-- Seção de Movimentações Consolidadas -->
             <div class="movements-section">
                 <h2>Movimentações Recentes</h2>
+                
+                <!-- Filtros por Data -->
+                <div class="date-filter-section">
+                    <div class="date-filters">
+                        <div class="date-input-group">
+                            <label for="start-date">Data Início:</label>
+                            <input type="date" id="start-date" name="start-date">
+                        </div>
+                        <div class="date-input-group">
+                            <label for="end-date">Data Fim:</label>
+                            <input type="date" id="end-date" name="end-date">
+                        </div>
+                        <button class="btn-primary" id="filter-btn" onclick="filterMovements()">Filtrar</button>
+                    </div>
+                </div>
+                
                 <div id="movements-loading" class="loading-message" style="display: none;">
                     Carregando movimentações...
                 </div>
