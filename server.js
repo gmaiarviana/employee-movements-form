@@ -5,6 +5,9 @@ const fs = require('fs');
 const app = express();
 const PORT = 3000;
 
+// Middleware to parse JSON bodies
+app.use(express.json());
+
 // Helper function to read JSON files
 function readJSONFile(filePath) {
     try {
@@ -144,6 +147,80 @@ app.get('/api/employees/:id/details', (req, res) => {
     }
     
     res.json(response);
+});
+
+// API route to get consolidated movements data
+app.get('/api/movements', (req, res) => {
+    // Load JSON data files
+    const employees = readJSONFile(path.join(__dirname, 'src/data/employees.json'));
+    const projects = readJSONFile(path.join(__dirname, 'src/data/projects.json'));
+    const entries = readJSONFile(path.join(__dirname, 'src/data/entries.json'));
+    const exits = readJSONFile(path.join(__dirname, 'src/data/exits.json'));
+    
+    if (!employees || !projects || !entries || !exits) {
+        return res.status(500).json({ error: 'Error loading data files' });
+    }
+    
+    const movements = [];
+    
+    // Process entries
+    if (entries.length > 0) {
+        entries.forEach(entry => {
+            const employee = employees.employees.find(emp => emp.id === entry.employeeId);
+            let project = null;
+            let details = 'Entrada';
+            
+            if (entry.projectId) {
+                project = projects.projects.find(proj => proj.id === entry.projectId);
+                details = project 
+                    ? `Entrada como ${entry.role || employee?.role || 'Funcionário'} no Projeto ${project.name}`
+                    : `Entrada como ${entry.role || employee?.role || 'Funcionário'} - Projeto Não Encontrado`;
+            } else {
+                details = `Entrada como ${entry.role || employee?.role || 'Funcionário'} - Não atribuído`;
+            }
+            
+            movements.push({
+                type: 'entrada',
+                date: entry.date || entry.startDate,
+                employeeName: employee ? employee.name : 'Funcionário não encontrado',
+                details: details
+            });
+        });
+    }
+    
+    // Process exits
+    if (exits.length > 0) {
+        exits.forEach(exit => {
+            const employee = employees.employees.find(emp => emp.id === exit.employeeId);
+            let project = null;
+            let details = 'Saída';
+            
+            if (exit.projectId) {
+                project = projects.projects.find(proj => proj.id === exit.projectId);
+                details = project 
+                    ? `Saída por ${exit.reason || 'Motivo não especificado'} do Projeto ${project.name}`
+                    : `Saída por ${exit.reason || 'Motivo não especificado'} - Projeto Não Encontrado`;
+            } else {
+                details = `Saída por ${exit.reason || 'Motivo não especificado'} - Não atribuído`;
+            }
+            
+            movements.push({
+                type: 'saida',
+                date: exit.date || exit.exitDate,
+                employeeName: employee ? employee.name : 'Funcionário não encontrado',
+                details: details
+            });
+        });
+    }
+    
+    // Sort movements chronologically (oldest to newest)
+    movements.sort((a, b) => {
+        const dateA = new Date(a.date || '1970-01-01');
+        const dateB = new Date(b.date || '1970-01-01');
+        return dateA - dateB;
+    });
+    
+    res.json(movements);
 });
 
 app.listen(PORT, () => {
