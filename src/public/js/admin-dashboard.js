@@ -4,13 +4,13 @@
 async function loadMovements(startDate = null, endDate = null) {
     const loadingElement = document.getElementById('movements-loading');
     const errorElement = document.getElementById('movements-error');
-    const listElement = document.getElementById('movements-list');
+    const tableBodyElement = document.getElementById('movements-table-body');
     
     try {
         // Mostrar loading
         loadingElement.style.display = 'block';
         errorElement.style.display = 'none';
-        listElement.innerHTML = '';
+        tableBodyElement.innerHTML = '';
         
         // Fazer requisição para a API
         const response = await fetch('/api/movements');
@@ -31,11 +31,11 @@ async function loadMovements(startDate = null, endDate = null) {
         
         // Verificar se há movimentações
         if (movements.length === 0) {
-            listElement.innerHTML = '<p class="no-movements">Nenhuma movimentação encontrada.</p>';
+            tableBodyElement.innerHTML = '<tr><td colspan="4" class="no-movements">Nenhuma movimentação encontrada.</td></tr>';
             return;
         }
         
-        // Criar HTML para as movimentações
+        // Criar HTML para as movimentações como linhas da tabela
         const movementsHTML = movements.map(movement => {
             const typeClass = movement.type === 'entry' ? 'movement-entry' : 'movement-exit';
             const typeText = movement.type === 'entry' ? 'Entrada' : 'Saída';
@@ -48,20 +48,16 @@ async function loadMovements(startDate = null, endDate = null) {
             });
             
             return `
-                <div class="movement-item ${typeClass}">
-                    <div class="movement-header">
-                        <span class="movement-type">${typeText}</span>
-                        <span class="movement-date">${formattedDate}</span>
-                    </div>
-                    <div class="movement-info">
-                        <strong>${movement.employeeName}</strong>
-                        ${movement.details ? `<p class="movement-details">${movement.details}</p>` : ''}
-                    </div>
-                </div>
+                <tr class="movement-row">
+                    <td class="movement-date">${formattedDate}</td>
+                    <td class="movement-type ${typeClass}">${typeText}</td>
+                    <td class="movement-employee">${movement.employeeName}</td>
+                    <td class="movement-details">${movement.details || '-'}</td>
+                </tr>
             `;
         }).join('');
         
-        listElement.innerHTML = movementsHTML;
+        tableBodyElement.innerHTML = movementsHTML;
         
     } catch (error) {
         console.error('Erro ao carregar movimentações:', error);
@@ -69,26 +65,6 @@ async function loadMovements(startDate = null, endDate = null) {
         errorElement.style.display = 'block';
         errorElement.textContent = `Erro ao carregar movimentações: ${error.message}`;
     }
-}
-
-function viewEntries() {
-    // TODO: Implementar visualização de entradas
-    alert('Funcionalidade de visualizar entradas será implementada em breve');
-}
-
-function viewExits() {
-    // TODO: Implementar visualização de saídas
-    alert('Funcionalidade de visualizar saídas será implementada em breve');
-}
-
-function viewEmployees() {
-    // TODO: Implementar visualização de funcionários
-    alert('Funcionalidade de visualizar funcionários será implementada em breve');
-}
-
-function viewProjects() {
-    // TODO: Implementar visualização de projetos
-    alert('Funcionalidade de visualizar projetos será implementada em breve');
 }
 
 function goHome() {
@@ -138,10 +114,10 @@ function filterMovements() {
 function exportData() {
     const startDateInput = document.getElementById('start-date');
     const endDateInput = document.getElementById('end-date');
-    const movementsList = document.getElementById('movements-list');
+    const tableBody = document.getElementById('movements-table-body');
     
-    // Verificar se há movimentações visíveis na tela
-    const visibleMovements = movementsList.querySelectorAll('.movement-item');
+    // Verificar se há movimentações visíveis na tabela
+    const visibleMovements = tableBody.querySelectorAll('.movement-row');
     const movementsCount = visibleMovements.length;
     
     // Preparar informações sobre os filtros aplicados
@@ -155,7 +131,7 @@ function exportData() {
     }
     
     // Simular a exportação com uma mensagem detalhada
-    const message = `⚠️ FUNCIONALIDADE EM DESENVOLVIMENTO ⚠️\n\nA exportação de dados não está implementada neste protótipo.\n\nSe estivesse implementada, seria exportado:\n- ${movementsCount} movimentação(ões) atualmente visível(is) na tela${filterInfo}\n\nFormatos que seriam suportados: CSV, Excel, PDF.`;
+    const message = `⚠️ FUNCIONALIDADE EM DESENVOLVIMENTO ⚠️\n\nA exportação de dados não está implementada neste protótipo.\n\nSe estivesse implementada, seria exportado:\n- ${movementsCount} movimentação(ões) atualmente visível(is) na tabela${filterInfo}\n\nFormatos que seriam suportados: CSV, Excel, PDF.`;
     
     alert(message);
 }

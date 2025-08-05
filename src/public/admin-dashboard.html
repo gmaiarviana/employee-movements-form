@@ -40,36 +40,24 @@
                 <div id="movements-error" class="error-message" style="display: none;">
                     Erro ao carregar movimentações. Tente novamente.
                 </div>
-                <div id="movements-list" class="movements-container">
-                    <!-- As movimentações serão carregadas aqui via JavaScript -->
+                <div class="movements-container">
+                    <table id="movements-table" class="movements-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Funcionário</th>
+                                <th>Detalhes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movements-table-body">
+                            <!-- As movimentações serão carregadas aqui via JavaScript -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div class="dashboard-grid">
-                <div class="dashboard-card">
-                    <h3>Entradas Recentes</h3>
-                    <p>Visualizar e gerenciar entradas de funcionários</p>
-                    <button class="btn-primary" onclick="viewEntries()">Ver Entradas</button>
-                </div>
 
-                <div class="dashboard-card">
-                    <h3>Saídas Recentes</h3>
-                    <p>Visualizar e gerenciar saídas de funcionários</p>
-                    <button class="btn-primary" onclick="viewExits()">Ver Saídas</button>
-                </div>
-
-                <div class="dashboard-card">
-                    <h3>Funcionários Ativos</h3>
-                    <p>Gerenciar funcionários atualmente ativos</p>
-                    <button class="btn-primary" onclick="viewEmployees()">Ver Funcionários</button>
-                </div>
-
-                <div class="dashboard-card">
-                    <h3>Projetos</h3>
-                    <p>Gerenciar projetos e atribuições</p>
-                    <button class="btn-primary" onclick="viewProjects()">Ver Projetos</button>
-                </div>
-            </div>
         </div>
 
         <div class="actions">
