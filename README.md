@@ -1,84 +1,53 @@
-# Employee Movements System - React + Node.js
+# Employee Movements System
 
-Sistema para registrar movimentações de funcionários (entradas e saídas) com interface React e APIs Node.js.
+Sistema web para registro de movimentações de funcionários (entradas e saídas).
 
-## 🏗️ Arquitetura
+## � Funcionalidades
 
-- **Frontend**: React + Vite (Port 3001)
-- **Backend**: Node.js + Express APIs (Port 3000)
-- **Dados**: Arquivos JSON (simulação de banco)
-- **Infraestrutura**: Docker multi-serviço
+- **Registro de Saída**: Formulário para registrar saída de funcionários
+- **Registro de Entrada**: Formulário para registrar entrada de novos funcionários  
+- **Dashboard Admin**: Visualização de todas as movimentações registradas
+- **Interface Responsiva**: Design adaptativo para diferentes dispositivos
 
-## 🚀 Como executar
+## � Configuração de Environment Variables
 
-1. Clone o repositório:
+Copie os arquivos de exemplo:
 ```bash
-git clone https://guilherme_viana1@bitbucket.org/institutoatlantico/employee-movements-form.git
-cd employee-movements-form
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
 ```
+Ajuste as variáveis conforme necessário para seu ambiente.
 
-2. Execute com Docker:
+## �🚀 Como executar
+
+### Pré-requisitos
+- Docker Desktop instalado
+- Ou Node.js 18+ para execução local
+
+### Com Docker (Recomendado)
 ```bash
+git clone <repository-url>
+cd employee-movements-form
 docker-compose up -d --build
 ```
 
-3. Acesse no navegador: **http://localhost:3001**
+Acesse: http://localhost:3001
 
-## 🌐 URLs Disponíveis
+### Execução Local
+```bash
+# Terminal 1 - Backend
+cd backend
+npm install
+npm run dev
 
-- **Frontend React**: http://localhost:3001
-- **Backend APIs**: http://localhost:3000/api/*
-
-## 📋 Pré-requisitos
-
-- **Docker Desktop**: [Download aqui](https://www.docker.com/products/docker-desktop/)
-- **Git**: Para clonar o repositório
-
-## 🎯 Como usar
-
-### Para Saída de Funcionário:
-1. Na página inicial, clique em "Nova Saída"
-2. Selecione o funcionário da lista de subordinados
-3. Preencha o formulário de saída:
-   - Data de saída
-   - Motivo da saída
-   - Haverá replacement? (sim/não)
-   - Tombo da máquina
-4. Revise o resumo e confirme
-
-### Para Entrada de Funcionário:
-1. Na página inicial, clique em "Nova Entrada"  
-2. Preencha o formulário com dados do novo funcionário:
-   - Nome completo, CPF, email
-   - Instituto, papel profissional
-   - Projeto HP, data de início
-   - Treinamento compliance, faturável
-3. Revise o resumo e confirme
-
-### Para Área Administrativa:
-1. Na página inicial, clique em "Administrador"
-2. Visualize tabela com todas as movimentações
-3. Use filtros por período
-4. Export dados (simulado)
+# Terminal 2 - Frontend
+cd frontend  
+npm install
+npm run dev
+```
 
 ## 🛑 Como parar
 
 ```bash
 docker-compose down
 ```
-
-## 🧪 Dados disponíveis para teste
-
-- **Usuário**: Maria Santos (líder)
-- **Funcionários**: João Silva, Ana Costa, Carlos Oliveira, Fernanda Lima, Roberto Ferreira, e outros
-- **Projetos**: Sistema ERP
-
-## ❓ Problemas?
-
-Se não conseguir acessar:
-- Verifique se o Docker Desktop está rodando
-- Execute `docker-compose up -d --build` para rebuild
-- Aguarde alguns segundos após subir os serviços
-- Certifique-se que as portas 3000 e 3001 estão livres
-- Frontend React: http://localhost:3001
-- APIs Backend: http://localhost:3000/api/*

@@ -13,67 +13,12 @@
   - **Formulário de Entrada de Funcionários:** Página para registro de entrada com dados mock e fluxo de navegação.
   - **Painel Administrativo:** Dashboard consolidado com visualização de movimentações em formato de tabela, filtros por período de data e simulação de exportação de dados.
 
-## 🎯 Épico 3: Interface Moderna e Design System
-
-Modernizar a interface com tecnologias atuais e estabelecer um design system consistente.
-
-### ✅ 3.1 Migração da Arquitetura Frontend
-
-**CONCLUÍDO** - Migração completa de HTML/CSS/JS vanilla para Vite + React + React Router. 7 componentes criados, Docker otimizado, documentação atualizada.
-
-### ✅ 3.2 Design System Básico
-
-**CONCLUÍDO** - Sistema de design implementado com tokens centralizados, 6 componentes base (Button, Input, Card, Container, Header, FormGroup), CSS responsivo e documentação completa.
-
-### ✅ 3.3 Interface Responsiva e Moderna
-
-**CONCLUÍDO** - Design system avançado com responsividade completa, dark mode automático, sistema de elevação com sombras, transições suaves e breakpoints mobile-first implementados em todos os componentes UI.
-
-### 3.4 Reorganização da Arquitetura
-
-Separar frontend e backend completamente, preparar para PostgreSQL futuro.
-
-**Critérios de Aceite:**
-- Frontend (React/Vite) e Backend (Express) independentes
-- Estrutura organizada: `/frontend`, `/backend`
-- Backend serve apenas APIs RESTful
-- Docker-compose com serviços separados
-- Configuração via environment variables
-- Hot reload independente para F/B
-- Estrutura preparada para substituição JSON → PostgreSQL
-- Frontend em porta independente consumindo APIs do backend
-- ARCHITECTURE.md e DEVELOPMENT_GUIDELINES.md atualizados
-
-**Plano de Implementação:**
-
-#### ✅ 3.4.1 Reestruturação de Pastas
-**CONCLUÍDO** - Estrutura organizada com `/frontend` e `/backend` independentes.
-- ✅ Criar estrutura de pastas separada
-- ✅ Mover código React/Vite para `/frontend`
-- ✅ Mover código Express para `/backend`
-- ✅ Ajustar imports e configurações
-- ✅ Mover dados JSON para `/backend/data`
-- ✅ Remover arquivos duplicados da raiz
-
-#### ✅ 3.4.2 Separação Completa de Responsabilidades
-**CONCLUÍDO** - Backend servindo APENAS APIs RESTful, frontend completamente independente.
-- ✅ Remover servir arquivos estáticos do Express
-- ✅ Configurar CORS adequadamente para produção
-- ✅ Garantir comunicação exclusiva via APIs
-- ✅ Validar independência de portas (Frontend: 3001, Backend: 3000)
-- ✅ Middleware para rejeitar requisições não-API
-- ✅ Configuração de environment variables
-
-#### 3.4.3 Environment Variables Básico
-**Objetivo:** Configuração mínima via variáveis de ambiente para o MVP.
-- Implementar configuração básica via `.env`
-- Configurar URLs de API dinamicamente
-- Ajustar configuração Docker básica
-
-#### 3.4.4 Documentação Atualizada
-**Objetivo:** Atualizar documentação com nova estrutura.
-- Atualizar ARCHITECTURE.md
-- Atualizar DEVELOPMENT_GUIDELINES.md
+## ✅ Épico 3: Interface Moderna e Design System
+- Objetivo: Modernizar a interface com tecnologias atuais e estabelecer arquitetura separada frontend/backend.
+- Funcionalidades:
+  - **Migração React + Vite:** Conversão completa de HTML vanilla para React 18 com Vite, 7 componentes criados e React Router.
+  - **Design System:** Sistema de tokens centralizados, componentes reutilizáveis, responsividade mobile-first e dark mode automático.
+  - **Arquitetura Separada:** Frontend (porta 3001) e backend (porta 3000) independentes, APIs RESTful exclusivas, environment variables configuradas.
 
 ---
 
