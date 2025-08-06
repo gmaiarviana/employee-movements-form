@@ -7,26 +7,40 @@ const Home = () => {
   return (
     <>
       <Header 
-        title="Sistema de Saída de Funcionários" 
-        variant="secondary"
+        title="Sistema de Gestão de Funcionários" 
+        variant="primary"
         className="home-header"
+        sticky={false}
       />
       
       <main>
         <Container className="home-container">
-          <h2>Bem-vindo ao Sistema de Gestão de Saída de Funcionários</h2>
-          <p>Este sistema permite gerenciar o processo de saída de funcionários de forma eficiente e organizada.</p>
+          <div className="header">
+            <h2>Bem-vindo ao Sistema de Gestão de Funcionários</h2>
+            <p>Este sistema permite gerenciar o processo de entrada e saída de funcionários de forma eficiente e organizada.</p>
+          </div>
           
-          <div className="home-buttons">
-            <Link to="/entry-form" style={{ textDecoration: 'none' }}>
-              <Button variant="primary">Entrada de Funcionário</Button>
-            </Link>
-            <Link to="/select-employee" style={{ textDecoration: 'none' }}>
-              <Button variant="primary">Saída de Funcionário</Button>
-            </Link>
-            <Link to="/admin-dashboard" style={{ textDecoration: 'none' }}>
-              <Button variant="primary">Visão do Administrador</Button>
-            </Link>
+          <div className="content">
+            <div className="home-buttons">
+              <Link to="/entry-form" style={{ textDecoration: 'none' }}>
+                <Button variant="primary">
+                  <span>📋</span>
+                  Entrada de Funcionário
+                </Button>
+              </Link>
+              <Link to="/select-employee" style={{ textDecoration: 'none' }}>
+                <Button variant="primary">
+                  <span>👋</span>
+                  Saída de Funcionário
+                </Button>
+              </Link>
+              <Link to="/admin-dashboard" style={{ textDecoration: 'none' }}>
+                <Button variant="secondary">
+                  <span>📊</span>
+                  Visão do Administrador
+                </Button>
+              </Link>
+            </div>
           </div>
         </Container>
       </main>

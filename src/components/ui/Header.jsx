@@ -1,11 +1,10 @@
 import React from 'react';
 import './Header.css';
-import Container from './Container';
 
 /**
  * Header Component
  * 
- * A standard application header component with support for title and actions
+ * A clean and simple application header component
  * following the design system tokens.
  * 
  * @param {Object} props - Component props
@@ -41,22 +40,22 @@ const Header = ({
 
   return (
     <header className={headerClasses} {...rest}>
-      <Container size="full" fluid>
-        <div className="header__content">
-          <div className="header__left">
-            {leftContent}
-            {!children && title && <h1 className="header__title">{title}</h1>}
-          </div>
-          
-          {children && <div className="header__center">{children}</div>}
-          
-          {rightContent && (
-            <div className="header__right">
+      <div className="header__content">
+        <div className="header__left">
+          {leftContent}
+          {!children && title && <h1 className="header__title">{title}</h1>}
+        </div>
+        
+        {children && <div className="header__center">{children}</div>}
+        
+        {rightContent && (
+          <div className="header__right">
+            <div className="header__actions">
               {rightContent}
             </div>
-          )}
-        </div>
-      </Container>
+          </div>
+        )}
+      </div>
     </header>
   );
 };

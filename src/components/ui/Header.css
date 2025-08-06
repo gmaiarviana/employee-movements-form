@@ -1,4 +1,4 @@
-/* Header Component Styles - Using Design System Tokens */
+/* Header Component Styles - Clean Simple Design */
 
 .header {
   width: 100%;
@@ -27,27 +27,123 @@
   top: 0;
 }
 
-/* Header content layout */
+/* Header content layout - Clean and Simple */
 .header__content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--spacing-4);
+  padding: 0 var(--spacing-md);
+  max-width: var(--container-2xl);
+  margin: 0 auto;
+  gap: var(--spacing-md);
 }
 
 .header__left {
   display: flex;
   align-items: center;
-  gap: var(--spacing-4);
+  gap: var(--spacing-md);
   flex: 1;
+  min-width: 0;
 }
 
 .header__center {
-  flex: 2;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.header__right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.header__title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+  color: inherit;
+  text-align: center;
+  width: 100%;
+}
+
+/* Actions */
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* Mobile responsive styles */
+@media (max-width: 29.9375rem) { /* Small mobile */
+  .header {
+    padding: var(--spacing-3) 0;
+  }
+  
+  .header__content {
+    padding: 0 var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .header__title {
+    font-size: var(--font-size-lg);
+  }
+}
+
+/* Mobile - 480px+ */
+@media (min-width: var(--breakpoint-mobile)) {
+  .header__title {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .header__content {
+    padding: 0 var(--spacing-lg);
+    gap: var(--spacing-lg);
+  }
+}
+
+/* Tablet+ Responsive Styles */
+@media (min-width: var(--breakpoint-tablet)) {
+  .header__content {
+    padding: 0 var(--spacing-xl);
+    gap: var(--spacing-xl);
+  }
+
+  .header__title {
+    font-size: var(--font-size-h1);
+  }
+}
+
+/* Desktop+ Responsive Styles */
+@media (min-width: var(--breakpoint-desktop)) {
+  .header__content {
+    padding: 0 var(--spacing-2xl);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .header--secondary {
+    background-color: var(--color-background-secondary);
+    border-bottom-color: var(--color-border);
+  }
+}
+
+/* Print styles */
+@media print {
+  .header {
+    background: transparent !important;
+    color: var(--color-text-primary) !important;
+    border-bottom: var(--border-width-1) solid var(--color-text-primary) !important;
+    box-shadow: none !important;
+    padding: var(--spacing-2) 0;
+  }
+  
+  .header--sticky {
+    position: static;
+  }
+}
 }
 
 .header__right {
