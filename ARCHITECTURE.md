@@ -254,26 +254,27 @@ Retorna dados completos para o resumo
 ## Design System Architecture
 
 ### Design Tokens (`design-tokens.css`)
-Centralized design system variables for consistent visual identity:
-- **Colors**: Primary, secondary, success, warning, danger, and neutral color palettes (50-950 scale)
-- **Typography**: Font families, sizes, weights, and line heights
-- **Spacing**: Consistent spacing scale (0.5rem to 4rem)
-- **Border Radius**: Standardized border radius values
-- **Shadows**: Box shadow definitions for depth
-- **Breakpoints**: Responsive design breakpoints (sm, md, lg, xl, 2xl)
+Sistema centralizado de variáveis CSS para consistência visual:
+- **Colors**: Paletas completas (50-950) + aliases semânticos
+- **Typography**: Famílias, tamanhos, pesos e line-heights
+- **Spacing**: Grid 4px com aliases semânticos
+- **Breakpoints**: Mobile (480px), tablet (768px), desktop (1024px), wide (1440px)
+- **Shadows**: 6 níveis de elevação + focus shadow
+- **Transitions**: Durações, easing e padrões comuns
+- **Dark mode**: Suporte automático via prefers-color-scheme
 
 ### UI Component System
-Reusable components following atomic design principles:
-- **Atoms**: Button, Input (base interactive elements)
-- **Molecules**: FormGroup, Card components (combinations of atoms)
-- **Organisms**: Header, Container (complex UI sections)
-- **Documentation**: Each component has corresponding example files for usage reference
+Reusable components following atomic design:
+- **Atoms**: Button, Input
+- **Molecules**: FormGroup, Card
+- **Organisms**: Header, Container
 
 ### CSS Architecture
 - **Global Styles**: Base styles in `index.css` and `styles.css`
 - **Component Styles**: Scoped CSS files for each UI component
-- **Design Tokens**: CSS custom properties for consistency
-- **Responsive Design**: Mobile-first approach with consistent breakpoints
+- **Design Tokens**: CSS custom properties via `design-tokens.css`
+- **Responsive**: Mobile-first with breakpoints (320px to 1920px+)
+- **Modern Features**: Dark mode, focus management, smooth transitions
 
 ## Data Flow Between Components
 

@@ -111,7 +111,7 @@ Critério de Aceite:
 ### **Simples e Funcional**
 - Foco na funcionalidade sobre otimização
 - Arquivos JSON para dados (POC/Protótipo)
-- HTML/CSS/JS vanilla para interface
+- React + Vite para interface moderna
 
 ## Regras Fundamentais
 
