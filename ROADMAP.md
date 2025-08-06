@@ -14,13 +14,67 @@
   - **Painel Administrativo:** Dashboard consolidado com visualização de movimentações em formato de tabela, filtros por período de data e simulação de exportação de dados.
 
 ## 🎯 Épico 3: Interface Moderna e Design System
-- Objetivo: Modernizar a interface do usuário com tecnologias atuais e estabelecer um design system consistente.
-- Funcionalidades:
-  - **Migração para Vite + React/Vue:** Transição da arquitetura atual para um framework moderno utilizando Vite como bundler.
-  - **Design System Básico:** Implementação de componentes reutilizáveis e padronizados para garantir consistência visual.
-  - **Interface Responsiva e Moderna:** Desenvolvimento de uma interface adaptativa que funcione bem em diferentes dispositivos e tamanhos de tela.
-  - **Reorganização da Arquitetura:** Separação clara entre frontend e backend, com Express focado exclusivamente em APIs e Vite gerenciando o frontend. Reestruturação de pastas para facilitar desenvolvimento futuro e preparar o terreno para integração com PostgreSQL no próximo épico.
-  - **Manter Funcionalidades Existentes:** Preservar todas as funcionalidades já implementadas, focando apenas na melhoria da experiência visual e de usabilidade.
+
+Modernizar a interface com tecnologias atuais e estabelecer um design system consistente.
+
+### 3.1 Migração da Arquitetura Frontend
+
+Migrar de HTML/CSS/JS vanilla para Vite + React mantendo todas as funcionalidades.
+
+**Critérios de Aceite:**
+- Vite configurado como bundler principal
+- Todos os componentes convertidos para React funcionais
+- React Router substituindo navegação HTML
+- Hot reload funcionando
+- Build de produção (`npm run build`) gerando bundle otimizado
+- Todas as funcionalidades atuais funcionando identicamente
+- APIs `/api/*` mantidas sem alterações
+- Docker-compose atualizado para nova arquitetura
+- ARCHITECTURE.md atualizado
+
+### 3.2 Design System Básico
+
+Criar componentes reutilizáveis e tokens de design para uniformidade visual.
+
+**Critérios de Aceite:**
+- Tokens definidos (cores, tipografia, espaçamentos, breakpoints)
+- Componentes base criados: Button, Input, Select, Card, Modal
+- Layout components: Header, Container, FormGroup
+- Todos os elementos seguem padrão visual consistente
+- Componentes responsivos (desktop, tablet, mobile)
+- CSS organizado com variáveis centralizadas
+- Documentação dos componentes acessível
+
+### 3.3 Interface Responsiva e Moderna
+
+Redesenhar interfaces com visual moderno e foco na experiência do usuário.
+
+**Critérios de Aceite:**
+- Visual moderno (cards, sombras, espaçamentos adequados)
+- Mobile first - otimizado para dispositivos móveis primeiro
+- Funciona em telas de 320px até 1920px+
+- Microinterações (hover, focus, loading states)
+- Acessibilidade básica (contraste, navegação teclado, labels)
+- Transições suaves, sem flicker no carregamento
+- Linguagem visual consistente em todas as 7 páginas
+- Lighthouse Score > 90 para acessibilidade e performance
+
+### 3.4 Reorganização da Arquitetura
+
+Separar frontend e backend completamente, preparar para PostgreSQL futuro.
+
+**Critérios de Aceite:**
+- Frontend (React/Vite) e Backend (Express) independentes
+- Estrutura organizada: `/frontend`, `/backend`
+- Backend serve apenas APIs RESTful
+- Docker-compose com serviços separados
+- Configuração via environment variables
+- Hot reload independente para F/B
+- Estrutura preparada para substituição JSON → PostgreSQL
+- Frontend em porta independente consumindo APIs do backend
+- ARCHITECTURE.md e DEVELOPMENT_GUIDELINES.md atualizados
+
+---
 
 ## 🔮 Épico 4: Mínimo Produto Viável (MVP) - Persistência, Autenticação e Relatórios Básicos
 - Objetivo: Transformar o sistema em uma ferramenta funcional e utilizável por usuários selecionados, com persistência real de dados, segurança de acesso e capacidade de gerar relatórios.
