@@ -6,6 +6,7 @@
 - **Data**: JSON files (mock database)
 - **Infrastructure**: Docker (multi-service)
 - **Ports**: Frontend (3001), Backend APIs (3000)
+- **Styling**: Simplified CSS design system (design-system.css)
 
 ## System Architecture
 
@@ -29,19 +30,17 @@
 - **SummaryEntry.jsx**: Entry process summary and confirmation
 - **AdminDashboard.jsx**: Administrative dashboard for viewing all movements
 
-### UI Design System Components
-- **Button.jsx**: Reusable button component with variants (primary, secondary, danger)
-- **Input.jsx**: Form input component with consistent styling and validation states
-- **Card.jsx**: Container component with CardHeader, CardContent, and CardFooter sub-components
-- **Container.jsx**: Layout wrapper component for consistent spacing and max-width
-- **Header.jsx**: Page header component with title and variant support
-- **FormGroup.jsx**: Form field wrapper with label, input, and error message support
+### UI Styling Approach
+- **design-system.css**: Unified CSS design system focused on desktop web usage
+- **Inline styles**: Used for critical styling (header contrast) to override CSS conflicts
+- **Class-based styling**: Form fields, buttons, and layout components use consistent CSS classes
 
-### Component Usage Pattern
-All UI components are centrally exported from `components/ui/index.js` and imported as:
-```jsx
-import { Button, Input, Card, Container, Header, FormGroup } from '../components/ui'
-```
+### Current Styling Pattern
+Components use direct CSS classes from design-system.css:
+- `.btn`, `.btn--primary`, `.btn--secondary` for buttons
+- `.form-field`, `.form-label`, `.form-group` for forms  
+- `.header`, `.container`, `.main-content` for layout
+- `.radio-group`, `.radio-item` for radio button styling
 
 ### 1. Home Component (`/`)
 - Central navigation hub post-login (simulated)
@@ -212,37 +211,15 @@ Retorna dados completos para o resumo
 ├── src/
 │   ├── main.jsx
 │   ├── App.jsx
-│   ├── App.css
-│   ├── index.css
-│   ├── styles.css
-│   ├── design-tokens.css
+│   ├── design-system.css
 │   ├── components/
 │   │   ├── Home.jsx
-│   │   ├── Home.css
 │   │   ├── SelectEmployee.jsx
 │   │   ├── EntryForm.jsx
 │   │   ├── ExitForm.jsx
 │   │   ├── Summary.jsx
 │   │   ├── SummaryEntry.jsx
-│   │   ├── AdminDashboard.jsx
-│   │   └── ui/
-│   │       ├── index.js
-│   │       ├── Button.jsx
-│   │       ├── Button.css
-│   │       ├── ButtonExamples.jsx
-│   │       ├── Input.jsx
-│   │       ├── Input.css
-│   │       ├── InputExamples.jsx
-│   │       ├── Card.jsx
-│   │       ├── Card.css
-│   │       ├── CardExamples.jsx
-│   │       ├── Container.jsx
-│   │       ├── Container.css
-│   │       ├── Header.jsx
-│   │       ├── Header.css
-│   │       ├── FormGroup.jsx
-│   │       ├── FormGroup.css
-│   │       └── UIComponentsExamples.jsx
+│   │   └── AdminDashboard.jsx
 │   └── data/
 │       ├── employees.json
 │       ├── entries.json
@@ -253,28 +230,19 @@ Retorna dados completos para o resumo
 
 ## Design System Architecture
 
-### Design Tokens (`design-tokens.css`)
-Sistema centralizado de variáveis CSS para consistência visual:
-- **Colors**: Paletas completas (50-950) + aliases semânticos
-- **Typography**: Famílias, tamanhos, pesos e line-heights
-- **Spacing**: Grid 4px com aliases semânticos
-- **Breakpoints**: Mobile (480px), tablet (768px), desktop (1024px), wide (1440px)
-- **Shadows**: 6 níveis de elevação + focus shadow
-- **Transitions**: Durações, easing e padrões comuns
-- **Dark mode**: Suporte automático via prefers-color-scheme
+### Design System (`design-system.css`) - 7.6KB
+Unified CSS file focused on desktop web usage:
+- **Colors**: Primary blue, secondary gray, success green, danger red
+- **Typography**: 4 font sizes (sm, base, lg, xl) with consistent weights
+- **Spacing**: 5-level system (xs, sm, md, lg, xl) based on 4px grid  
+- **Components**: Button variants, form styling, layout containers, radio buttons
+- **Responsive**: Essential mobile breakpoints for core functionality
 
-### UI Component System
-Reusable components following atomic design:
-- **Atoms**: Button, Input
-- **Molecules**: FormGroup, Card
-- **Organisms**: Header, Container
-
-### CSS Architecture
-- **Global Styles**: Base styles in `index.css` and `styles.css`
-- **Component Styles**: Scoped CSS files for each UI component
-- **Design Tokens**: CSS custom properties via `design-tokens.css`
-- **Responsive**: Mobile-first with breakpoints (320px to 1920px+)
-- **Modern Features**: Dark mode, focus management, smooth transitions
+### Styling Philosophy
+- **Function over form**: Prioritizes usability over visual complexity
+- **Desktop-first**: Optimized for desktop web usage
+- **Single CSS file**: Unified system for consistency and performance
+- **Predictable naming**: btn--primary, form-field, radio-group, etc.
 
 ## Data Flow Between Components
 
