@@ -3,6 +3,19 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 
+// Load environment variables from .env file if exists
+require('dotenv').config();
+
+// Validate required environment variables
+const requiredEnvVars = ['PORT', 'NODE_ENV'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+    console.error('❌ Missing required environment variables:', missingEnvVars.join(', '));
+    console.error('💡 Please check your .env file or environment configuration');
+    process.exit(1);
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -255,4 +268,13 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
     console.log(`🔒 Backend serves ONLY API endpoints starting with /api/`);
     console.log(`🌐 CORS configured for: ${process.env.CORS_ORIGIN || 'http://localhost:3001'}`);
+    
+    // Log loaded configuration (without sensitive values)
+    console.log('\n📋 Configuration loaded:');
+    console.log(`   • Environment: ${process.env.NODE_ENV}`);
+    console.log(`   • Port: ${PORT}`);
+    console.log(`   • Data Path: ${process.env.DATA_PATH || './data'}`);
+    console.log(`   • Debug Mode: ${process.env.DEBUG === 'true' ? '✅ Enabled' : '❌ Disabled'}`);
+    console.log(`   • Health Check: ${process.env.HEALTH_CHECK_ENABLED === 'true' ? '✅ Enabled' : '❌ Disabled'}`);
+    console.log(`   • Log Level: ${process.env.LOG_LEVEL || 'info'}`);
 });
