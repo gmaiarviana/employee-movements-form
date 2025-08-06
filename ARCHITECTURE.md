@@ -29,6 +29,20 @@
 - **SummaryEntry.jsx**: Entry process summary and confirmation
 - **AdminDashboard.jsx**: Administrative dashboard for viewing all movements
 
+### UI Design System Components
+- **Button.jsx**: Reusable button component with variants (primary, secondary, danger)
+- **Input.jsx**: Form input component with consistent styling and validation states
+- **Card.jsx**: Container component with CardHeader, CardContent, and CardFooter sub-components
+- **Container.jsx**: Layout wrapper component for consistent spacing and max-width
+- **Header.jsx**: Page header component with title and variant support
+- **FormGroup.jsx**: Form field wrapper with label, input, and error message support
+
+### Component Usage Pattern
+All UI components are centrally exported from `components/ui/index.js` and imported as:
+```jsx
+import { Button, Input, Card, Container, Header, FormGroup } from '../components/ui'
+```
+
 ### 1. Home Component (`/`)
 - Central navigation hub post-login (simulated)
 - Navigation options using useNavigate:
@@ -201,14 +215,34 @@ Retorna dados completos para o resumo
 │   ├── App.css
 │   ├── index.css
 │   ├── styles.css
+│   ├── design-tokens.css
 │   ├── components/
 │   │   ├── Home.jsx
+│   │   ├── Home.css
 │   │   ├── SelectEmployee.jsx
 │   │   ├── EntryForm.jsx
 │   │   ├── ExitForm.jsx
 │   │   ├── Summary.jsx
 │   │   ├── SummaryEntry.jsx
-│   │   └── AdminDashboard.jsx
+│   │   ├── AdminDashboard.jsx
+│   │   └── ui/
+│   │       ├── index.js
+│   │       ├── Button.jsx
+│   │       ├── Button.css
+│   │       ├── ButtonExamples.jsx
+│   │       ├── Input.jsx
+│   │       ├── Input.css
+│   │       ├── InputExamples.jsx
+│   │       ├── Card.jsx
+│   │       ├── Card.css
+│   │       ├── CardExamples.jsx
+│   │       ├── Container.jsx
+│   │       ├── Container.css
+│   │       ├── Header.jsx
+│   │       ├── Header.css
+│   │       ├── FormGroup.jsx
+│   │       ├── FormGroup.css
+│   │       └── UIComponentsExamples.jsx
 │   └── data/
 │       ├── employees.json
 │       ├── entries.json
@@ -216,6 +250,30 @@ Retorna dados completos para o resumo
 │       ├── projects.json
 │       └── employee_projects.json
 ```
+
+## Design System Architecture
+
+### Design Tokens (`design-tokens.css`)
+Centralized design system variables for consistent visual identity:
+- **Colors**: Primary, secondary, success, warning, danger, and neutral color palettes (50-950 scale)
+- **Typography**: Font families, sizes, weights, and line heights
+- **Spacing**: Consistent spacing scale (0.5rem to 4rem)
+- **Border Radius**: Standardized border radius values
+- **Shadows**: Box shadow definitions for depth
+- **Breakpoints**: Responsive design breakpoints (sm, md, lg, xl, 2xl)
+
+### UI Component System
+Reusable components following atomic design principles:
+- **Atoms**: Button, Input (base interactive elements)
+- **Molecules**: FormGroup, Card components (combinations of atoms)
+- **Organisms**: Header, Container (complex UI sections)
+- **Documentation**: Each component has corresponding example files for usage reference
+
+### CSS Architecture
+- **Global Styles**: Base styles in `index.css` and `styles.css`
+- **Component Styles**: Scoped CSS files for each UI component
+- **Design Tokens**: CSS custom properties for consistency
+- **Responsive Design**: Mobile-first approach with consistent breakpoints
 
 ## Data Flow Between Components
 
