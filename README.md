@@ -13,7 +13,7 @@ Sistema para registrar movimentações de funcionários (entradas e saídas) com
 
 1. Clone o repositório:
 ```bash
-git clone git@github.com:gmaiarviana/employee-movements-form.git
+git clone https://guilherme_viana1@bitbucket.org/institutoatlantico/employee-movements-form.git
 cd employee-movements-form
 ```
 
@@ -29,7 +29,7 @@ docker-compose up -d --build
 - **Frontend React**: http://localhost:3001
 - **Backend APIs**: http://localhost:3000/api/*
 
-##  Pré-requisitos
+## 📋 Pré-requisitos
 
 - **Docker Desktop**: [Download aqui](https://www.docker.com/products/docker-desktop/)
 - **Git**: Para clonar o repositório
@@ -70,8 +70,8 @@ docker-compose down
 ## 🧪 Dados disponíveis para teste
 
 - **Usuário**: Maria Santos (líder)
-- **Funcionários**: João Silva, Ana Costa
-- **Projetos**: Sistema ERP, App Mobile
+- **Funcionários**: João Silva, Ana Costa, Carlos Oliveira, Fernanda Lima, Roberto Ferreira, e outros
+- **Projetos**: Sistema ERP
 
 ## ❓ Problemas?
 

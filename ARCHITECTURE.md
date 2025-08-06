@@ -7,7 +7,7 @@
 - **Backend**: Node.js + Express.js + CORS
 - **Dados**: Arquivos JSON (simulação de banco de dados)
 - **Infraestrutura**: Docker multi-serviço
-- **Portas**: Frontend (3001), Backend APIs (3000)
+- **Portas**: Frontend (3001), Backend (3000)
 - **Styling**: Design System CSS próprio com dark mode automático
 
 ### Estrutura Organizacional
@@ -27,6 +27,7 @@
 ├── docker-compose.yml     # Orquestração dos serviços
 ├── ARCHITECTURE.md        # Documentação técnica completa
 └── README.md             # Guia do usuário
+```
 
 ## 🐳 Configuração Docker
 
@@ -135,67 +136,6 @@ docker-compose up -d --build
 - **Inline styles**: Used for critical styling (header contrast) to override CSS conflicts
 - **Class-based styling**: Form fields, buttons, and layout components use consistent CSS classes
 
-### Current Styling Pattern
-Components use direct CSS classes from design-system.css:
-- `.btn`, `.btn--primary`, `.btn--secondary` for buttons
-- `.form-field`, `.form-label`, `.form-group` for forms  
-- `.header`, `.container`, `.main-content` for layout
-- `.radio-group`, `.radio-item` for radio button styling
-
-### 1. Home Component (`/`)
-- Central navigation hub post-login (simulated)
-- Navigation options using useNavigate:
-  - "Nova Entrada" → `/entry-form`
-  - "Nova Saída" → `/select-employee`
-  - "Administrador" → `/admin-dashboard`
-
-### 2. SelectEmployee Component (`/select-employee`)
-- Displays team members for logged user (Maria Santos)
-- Employee cards with: Name, Project, Role
-- "Selecionar" button for each employee
-- Navigation: `/exit-form?employeeId=XXX` using useNavigate and useSearchParams
-
-### 3. ExitForm Component (`/exit-form`)
-- Receives employeeId via useSearchParams
-- Form fields:
-  - Exit date (date input)
-  - Exit reason (textarea)
-  - Will there be replacement? (radio: yes/no)
-  - Machine ID (text input)
-- Navigation: "Voltar" | "Continuar" → `/summary` with form data
-
-### 4. Summary Component (`/summary`)
-- Displays complete summary of 8 mandatory fields
-- Combined data: employee + project + form
-- Navigation: "Voltar" | "Confirmar Saída" → back to home after confirmation
-
-### 5. EntryForm Component (`/entry-form`)
-- New employee entry form with fields:
-    - Full Name (text input)
-    - CPF (text input)
-    - Email (text input)
-    - Institute Name (text input)
-    - HP Compliance Training completed? (radio: yes/no)
-    - Is billable? (radio: yes/no)
-    - Start Date (date input)
-    - Professional Role (text input)
-    - HP Project Name (text input)
-- Navigation: "Voltar" | "Continuar" → `/summary-entry` with form data
-
-### 6. SummaryEntry Component (`/summary-entry`)
-- Displays summary of all collected entry fields
-- Navigation: "Voltar" | "Confirmar Entrada" → back to home after confirmation
-
-### 7. AdminDashboard Component (`/admin-dashboard`)
-- Administrative interface for viewing all system movements
-- Displays table with employee entries and exits ordered by date
-- Features:
-  - Period filter (start and end date)
-  - "Export" button (simulated)
-  - Navigation to forms: "Nova Entrada" and "Nova Saída"
-- Table columns: Date, Type, Employee, Details
-- Navigation: `/entry-form` or `/select-employee`
-
 ## Data Schema
 
 ### employees.json
@@ -207,14 +147,8 @@ Components use direct CSS classes from design-system.css:
       "name": "Maria Santos",
       "email": "maria.santos@company.com",
       "role": "Tech Lead",
-      "isLeader": true
-    },
-    {
-      "id": "EMP002", 
-      "name": "João Silva",
-      "email": "joao.silva@company.com",
-      "role": "Desenvolvedor Senior",
-      "isLeader": false
+      "isLeader": true,
+      "company": "Instituto Atlântico"
     }
   ]
 }
@@ -252,17 +186,29 @@ Components use direct CSS classes from design-system.css:
 ```json
 [
   {
-    "fullName": "Novo Funcionario Exemplo",
-    "cpf": "123.456.789-00",
-    "email": "novo.exemplo@company.com",
-    "instituteName": "Instituto XYZ",
-    "complianceTraining": "sim",
-    "billable": "sim",
-    "startDate": "2025-01-01",
-    "role": "Desenvolvedor Júnior",
-    "projectName": "Projeto Novo HP"
+    "id": "ENTRY001",
+    "employeeId": "EMP002",
+    "projectId": "PROJ001",
+    "date": "2025-01-15",
+    "role": "Desenvolvedor Senior",
+    "startDate": "2025-01-15"
   }
 ]
+```
+
+### exits.json
+```json
+[
+  {
+    "id": "EXIT001",
+    "employeeId": "EMP002",
+    "projectId": "PROJ001",
+    "date": "2025-07-30",
+    "reason": "Fim de contrato",
+    "exitDate": "2025-07-30"
+  }
+]
+```
 
 ## API Endpoints
 
@@ -289,7 +235,8 @@ Retorna dados completos para o resumo
     "id": "EMP002",
     "name": "João Silva",
     "email": "joao.silva@company.com",
-    "role": "Desenvolvedor Senior"
+    "role": "Desenvolvedor Senior",
+    "company": "Instituto Atlântico"
   },
   "project": {
     "name": "Sistema ERP",
@@ -299,50 +246,52 @@ Retorna dados completos para o resumo
 }
 ```
 
+### GET /api/movements
+Retorna histórico consolidado de movimentações
+```json
+[
+  {
+    "type": "entrada",
+    "date": "2025-01-15",
+    "employeeName": "João Silva",
+    "details": "Entrada como Desenvolvedor Senior no Projeto Sistema ERP"
+  }
+]
+```
+
 ## File Structure
 ```
 /
 ├── package.json
-├── vite.config.js
 ├── docker-compose.yml
-├── Dockerfile
-├── server.js
-├── index.html
-├── src/
-│   ├── main.jsx
-│   ├── App.jsx
-│   ├── design-system.css
-│   ├── components/
-│   │   ├── Home.jsx
-│   │   ├── SelectEmployee.jsx
-│   │   ├── EntryForm.jsx
-│   │   ├── ExitForm.jsx
-│   │   ├── Summary.jsx
-│   │   ├── SummaryEntry.jsx
-│   │   └── AdminDashboard.jsx
-│   └── data/
-│       ├── employees.json
-│       ├── entries.json
-│       ├── exits.json
-│       ├── projects.json
-│       └── employee_projects.json
+├── frontend/
+│   ├── package.json
+│   ├── vite.config.js
+│   ├── Dockerfile
+│   ├── index.html
+│   ├── src/
+│   │   ├── main.jsx
+│   │   ├── App.jsx
+│   │   ├── design-system.css
+│   │   └── components/
+│   │       ├── Home.jsx
+│   │       ├── SelectEmployee.jsx
+│   │       ├── EntryForm.jsx
+│   │       ├── ExitForm.jsx
+│   │       ├── Summary.jsx
+│   │       ├── SummaryEntry.jsx
+│   │       └── AdminDashboard.jsx
+└── backend/
+    ├── package.json
+    ├── server.js
+    ├── Dockerfile
+    └── data/
+        ├── employees.json
+        ├── entries.json
+        ├── exits.json
+        ├── projects.json
+        └── employee_projects.json
 ```
-
-## Design System Architecture
-
-### Design System (`design-system.css`) - 7.6KB
-Unified CSS file focused on desktop web usage:
-- **Colors**: Primary blue, secondary gray, success green, danger red
-- **Typography**: 4 font sizes (sm, base, lg, xl) with consistent weights
-- **Spacing**: 5-level system (xs, sm, md, lg, xl) based on 4px grid  
-- **Components**: Button variants, form styling, layout containers, radio buttons
-- **Responsive**: Essential mobile breakpoints for core functionality
-
-### Styling Philosophy
-- **Function over form**: Prioritizes usability over visual complexity
-- **Desktop-first**: Optimized for desktop web usage
-- **Single CSS file**: Unified system for consistency and performance
-- **Predictable naming**: btn--primary, form-field, radio-group, etc.
 
 ## Data Flow Between Components
 
@@ -366,45 +315,6 @@ Unified CSS file focused on desktop web usage:
 - **Frontend Service**: Vite development server (port 3001)
 - **Backend Service**: Express.js API server (port 3000)
 - **Proxy Configuration**: Vite proxy redirects API calls to backend
-
-### Dockerfile (Backend)
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package.json .
-RUN npm install
-COPY . .
-EXPOSE 3000
-CMD ["node", "server.js"]
-```
-
-### docker-compose.yml
-```yaml
-version: '3.8'
-services:
-  backend:
-    build: .
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./src/data:/app/src/data
-    environment:
-      - NODE_ENV=development
-  
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    ports:
-      - "3001:3001"
-    volumes:
-      - .:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-    depends_on:
-      - backend
-```
 
 ### Development Workflow
 - **Start Services**: `docker-compose up -d --build`
