@@ -1,13 +1,26 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import '../design-system.css'
+
+const headerStyle = {
+  backgroundColor: '#374151',
+  color: '#ffffff',
+  padding: '1rem 0',
+  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+}
+
+const titleStyle = {
+  fontSize: '1.5rem',
+  fontWeight: '600',
+  margin: '0',
+  color: '#ffffff'
+}
 
 const Home = () => {
   return (
     <>
-      <header className="header">
+      <header style={headerStyle}>
         <div className="container">
-          <h1>Sistema de Gestão de Funcionários</h1>
+          <h1 style={titleStyle}>Sistema de Gestão de Funcionários</h1>
         </div>
       </header>
       

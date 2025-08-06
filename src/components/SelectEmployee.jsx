@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import '../design-system.css'
 
 const SelectEmployee = () => {
   const [employees, setEmployees] = useState([])
