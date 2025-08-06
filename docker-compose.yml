@@ -10,6 +10,7 @@ services:
       - NODE_ENV=development
       - DEBUG=true
       - FRONTEND_URL=http://localhost:3001
+      - CORS_ORIGIN=http://localhost:3001
     networks:
       - app-network
 
@@ -22,7 +23,8 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://localhost:3000
+      # Use service name for internal Docker networking
+      - VITE_API_URL=http://backend:3000
     depends_on:
       - backend
     networks:

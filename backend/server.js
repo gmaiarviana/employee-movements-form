@@ -6,11 +6,28 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Configure CORS to allow requests from frontend
-app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3001',
-    credentials: true
-}));
+// Configure CORS with environment variables for production readiness
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+        
+        const allowedOrigins = process.env.CORS_ORIGIN 
+            ? process.env.CORS_ORIGIN.split(',') 
+            : ['http://localhost:3001'];
+            
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -206,7 +223,36 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// =============================================================================
+// MIDDLEWARE FOR NON-API ROUTES
+// =============================================================================
+// Reject any request that is not an API route
+// This ensures backend serves ONLY APIs and no static files
+app.use('*', (req, res) => {
+    if (!req.originalUrl.startsWith('/api/')) {
+        return res.status(404).json({ 
+            error: 'Not Found',
+            message: 'This backend server only provides API endpoints. All API routes start with /api/',
+            availableEndpoints: [
+                'GET /api/health',
+                'GET /api/employees/:leaderId/team-members',
+                'POST /api/entries',
+                'POST /api/exits',
+                'GET /api/movements'
+            ]
+        });
+    }
+    
+    // If we reach here, it's an API route that wasn't matched above
+    res.status(404).json({
+        error: 'API Endpoint Not Found',
+        message: `API endpoint ${req.originalUrl} not found`
+    });
+});
+
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Backend server running on http://localhost:${PORT}`);
     console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+    console.log(`🔒 Backend serves ONLY API endpoints starting with /api/`);
+    console.log(`🌐 CORS configured for: ${process.env.CORS_ORIGIN || 'http://localhost:3001'}`);
 });

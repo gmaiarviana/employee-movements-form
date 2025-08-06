@@ -55,12 +55,14 @@ Separar frontend e backend completamente, preparar para PostgreSQL futuro.
 - ✅ Mover dados JSON para `/backend/data`
 - ✅ Remover arquivos duplicados da raiz
 
-#### 3.4.2 Separação Completa de Responsabilidades
-**Objetivo:** Backend servindo APENAS APIs RESTful, frontend completamente independente.
-- Remover servir arquivos estáticos do Express
-- Configurar CORS adequadamente
-- Garantir comunicação exclusiva via APIs
-- Validar independência de portas (Frontend: 3001, Backend: 3000)
+#### ✅ 3.4.2 Separação Completa de Responsabilidades
+**CONCLUÍDO** - Backend servindo APENAS APIs RESTful, frontend completamente independente.
+- ✅ Remover servir arquivos estáticos do Express
+- ✅ Configurar CORS adequadamente para produção
+- ✅ Garantir comunicação exclusiva via APIs
+- ✅ Validar independência de portas (Frontend: 3001, Backend: 3000)
+- ✅ Middleware para rejeitar requisições não-API
+- ✅ Configuração de environment variables
 
 #### 3.4.3 Environment Variables Básico
 **Objetivo:** Configuração mínima via variáveis de ambiente para o MVP.
