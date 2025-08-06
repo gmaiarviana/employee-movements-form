@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import '../styles.css'
+import '../design-system.css'
 
 const EntryForm = () => {
   const [fullName, setFullName] = useState('')
@@ -56,17 +56,19 @@ const EntryForm = () => {
 
   return (
     <>
-      <header>
-        <h1>Sistema de Movimentação de Contratos</h1>
+      <header className="header">
+        <div className="container">
+          <h1>Sistema de Movimentação de Contratos</h1>
+        </div>
       </header>
       
-      <main>
+      <main className="main-content">
         <div className="container">
           <h2>Formulário de Entrada de Funcionários</h2>
           
-          <form id="entry-form" onSubmit={handleSubmit}>
+          <form id="entry-form" onSubmit={handleSubmit} className="form">
             <div className="form-group">
-              <label htmlFor="full-name">Nome Completo</label>
+              <label htmlFor="full-name" className="form-label">Nome Completo</label>
               <input 
                 type="text" 
                 id="full-name" 
@@ -79,7 +81,7 @@ const EntryForm = () => {
             </div>
             
             <div className="form-group">
-              <label htmlFor="cpf">CPF</label>
+              <label htmlFor="cpf" className="form-label">CPF</label>
               <input 
                 type="text" 
                 id="cpf" 
@@ -92,7 +94,7 @@ const EntryForm = () => {
             </div>
             
             <div className="form-group">
-              <label htmlFor="email">E-mail</label>
+              <label htmlFor="email" className="form-label">E-mail</label>
               <input 
                 type="text" 
                 id="email" 
@@ -105,7 +107,7 @@ const EntryForm = () => {
             </div>
             
             <div className="form-group">
-              <label htmlFor="institute-name">Nome do Instituto</label>
+              <label htmlFor="institute-name" className="form-label">Nome do Instituto</label>
               <input 
                 type="text" 
                 id="institute-name" 
@@ -118,7 +120,7 @@ const EntryForm = () => {
             </div>
             
             <div className="form-group">
-              <label>Realizou o treinamento de compliance da HP?</label>
+              <label className="form-label">Realizou o treinamento de compliance da HP?</label>
               <div>
                 <input 
                   type="radio" 
@@ -144,7 +146,7 @@ const EntryForm = () => {
             </div>
             
             <div className="form-group">
-              <label>É faturável?</label>
+              <label className="form-label">É faturável?</label>
               <div>
                 <input 
                   type="radio" 
@@ -170,7 +172,7 @@ const EntryForm = () => {
             </div>
             
             <div className="form-group">
-              <label htmlFor="start-date">Data de Início</label>
+              <label htmlFor="start-date" className="form-label">Data de Início</label>
               <input 
                 type="date" 
                 id="start-date" 
@@ -183,7 +185,7 @@ const EntryForm = () => {
             </div>
             
             <div className="form-group">
-              <label htmlFor="role">Papel do profissional</label>
+              <label htmlFor="role" className="form-label">Papel do profissional</label>
               <input 
                 type="text" 
                 id="role" 
@@ -196,7 +198,7 @@ const EntryForm = () => {
             </div>
             
             <div className="form-group">
-              <label htmlFor="project-name">Nome do projeto HP em que o profissional atuará</label>
+              <label htmlFor="project-name" className="form-label">Nome do projeto HP em que o profissional atuará</label>
               <input 
                 type="text" 
                 id="project-name" 
@@ -208,11 +210,11 @@ const EntryForm = () => {
               />
             </div>
             
-            <div className="form-buttons">
+            <div className="nav-buttons">
               <button 
                 type="button" 
                 id="back-button" 
-                className="secondary-button"
+                className="btn btn--secondary"
                 onClick={handleBack}
               >
                 Voltar
@@ -220,7 +222,7 @@ const EntryForm = () => {
               <button 
                 type="submit" 
                 id="continue-button" 
-                className="primary-button"
+                className="btn btn--primary"
               >
                 Continuar
               </button>
