@@ -8,8 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "server": "nodemon server.js",
-    "browser-sync": "browser-sync start --server src/public --files \"src/public/**/*\" --no-open"
+    "server": "nodemon server.js"
   },
   "dependencies": {
     "express": "^4.18.2",

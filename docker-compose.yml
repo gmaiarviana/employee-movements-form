@@ -19,9 +19,8 @@ services:
       - "3001:3001"
     volumes:
       - ./src:/app/src
-      - ./package.json:/app/package.json
-      - ./vite.config.js:/app/vite.config.js
       - ./index.html:/app/index.html
+      - ./vite.config.js:/app/vite.config.js
       - /app/node_modules
     environment:
       - NODE_ENV=development

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import '../public/css/styles.css'
+import '../styles.css'
 
 const Summary = () => {
   const [searchParams] = useSearchParams()

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import '../public/css/styles.css'
+import '../styles.css'
 
 const AdminDashboard = () => {
   const [movements, setMovements] = useState([])

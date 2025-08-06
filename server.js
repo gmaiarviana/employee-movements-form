@@ -8,9 +8,6 @@ const PORT = 3000;
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-// TODO: Static files middleware disabled for React SPA architecture
-// app.use(express.static(path.join(__dirname, 'src/public')));
-
 // Helper function to read JSON files
 function readJSONFile(filePath) {
     try {
@@ -22,49 +19,8 @@ function readJSONFile(filePath) {
     }
 }
 
-// TODO: Remove static files middleware above when fully migrated to React
-// Serve static files from src/public
-// app.use(express.static(path.join(__dirname, 'src/public')));
-
 // =============================================================================
-// HTML ROUTES - DEPRECATED (React SPA handles routing now)
-// =============================================================================
-
-// TODO: Remove these HTML routes - now handled by React Router
-/*
-// Route for home page
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'src/public/index.html'));
-});
-
-// Route for select employee page
-app.get('/select-employee', (req, res) => {
-    res.sendFile(path.join(__dirname, 'src/public/select-employee.html'));
-});
-
-// Route for exit form page
-app.get('/exit-form', (req, res) => {
-    res.sendFile(path.join(__dirname, 'src/public/exit-form.html'));
-});
-
-// Route for summary page
-app.get('/summary', (req, res) => {
-    res.sendFile(path.join(__dirname, 'src/public/summary.html'));
-});
-
-// Route for entry form page
-app.get('/entry-form', (req, res) => {
-    res.sendFile(path.join(__dirname, 'src/public/entry-form.html'));
-});
-
-// Route for admin dashboard page
-app.get('/admin-dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, 'src/public/admin-dashboard.html'));
-});
-*/
-
-// =============================================================================
-// API ROUTES - KEEP THESE FOR REACT APPLICATION
+// API ROUTES
 // =============================================================================
 
 // API route to get team members for a leader

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import '../public/css/styles.css'
+import '../styles.css'
 
 const EntryForm = () => {
   const [fullName, setFullName] = useState('')
