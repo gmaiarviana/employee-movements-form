@@ -1,48 +1,38 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Header, Container, Button } from '../components/ui'
-import './Home.css' // We'll create this file for custom styling
+import '../design-system.css'
 
 const Home = () => {
   return (
     <>
-      <Header 
-        title="Sistema de Gestão de Funcionários" 
-        variant="primary"
-        className="home-header"
-        sticky={false}
-      />
+      <header className="header">
+        <div className="container">
+          <h1>Sistema de Gestão de Funcionários</h1>
+        </div>
+      </header>
       
-      <main>
-        <Container className="home-container">
-          <div className="header">
+      <main className="main-content">
+        <div className="container">
+          <div className="text-center mb-lg">
             <h2>Bem-vindo ao Sistema de Gestão de Funcionários</h2>
             <p>Este sistema permite gerenciar o processo de entrada e saída de funcionários de forma eficiente e organizada.</p>
           </div>
           
-          <div className="content">
-            <div className="home-buttons">
-              <Link to="/entry-form" style={{ textDecoration: 'none' }}>
-                <Button variant="primary">
-                  <span>📋</span>
-                  Entrada de Funcionário
-                </Button>
-              </Link>
-              <Link to="/select-employee" style={{ textDecoration: 'none' }}>
-                <Button variant="primary">
-                  <span>👋</span>
-                  Saída de Funcionário
-                </Button>
-              </Link>
-              <Link to="/admin-dashboard" style={{ textDecoration: 'none' }}>
-                <Button variant="secondary">
-                  <span>📊</span>
-                  Visão do Administrador
-                </Button>
-              </Link>
-            </div>
+          <div className="home-buttons">
+            <Link to="/entry-form" className="btn btn--primary btn--large">
+              <span>📋</span>
+              Entrada de Funcionário
+            </Link>
+            <Link to="/select-employee" className="btn btn--primary btn--large">
+              <span>👋</span>
+              Saída de Funcionário
+            </Link>
+            <Link to="/admin-dashboard" className="btn btn--secondary btn--large">
+              <span>📊</span>
+              Visão do Administrador
+            </Link>
           </div>
-        </Container>
+        </div>
       </main>
     </>
   )
