@@ -1,16 +1,33 @@
 services:
-  app:
+  backend:
     build: .
-    command: npm run dev
+    command: npm run server
     ports:
       - "3000:3000"
-      - "3001:3001"
     volumes:
       - ./src/data:/app/src/data
-      - node_modules:/app/node_modules
+      - ./server.js:/app/server.js
     environment:
       - NODE_ENV=development
       - DEBUG=true
+    networks:
+      - app-network
 
-volumes:
-  node_modules:
+  frontend:
+    build: .
+    command: npm run dev -- --host 0.0.0.0
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

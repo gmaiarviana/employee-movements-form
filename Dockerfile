@@ -10,4 +10,5 @@ COPY . .
 EXPOSE 3000
 EXPOSE 3001
 
+# Default command (can be overridden in docker-compose)
 CMD ["node", "server.js"]
