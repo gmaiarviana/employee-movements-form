@@ -1,28 +1,34 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import '../styles.css'
+import { Header, Container, Button } from '../components/ui'
+import './Home.css' // We'll create this file for custom styling
 
 const Home = () => {
   return (
     <>
-      <header>
-        <h1>Sistema de Saída de Funcionários</h1>
-      </header>
+      <Header 
+        title="Sistema de Saída de Funcionários" 
+        variant="secondary"
+        className="home-header"
+      />
       
       <main>
-        <div className="container">
+        <Container className="home-container">
           <h2>Bem-vindo ao Sistema de Gestão de Saída de Funcionários</h2>
           <p>Este sistema permite gerenciar o processo de saída de funcionários de forma eficiente e organizada.</p>
-          <Link to="/entry-form" className="primary-button" style={{ marginRight: '1rem' }}>
-            Entrada de Funcionário
-          </Link>
-          <Link to="/select-employee" className="primary-button" style={{ marginRight: '1rem' }}>
-            Saída de Funcionário
-          </Link>
-          <Link to="/admin-dashboard" className="primary-button">
-            Visão do Administrador
-          </Link>
-        </div>
+          
+          <div className="home-buttons">
+            <Link to="/entry-form" style={{ textDecoration: 'none' }}>
+              <Button variant="primary">Entrada de Funcionário</Button>
+            </Link>
+            <Link to="/select-employee" style={{ textDecoration: 'none' }}>
+              <Button variant="primary">Saída de Funcionário</Button>
+            </Link>
+            <Link to="/admin-dashboard" style={{ textDecoration: 'none' }}>
+              <Button variant="primary">Visão do Administrador</Button>
+            </Link>
+          </div>
+        </Container>
       </main>
     </>
   )
