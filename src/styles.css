@@ -69,11 +69,19 @@ header h1 {
     font-size: var(--font-size-xl);
     cursor: pointer;
     padding: var(--spacing-2);
+    min-height: var(--spacing-11); /* 44px minimum touch target */
+    min-width: var(--spacing-11); /* 44px minimum touch target */
     border-radius: var(--border-radius-sm);
     transition: var(--transition-colors);
 }
 
 .mobile-menu-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.mobile-menu-toggle:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
     background-color: rgba(255, 255, 255, 0.1);
 }
 
@@ -165,7 +173,7 @@ main {
     cursor: pointer;
     transition: var(--transition-colors);
     font-weight: var(--font-weight-medium);
-    min-height: 44px;
+    min-height: var(--spacing-11); /* 44px minimum touch target */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -180,7 +188,8 @@ main {
 
 .primary-button:focus {
     outline: none;
-    box-shadow: var(--shadow-focus);
+    box-shadow: 0 0 0 3px var(--color-primary-200);
+    border-color: var(--color-primary-500);
 }
 
 .primary-button:active {
@@ -197,7 +206,7 @@ main {
     cursor: pointer;
     transition: var(--transition-colors);
     font-weight: var(--font-weight-medium);
-    min-height: 44px;
+    min-height: var(--spacing-11); /* 44px minimum touch target */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -211,7 +220,8 @@ main {
 
 .secondary-button:focus {
     outline: none;
-    box-shadow: var(--shadow-focus);
+    box-shadow: 0 0 0 3px var(--color-secondary-200);
+    border-color: var(--color-secondary-500);
 }
 
 /* ========================================
@@ -228,7 +238,7 @@ main {
 .form-buttons button {
     width: 100%;
     padding: var(--spacing-3) var(--spacing-md);
-    min-height: 48px;
+    min-height: var(--spacing-12); /* 48px - larger than minimum for better UX */
 }
 
 .radio-group {
@@ -252,10 +262,17 @@ main {
     cursor: pointer;
     transition: var(--transition-colors);
     background-color: var(--color-surface);
+    min-height: var(--spacing-11); /* 44px minimum touch target */
 }
 
 .radio-group label:hover {
     background-color: var(--color-background-secondary);
+}
+
+.radio-group label:focus-within {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-primary-200);
+    border-color: var(--color-primary-500);
 }
 
 .radio-group input[type="radio"]:checked + label,
@@ -525,14 +542,14 @@ main {
     background-color: var(--color-surface);
     color: var(--color-text-primary);
     width: 100%;
-    min-height: 44px;
+    min-height: var(--spacing-11); /* 44px minimum touch target */
     transition: var(--transition-colors);
 }
 
 .date-input-group input[type="date"]:focus {
     outline: none;
     border-color: var(--color-primary-500);
-    box-shadow: var(--shadow-focus);
+    box-shadow: 0 0 0 3px var(--color-primary-200);
 }
 
 .btn-primary {
@@ -545,7 +562,7 @@ main {
     cursor: pointer;
     transition: var(--transition-colors);
     font-weight: var(--font-weight-medium);
-    min-height: 44px;
+    min-height: var(--spacing-11); /* 44px minimum touch target */
     width: 100%;
     display: flex;
     align-items: center;
@@ -559,7 +576,8 @@ main {
 
 .btn-primary:focus {
     outline: none;
-    box-shadow: var(--shadow-focus);
+    box-shadow: 0 0 0 3px var(--color-primary-200);
+    border-color: var(--color-primary-500);
 }
 
 .btn-primary:active {

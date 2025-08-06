@@ -211,6 +211,12 @@
   cursor: pointer;
 }
 
+.card--employee:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-200);
+  border-color: var(--color-primary-500);
+}
+
 .card--employee .card__header {
   background: linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-background-secondary) 100%);
   border-bottom-color: var(--color-primary-200);
@@ -258,6 +264,12 @@
 
 .card--interactive:hover {
   transform: translateY(-2px);
+}
+
+.card--interactive:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-200);
+  border-color: var(--color-primary-500);
 }
 
 .card--interactive:active {

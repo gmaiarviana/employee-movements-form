@@ -24,7 +24,8 @@
 
 .btn:focus {
   outline: none;
-  box-shadow: var(--shadow-focus);
+  box-shadow: 0 0 0 3px var(--color-primary-200);
+  border-color: var(--color-primary-500);
 }
 
 .btn:active {
@@ -35,13 +36,13 @@
 .btn--small {
   padding: var(--spacing-1) var(--spacing-3);
   font-size: var(--font-size-sm);
-  min-height: var(--spacing-8);
+  min-height: var(--spacing-11); /* 44px minimum touch target */
 }
 
 .btn--medium {
   padding: var(--spacing-3) var(--spacing-6);
   font-size: var(--font-size-base);
-  min-height: var(--spacing-12);
+  min-height: var(--spacing-11); /* 44px minimum touch target */
 }
 
 .btn--large {
@@ -239,19 +240,19 @@
   .btn--large {
     padding: var(--spacing-3) var(--spacing-5);
     font-size: var(--font-size-base);
-    min-height: 44px; /* Touch-friendly minimum height */
+    min-height: var(--spacing-11); /* 44px minimum touch target */
   }
   
   .btn--medium {
     padding: var(--spacing-3) var(--spacing-4);
     font-size: var(--font-size-sm);
-    min-height: 44px; /* Touch-friendly minimum height */
+    min-height: var(--spacing-11); /* 44px minimum touch target */
   }
   
   .btn--small {
     padding: var(--spacing-2) var(--spacing-3);
     font-size: var(--font-size-sm);
-    min-height: 40px; /* Slightly smaller but still touch-friendly */
+    min-height: var(--spacing-10); /* 40px - slightly smaller but still accessible */
   }
   
   /* Improve touch targets and spacing on tablets */

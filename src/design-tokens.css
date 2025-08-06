@@ -157,6 +157,7 @@
   --spacing-7: 1.75rem;  /* 28px */
   --spacing-8: 2rem;     /* 32px */
   --spacing-10: 2.5rem;  /* 40px */
+  --spacing-11: 2.75rem; /* 44px - minimum touch target */
   --spacing-12: 3rem;    /* 48px */
   --spacing-16: 4rem;    /* 64px */
   --spacing-20: 5rem;    /* 80px */

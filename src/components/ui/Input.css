@@ -55,7 +55,7 @@
   border: var(--border-width-1) solid var(--color-border);
   border-radius: var(--border-radius-sm);
   padding: var(--spacing-3) var(--spacing-4);
-  min-height: var(--spacing-12);
+  min-height: var(--spacing-11); /* 44px minimum touch target */
   transition: var(--transition-colors), var(--transition-default), transform var(--transition-duration-fast) var(--transition-easing-smooth);
   outline: none;
   box-sizing: border-box;
@@ -64,7 +64,7 @@
 }
 
 .input:focus {
-  border-color: var(--color-border-focus);
+  border-color: var(--color-primary-500);
   box-shadow: 0 0 0 3px var(--color-primary-200);
   background-color: var(--color-surface);
   transform: translateY(-1px);
