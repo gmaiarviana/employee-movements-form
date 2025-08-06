@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import '../styles.css'
+import '../design-system.css'
 
 const ExitForm = () => {
   const [searchParams] = useSearchParams()
@@ -70,11 +70,13 @@ const ExitForm = () => {
 
   return (
     <>
-      <header>
-        <h1>Sistema de Saída de Funcionários</h1>
+      <header className="header">
+        <div className="container">
+          <h1>Sistema de Saída de Funcionários</h1>
+        </div>
       </header>
       
-      <main>
+      <main className="main-content">
         <div className="container">
           <h2>Dados da Saída de Funcionário</h2>
           
@@ -101,9 +103,9 @@ const ExitForm = () => {
             )}
           </div>
           
-          <form id="exit-form" className="exit-form" onSubmit={handleSubmit}>
+          <form id="exit-form" className="form" onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="exit-date">Data de Saída</label>
+              <label htmlFor="exit-date" className="form-label">Data de Saída</label>
               <input 
                 type="date" 
                 id="exit-date" 
@@ -116,7 +118,7 @@ const ExitForm = () => {
             </div>
             
             <div className="form-group">
-              <label htmlFor="exit-reason">Motivo da Saída</label>
+              <label htmlFor="exit-reason" className="form-label">Motivo da Saída</label>
               <select 
                 id="exit-reason" 
                 name="exit-reason" 
@@ -134,11 +136,11 @@ const ExitForm = () => {
               </select>
             </div>
             
-            <div className="form-buttons">
+            <div className="nav-buttons">
               <button 
                 type="button" 
                 id="back-button" 
-                className="secondary-button"
+                className="btn btn--secondary"
                 onClick={handleBack}
               >
                 Voltar
@@ -146,7 +148,7 @@ const ExitForm = () => {
               <button 
                 type="submit" 
                 id="continue-button" 
-                className="primary-button"
+                className="btn btn--primary"
               >
                 Continuar
               </button>

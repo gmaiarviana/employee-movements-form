@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import '../styles.css'
+import '../design-system.css'
 
 const SelectEmployee = () => {
   const [employees, setEmployees] = useState([])
@@ -59,17 +59,19 @@ const SelectEmployee = () => {
 
   return (
     <>
-      <header>
-        <h1>Sistema de Saída de Funcionários</h1>
+      <header className="header">
+        <div className="container">
+          <h1>Sistema de Saída de Funcionários</h1>
+        </div>
       </header>
       
-      <main>
+      <main className="main-content">
         <div className="container">
           <h2>Selecionar Funcionário para Saída</h2>
           <p>Selecione o funcionário que está saindo:</p>
           
           <div className="form-group">
-            <label htmlFor="employee-select">Funcionário:</label>
+            <label htmlFor="employee-select" className="form-label">Funcionário:</label>
             <select 
               id="employee-select" 
               className="form-field"
@@ -94,15 +96,15 @@ const SelectEmployee = () => {
             </select>
           </div>
           
-          <div className="form-buttons">
+          <div className="nav-buttons">
             <button 
-              className="secondary-button"
+              className="btn btn--secondary"
               onClick={handleBack}
             >
               Voltar
             </button>
             <button 
-              className="primary-button"
+              className="btn btn--primary"
               disabled={!selectedEmployeeId}
               onClick={handleContinue}
             >
