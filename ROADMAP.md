@@ -44,6 +44,34 @@ Separar frontend e backend completamente, preparar para PostgreSQL futuro.
 - Frontend em porta independente consumindo APIs do backend
 - ARCHITECTURE.md e DEVELOPMENT_GUIDELINES.md atualizados
 
+**Plano de Implementação:**
+
+#### 3.4.1 Reestruturação de Pastas
+**Objetivo:** Organizar código em estrutura `/frontend` e `/backend` independentes.
+- Criar estrutura de pastas separada
+- Mover código React/Vite para `/frontend`
+- Mover código Express para `/backend`
+- Ajustar imports e configurações
+- Mover dados JSON para `/backend/data`
+
+#### 3.4.2 Separação Completa de Responsabilidades
+**Objetivo:** Backend servindo APENAS APIs RESTful, frontend completamente independente.
+- Remover servir arquivos estáticos do Express
+- Configurar CORS adequadamente
+- Garantir comunicação exclusiva via APIs
+- Validar independência de portas (Frontend: 3001, Backend: 3000)
+
+#### 3.4.3 Environment Variables Básico
+**Objetivo:** Configuração mínima via variáveis de ambiente para o MVP.
+- Implementar configuração básica via `.env`
+- Configurar URLs de API dinamicamente
+- Ajustar configuração Docker básica
+
+#### 3.4.4 Documentação Atualizada
+**Objetivo:** Atualizar documentação com nova estrutura.
+- Atualizar ARCHITECTURE.md
+- Atualizar DEVELOPMENT_GUIDELINES.md
+
 ---
 
 ## 🔮 Épico 4: Mínimo Produto Viável (MVP) - Persistência, Autenticação e Relatórios Básicos
@@ -80,3 +108,6 @@ Separar frontend e backend completamente, preparar para PostgreSQL futuro.
   - **Analytics e Métricas:** Desenvolvimento de um dashboard com insights gerenciais (e.g., turnover, tendências de movimentação).
   - **Testes Automatizados:** Aumento da cobertura de testes para garantir a qualidade e estabilidade do sistema.
   - **Otimizações de Performance:** Melhorias na performance e responsividade do sistema.
+  - **Configuração Avançada de Ambientes:** Separação completa de configurações dev/prod/test com pipelines automatizados.
+  - **Preparação Avançada para PostgreSQL:** Implementação completa do Repository Pattern, interfaces de acesso a dados e configuração de conexão DB.
+  - **Documentação Avançada:** Guias de migração, processos de desenvolvimento detalhados e documentação técnica expandida.
