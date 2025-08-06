@@ -121,53 +121,61 @@ const EntryForm = () => {
             
             <div className="form-group">
               <label className="form-label">Realizou o treinamento de compliance da HP?</label>
-              <div>
-                <input 
-                  type="radio" 
-                  id="compliance-yes" 
-                  name="compliance-training" 
-                  value="sim" 
-                  required
-                  checked={complianceTraining === 'sim'}
-                  onChange={(e) => setComplianceTraining(e.target.value)}
-                />
-                <label htmlFor="compliance-yes">Sim</label>
-                <input 
-                  type="radio" 
-                  id="compliance-no" 
-                  name="compliance-training" 
-                  value="nao" 
-                  required
-                  checked={complianceTraining === 'nao'}
-                  onChange={(e) => setComplianceTraining(e.target.value)}
-                />
-                <label htmlFor="compliance-no">Não</label>
+              <div className="radio-group">
+                <div className="radio-item">
+                  <input 
+                    type="radio" 
+                    id="compliance-yes" 
+                    name="compliance-training" 
+                    value="sim" 
+                    required
+                    checked={complianceTraining === 'sim'}
+                    onChange={(e) => setComplianceTraining(e.target.value)}
+                  />
+                  <label htmlFor="compliance-yes">Sim</label>
+                </div>
+                <div className="radio-item">
+                  <input 
+                    type="radio" 
+                    id="compliance-no" 
+                    name="compliance-training" 
+                    value="nao" 
+                    required
+                    checked={complianceTraining === 'nao'}
+                    onChange={(e) => setComplianceTraining(e.target.value)}
+                  />
+                  <label htmlFor="compliance-no">Não</label>
+                </div>
               </div>
             </div>
             
             <div className="form-group">
               <label className="form-label">É faturável?</label>
-              <div>
-                <input 
-                  type="radio" 
-                  id="billable-yes" 
-                  name="billable" 
-                  value="sim" 
-                  required
-                  checked={billable === 'sim'}
-                  onChange={(e) => setBillable(e.target.value)}
-                />
-                <label htmlFor="billable-yes">Sim</label>
-                <input 
-                  type="radio" 
-                  id="billable-no" 
-                  name="billable" 
-                  value="nao" 
-                  required
-                  checked={billable === 'nao'}
-                  onChange={(e) => setBillable(e.target.value)}
-                />
-                <label htmlFor="billable-no">Não</label>
+              <div className="radio-group">
+                <div className="radio-item">
+                  <input 
+                    type="radio" 
+                    id="billable-yes" 
+                    name="billable" 
+                    value="sim" 
+                    required
+                    checked={billable === 'sim'}
+                    onChange={(e) => setBillable(e.target.value)}
+                  />
+                  <label htmlFor="billable-yes">Sim</label>
+                </div>
+                <div className="radio-item">
+                  <input 
+                    type="radio" 
+                    id="billable-no" 
+                    name="billable" 
+                    value="nao" 
+                    required
+                    checked={billable === 'nao'}
+                    onChange={(e) => setBillable(e.target.value)}
+                  />
+                  <label htmlFor="billable-no">Não</label>
+                </div>
               </div>
             </div>
             

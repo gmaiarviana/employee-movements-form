@@ -70,8 +70,8 @@ body {
 
 /* === HEADER === */
 .header {
-  background: var(--color-secondary);
-  color: white;
+  background: #374151 !important; /* Cor cinza ainda mais escuro */
+  color: #ffffff !important; /* Texto branco */
   padding: var(--space-md) 0;
   box-shadow: var(--shadow);
 }
@@ -80,6 +80,15 @@ body {
   font-size: var(--font-size-xl);
   font-weight: 600;
   margin: 0;
+  color: #ffffff !important; /* Força branco com !important */
+}
+
+.header .container {
+  color: #ffffff !important; /* Garante que todo conteúdo seja branco */
+}
+
+.header * {
+  color: #ffffff !important; /* Força todos os elementos filhos */
 }
 
 /* === TYPOGRAPHY === */
@@ -200,6 +209,33 @@ select.form-field {
 textarea.form-field {
   resize: vertical;
   min-height: 100px;
+}
+
+/* === RADIO BUTTONS === */
+.radio-group {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-xs);
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.radio-item input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.radio-item label {
+  font-weight: normal;
+  margin: 0;
+  cursor: pointer;
+  color: var(--color-text);
 }
 
 /* === CARDS === */
