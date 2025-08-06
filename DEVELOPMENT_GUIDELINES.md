@@ -67,7 +67,7 @@ Para cada Funcionalidade, o trabalho será dividido e executado em tarefas seque
 O Gemini realizará uma auto-reflexão técnica antes de gerar tarefas e prompts. Para isso, consultará o contexto existente (arquivos fornecidos, histórico da conversa) e, se necessário, **solicitará a visualização de arquivos específicos ou fará perguntas para esclarecer**:
 1.  **STACK**: Confirmar as tecnologias envolvidas (Node.js + Express + Docker + JSON/DB).
 2.  **COMPATIBILITY**: Garantir que os comandos gerados são compatíveis com PowerShell e o ambiente Docker.
-3.  **ARCHITECTURE**: Entender como a nova funcionalidade se encaixa na estrutura de páginas (`src/public`), APIs (`server.js`) e fluxo de dados existente.
+3.  **ARCHITECTURE**: Entender como a nova funcionalidade se encaixa na estrutura de páginas (`src`), APIs (`server.js`) e fluxo de dados existente.
 4.  **DATA**: Verificar a necessidade de criar ou atualizar arquivos JSON, ou antecipar alterações para o banco de dados futuro. Identificar quais APIs serão impactadas ou criadas.
 5.  **VALIDATION**: Definir a melhor forma de testar o comportamento esperado no browser após a implementação da tarefa.
 

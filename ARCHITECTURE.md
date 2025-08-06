@@ -2,79 +2,86 @@
 
 ## Tech Stack
 - **Backend**: Node.js + Express.js
-- **Frontend**: Vanilla HTML/CSS/JavaScript (páginas separadas)
+- **Frontend**: Vite + React + React Router
 - **Data**: JSON files (mock database)
-- **Infrastructure**: Docker (single container)
-- **Port**: 3000
+- **Infrastructure**: Docker (multi-service)
+- **Ports**: Frontend (3001), Backend APIs (3000)
 
 ## System Architecture
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Browser       │───▶│   Express.js    │───▶│   JSON Files    │
-│   (4 pages)     │    │   Server        │    │   (Mock DB)     │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Browser       │───▶│   Vite + React  │───▶│   Express.js    │───▶│   JSON Files    │
+│   (Port 3001)   │    │   Frontend      │    │   API Server    │    │   (Mock DB)     │
+│                 │    │   (Port 3001)   │    │   (Port 3000)   │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-## Page Structure
+## Component Structure
 
-### 1. Home Page (`/`)
-- Ponto central de navegação pós-login (simulado)
-- Oferece ao usuário opções para:
-  - Iniciar uma "Nova Entrada" (redirects to `/entry-form`)
-  - Iniciar uma "Nova Saída" (redirects to `/select-employee`)
-  - Acessar a área de "Administrador" (redirects to `/admin-dashboard`)
+### React Components Overview
+- **App.jsx**: Main application component with React Router setup
+- **Home.jsx**: Central navigation hub with navigation options
+- **SelectEmployee.jsx**: Employee selection interface with team member cards
+- **EntryForm.jsx**: New employee entry form component
+- **ExitForm.jsx**: Employee exit form component  
+- **Summary.jsx**: Exit process summary and confirmation
+- **SummaryEntry.jsx**: Entry process summary and confirmation
+- **AdminDashboard.jsx**: Administrative dashboard for viewing all movements
 
-### 2. Select Employee (`/select-employee`)
-- Lista dos liderados do usuário logado (Maria Santos)
-- Cards com: Nome, Projeto, Função
-- Botão "Selecionar" para cada funcionário
-- Redirects to: `/exit-form?employeeId=XXX`
+### 1. Home Component (`/`)
+- Central navigation hub post-login (simulated)
+- Navigation options using useNavigate:
+  - "Nova Entrada" → `/entry-form`
+  - "Nova Saída" → `/select-employee`
+  - "Administrador" → `/admin-dashboard`
 
-### 3. Exit Form (`/exit-form`)
-- Recebe employeeId via URL param
-- Campos do formulário:
-  - Data de saída (date input)
-  - Motivo da saída (textarea)
-  - Haverá replacement? (radio: sim/não)
-  - Tombo da máquina (text input)
-- Botões: "Voltar" | "Continuar"
-- Redirects to: `/summary` com dados
+### 2. SelectEmployee Component (`/select-employee`)
+- Displays team members for logged user (Maria Santos)
+- Employee cards with: Name, Project, Role
+- "Selecionar" button for each employee
+- Navigation: `/exit-form?employeeId=XXX` using useNavigate and useSearchParams
 
-### 4. Summary (`/summary`)
-- Exibe resumo completo dos 8 campos obrigatórios
-- Dados combinados: funcionário + projeto + formulário
-- Botões: "Voltar" | "Confirmar Saída"
-- Após confirmação: volta para home
+### 3. ExitForm Component (`/exit-form`)
+- Receives employeeId via useSearchParams
+- Form fields:
+  - Exit date (date input)
+  - Exit reason (textarea)
+  - Will there be replacement? (radio: yes/no)
+  - Machine ID (text input)
+- Navigation: "Voltar" | "Continuar" → `/summary` with form data
 
-### 5. Entry Form (`/entry-form`)
-- Fields:
-    - Nome Completo (text input)
+### 4. Summary Component (`/summary`)
+- Displays complete summary of 8 mandatory fields
+- Combined data: employee + project + form
+- Navigation: "Voltar" | "Confirmar Saída" → back to home after confirmation
+
+### 5. EntryForm Component (`/entry-form`)
+- New employee entry form with fields:
+    - Full Name (text input)
     - CPF (text input)
-    - E-mail (text input)
-    - Nome do Instituto (text input)
-    - Realizou o treinamento de compliance da HP? (radio: sim/não)
-    - É faturável? (radio: sim/não)
-    - Data de Início (date input)
-    - Papel do profissional (text input)
-    - Nome do projeto HP em que o profissional atuará (text input)
-- Buttons: "Voltar" | "Continuar"
-- Redirects to: `/summary-entry` with data via URL parameters
+    - Email (text input)
+    - Institute Name (text input)
+    - HP Compliance Training completed? (radio: yes/no)
+    - Is billable? (radio: yes/no)
+    - Start Date (date input)
+    - Professional Role (text input)
+    - HP Project Name (text input)
+- Navigation: "Voltar" | "Continuar" → `/summary-entry` with form data
 
-### 6. Summary Entry (`/summary-entry`)
-- Displays a summary of all collected entry fields.
-- Buttons: "Voltar" | "Confirmar Entrada"
-- After confirmation: returns to home
+### 6. SummaryEntry Component (`/summary-entry`)
+- Displays summary of all collected entry fields
+- Navigation: "Voltar" | "Confirmar Entrada" → back to home after confirmation
 
-### 7. Admin Dashboard (`/admin-dashboard`)
-- Página para administradores visualizarem todas as movimentações do sistema
-- Exibe tabela com entradas e saídas de funcionários ordenadas por data
-- Recursos disponíveis:
-  - Filtro por período (data início e fim)
-  - Botão "Exportar" (simulado)
-  - Navegação para formulários: "Nova Entrada" e "Nova Saída"
-- Colunas da tabela: Data, Tipo, Funcionário, Detalhes
-- Redirects to: `/entry-form` ou `/select-employee`
+### 7. AdminDashboard Component (`/admin-dashboard`)
+- Administrative interface for viewing all system movements
+- Displays table with employee entries and exits ordered by date
+- Features:
+  - Period filter (start and end date)
+  - "Export" button (simulated)
+  - Navigation to forms: "Nova Entrada" and "Nova Saída"
+- Table columns: Date, Type, Employee, Details
+- Navigation: `/entry-form` or `/select-employee`
 
 ## Data Schema
 
@@ -183,49 +190,57 @@ Retorna dados completos para o resumo
 ```
 /
 ├── package.json
+├── vite.config.js
 ├── docker-compose.yml
 ├── Dockerfile
 ├── server.js
+├── index.html
 ├── src/
-│   ├── data/
-│   │   ├── employees.json
-│   │   ├── entries.json
-│   │   ├── exits.json
-│   │   ├── projects.json
-│   │   └── employee_projects.json  
-│   └── public/
-│       ├── index.html
-│       ├── admin-dashboard.html
-│       ├── select-employee.html
-│       ├── entry-form.html
-│       ├── exit-form.html
-│       ├── summary.html
-│       ├── summary-entry.html
-│       ├── css/
-│       │   └── styles.css
-│       └── js/
-│           ├── home.js
-│           ├── admin-dashboard.js
-│           ├── select-employee.js
-│           ├── entry-form.js
-│           ├── exit-form.js
-│           ├── summary.js
-│           └── summary-entry.js
+│   ├── main.jsx
+│   ├── App.jsx
+│   ├── App.css
+│   ├── index.css
+│   ├── styles.css
+│   ├── components/
+│   │   ├── Home.jsx
+│   │   ├── SelectEmployee.jsx
+│   │   ├── EntryForm.jsx
+│   │   ├── ExitForm.jsx
+│   │   ├── Summary.jsx
+│   │   ├── SummaryEntry.jsx
+│   │   └── AdminDashboard.jsx
+│   └── data/
+│       ├── employees.json
+│       ├── entries.json
+│       ├── exits.json
+│       ├── projects.json
+│       └── employee_projects.json
 ```
 
-## Data Flow Between Pages
+## Data Flow Between Components
 
-1. **Home → Select Employee**: No parameters (para nova saída)
-2. **Home → Entry Form**: No parameters (para nova entrada)
-3. **Home → Admin Dashboard**: No parameters (para área administrativa)
-4. **Select Employee → Exit Form**: `?employeeId=EMP002`
-5. **Exit Form → Summary**: `?employeeId=EMP002&exitDate=2025-08-15&reason=Nova%20oportunidade&replacement=sim&machineId=TOMB001`
-6. **Summary → Home**: Reset após confirmação
-7. **Entry Form → Summary Entry**: Example: `?fullName=Novo%20Funcionario%20Exemplo&cpf=123.456.789-00&email=novo.exemplo%40company.com&instituteName=Instituto%20XYZ&complianceTraining=sim&billable=sim&startDate=2025-01-01&role=Desenvolvedor%20Junior&projectName=Projeto%20Novo%20HP`
+### React Router Navigation
+- Uses React Router for client-side routing
+- Navigation handled via useNavigate hook
+- URL parameters managed with useSearchParams hook
+
+1. **Home → SelectEmployee**: Direct navigation (for new exit)
+2. **Home → EntryForm**: Direct navigation (for new entry)  
+3. **Home → AdminDashboard**: Direct navigation (for admin area)
+4. **SelectEmployee → ExitForm**: `?employeeId=EMP002`
+5. **ExitForm → Summary**: State passed via useNavigate state or URL params
+6. **Summary → Home**: Direct navigation after confirmation
+7. **EntryForm → SummaryEntry**: State passed via useNavigate state or URL params
+8. **SummaryEntry → Home**: Direct navigation after confirmation
 
 ## Docker Configuration
 
-### Dockerfile
+### Multi-Service Architecture
+- **Frontend Service**: Vite development server (port 3001)
+- **Backend Service**: Express.js API server (port 3000)
+- **Proxy Configuration**: Vite proxy redirects API calls to backend
+
+### Dockerfile (Backend)
 ```dockerfile
 FROM node:18-alpine
 WORKDIR /app
@@ -240,13 +255,36 @@ CMD ["node", "server.js"]
 ```yaml
 version: '3.8'
 services:
-  app:
+  backend:
     build: .
     ports:
       - "3000:3000"
     volumes:
       - ./src/data:/app/src/data
+    environment:
+      - NODE_ENV=development
+  
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
 ```
+
+### Development Workflow
+- **Start Services**: `docker-compose up -d --build`
+- **Frontend URL**: `http://localhost:3001`
+- **Backend APIs**: `http://localhost:3000/api/*`
+- **Hot Reload**: Vite provides automatic hot reload for React components
+- **API Proxy**: Vite automatically proxies `/api/*` requests to backend service
 
 ## Security & Validation
 - **POC**: Happy path apenas
