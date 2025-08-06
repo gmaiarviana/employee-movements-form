@@ -56,20 +56,28 @@
   border-radius: var(--border-radius-sm);
   padding: var(--spacing-3) var(--spacing-4);
   min-height: var(--spacing-12);
-  transition: var(--transition-colors), var(--transition-default);
+  transition: var(--transition-colors), var(--transition-default), transform var(--transition-duration-fast) var(--transition-easing-smooth);
   outline: none;
   box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .input:focus {
   border-color: var(--color-border-focus);
   box-shadow: 0 0 0 3px var(--color-primary-200);
   background-color: var(--color-surface);
+  transform: translateY(-1px);
 }
 
 .input::placeholder {
   color: var(--color-text-muted);
   opacity: 1;
+  transition: var(--transition-opacity);
+}
+
+.input:focus::placeholder {
+  opacity: 0.7;
 }
 
 /* Input Field Specific Styles - inherits all base styles */
@@ -218,8 +226,54 @@
   padding-right: var(--spacing-12);
 }
 
-/* Responsive Adjustments */
-@media (max-width: var(--breakpoint-mobile)) {
+/* === RESPONSIVE DESIGN === */
+
+/* Mobile-first approach: Base styles are for mobile, then enhance for larger screens */
+
+/* Mobile (320px - 479px) - Base styles above are already optimized for mobile */
+
+/* Small Mobile - Extra small screens */
+@media (max-width: 320px) {
+  .input {
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-2) var(--spacing-3);
+    min-height: var(--spacing-10);
+  }
+  
+  .input__label {
+    font-size: var(--font-size-xs);
+  }
+  
+  .input__error {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-1);
+  }
+  
+  .input__select {
+    padding-right: var(--spacing-8);
+    background-size: 1em 1em;
+  }
+}
+
+/* Mobile to Tablet (480px - 767px) */
+@media (min-width: var(--breakpoint-mobile)) and (max-width: calc(var(--breakpoint-tablet) - 1px)) {
+  .input {
+    font-size: var(--font-size-base);
+    padding: var(--spacing-3) var(--spacing-4);
+    min-height: var(--spacing-12);
+  }
+  
+  .input__label {
+    font-size: var(--font-size-sm);
+  }
+  
+  .input__textarea {
+    min-height: calc(var(--line-height-relaxed) * 3.5em + var(--spacing-6));
+  }
+}
+
+/* Tablet (768px - 1023px) */
+@media (min-width: var(--breakpoint-tablet)) and (max-width: calc(var(--breakpoint-desktop) - 1px)) {
   .input {
     font-size: var(--font-size-base);
     padding: var(--spacing-3) var(--spacing-4);
@@ -229,8 +283,83 @@
     font-size: var(--font-size-sm);
   }
   
-  .input__error {
+  /* Better touch targets on tablet */
+  .input {
+    min-height: var(--spacing-12);
+  }
+  
+  .input__textarea {
+    min-height: calc(var(--line-height-relaxed) * 4em + var(--spacing-6));
+  }
+}
+
+/* Desktop and above (1024px+) */
+@media (min-width: var(--breakpoint-desktop)) {
+  .input {
+    font-size: var(--font-size-base);
+    padding: var(--spacing-3) var(--spacing-4);
+  }
+  
+  .input__label {
     font-size: var(--font-size-sm);
+  }
+  
+  /* Enhanced hover states for desktop */
+  .input:hover:not(:disabled):not(:focus) {
+    border-color: var(--color-neutral-400);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-xs);
+  }
+  
+  .input__textarea {
+    min-height: calc(var(--line-height-relaxed) * 4em + var(--spacing-6));
+  }
+}
+
+/* Large Desktop (1440px+) */
+@media (min-width: var(--breakpoint-wide)) {
+  .input--large {
+    padding: var(--spacing-4) var(--spacing-6);
+    font-size: var(--font-size-lg);
+  }
+}
+
+/* === TOUCH DEVICE OPTIMIZATIONS === */
+@media (hover: none) and (pointer: coarse) {
+  /* Touch devices - increase minimum touch target size */
+  .input {
+    min-height: 44px; /* WCAG recommended minimum touch target */
+    padding: var(--spacing-3) var(--spacing-4);
+  }
+  
+  .input__select {
+    min-height: 44px;
+  }
+  
+  /* Remove hover states on touch devices */
+  .input:hover:not(:disabled):not(:focus) {
+    border-color: var(--color-border);
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* High-DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .input__select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  }
+}
+
+/* Landscape orientation optimizations */
+@media (orientation: landscape) and (max-height: 568px) {
+  .input {
+    padding: var(--spacing-2) var(--spacing-3);
+    min-height: var(--spacing-10);
+  }
+  
+  .input__textarea {
+    min-height: calc(var(--line-height-relaxed) * 2.5em + var(--spacing-4));
   }
 }
 
