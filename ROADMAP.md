@@ -46,13 +46,14 @@ Separar frontend e backend completamente, preparar para PostgreSQL futuro.
 
 **Plano de Implementação:**
 
-#### 3.4.1 Reestruturação de Pastas
-**Objetivo:** Organizar código em estrutura `/frontend` e `/backend` independentes.
-- Criar estrutura de pastas separada
-- Mover código React/Vite para `/frontend`
-- Mover código Express para `/backend`
-- Ajustar imports e configurações
-- Mover dados JSON para `/backend/data`
+#### ✅ 3.4.1 Reestruturação de Pastas
+**CONCLUÍDO** - Estrutura organizada com `/frontend` e `/backend` independentes.
+- ✅ Criar estrutura de pastas separada
+- ✅ Mover código React/Vite para `/frontend`
+- ✅ Mover código Express para `/backend`
+- ✅ Ajustar imports e configurações
+- ✅ Mover dados JSON para `/backend/data`
+- ✅ Remover arquivos duplicados da raiz
 
 #### 3.4.2 Separação Completa de Responsabilidades
 **Objetivo:** Backend servindo APENAS APIs RESTful, frontend completamente independente.

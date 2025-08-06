@@ -1,22 +1,122 @@
-# Architecture Document - Employee Exit Process POC
+# Architecture Document - Employee Movements System
 
-## Tech Stack
-- **Backend**: Node.js + Express.js
-- **Frontend**: Vite + React + React Router
-- **Data**: JSON files (mock database)
-- **Infrastructure**: Docker (multi-service)
-- **Ports**: Frontend (3001), Backend APIs (3000)
-- **Styling**: Simplified CSS design system (design-system.css)
+## 🏗️ Arquitetura Geral
 
-## System Architecture
+### Tech Stack
+- **Frontend**: React 18 + Vite + React Router
+- **Backend**: Node.js + Express.js + CORS
+- **Dados**: Arquivos JSON (simulação de banco de dados)
+- **Infraestrutura**: Docker multi-serviço
+- **Portas**: Frontend (3001), Backend APIs (3000)
+- **Styling**: Design System CSS próprio com dark mode automático
 
+### Estrutura Organizacional
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Browser       │───▶│   Vite + React  │───▶│   Express.js    │───▶│   JSON Files    │
-│   (Port 3001)   │    │   Frontend      │    │   API Server    │    │   (Mock DB)     │
-│                 │    │   (Port 3001)   │    │   (Port 3000)   │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
+/
+├── frontend/              # Aplicação React independente
+│   ├── src/
+│   ├── package.json
+│   ├── Dockerfile
+│   └── README.md
+├── backend/               # API server independente
+│   ├── data/             # Arquivos JSON
+│   ├── server.js
+│   ├── package.json
+│   ├── Dockerfile
+│   └── README.md
+├── docker-compose.yml     # Orquestração dos serviços
+├── ARCHITECTURE.md        # Documentação técnica completa
+└── README.md             # Guia do usuário
+
+## 🐳 Configuração Docker
+
+### Arquitetura de Serviços Separados
+
+Cada serviço tem seu próprio Dockerfile e configuração independente:
+
+#### Frontend Service (Port 3001)
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3001
+CMD ["npm", "run", "dev"]
 ```
+
+#### Backend Service (Port 3000)
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["npm", "run", "dev"]
+```
+
+#### docker-compose.yml
+```yaml
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - FRONTEND_URL=http://localhost:3001
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3000
+    depends_on:
+      - backend
+```
+
+### Comandos de Desenvolvimento
+
+**SEMPRE use Docker, nunca npm diretamente:**
+
+```bash
+# Subir todos os serviços
+docker-compose up -d --build
+
+# Subir apenas um serviço
+docker-compose up backend
+docker-compose up frontend
+
+# Ver logs
+docker-compose logs backend
+docker-compose logs frontend
+
+# Parar serviços
+docker-compose down
+
+# Rebuild após mudanças
+docker-compose up -d --build
+```
+
+### Variáveis de Ambiente
+
+#### Backend
+- `PORT`: Porta do servidor (default: 3000)
+- `FRONTEND_URL`: URL do frontend para CORS (default: http://localhost:3001)
+- `NODE_ENV`: Ambiente (development/production)
+
+#### Frontend
+- `VITE_API_URL`: URL do backend (default: http://localhost:3000)
+- `NODE_ENV`: Ambiente (development/production)
 
 ## Component Structure
 

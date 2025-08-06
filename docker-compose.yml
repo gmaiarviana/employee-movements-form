@@ -1,29 +1,28 @@
 services:
   backend:
-    build: .
-    command: npm run server
+    build: ./backend
     ports:
       - "3000:3000"
     volumes:
-      - ./src/data:/app/src/data
+      - ./backend:/app
+      - /app/node_modules
     environment:
       - NODE_ENV=development
       - DEBUG=true
+      - FRONTEND_URL=http://localhost:3001
     networks:
       - app-network
 
   frontend:
-    build: .
-    command: npm run dev -- --host 0.0.0.0
+    build: ./frontend
     ports:
       - "3001:3001"
     volumes:
-      - ./src:/app/src
-      - ./index.html:/app/index.html
-      - ./vite.config.js:/app/vite.config.js
+      - ./frontend:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3000
     depends_on:
       - backend
     networks:

@@ -1,29 +1,22 @@
 {
-  "name": "employee-exit-poc",
+  "name": "employee-movements-monorepo",
   "version": "1.0.0",
-  "description": "Employee Exit Process POC",
-  "main": "server.js",
+  "description": "Employee Movements System - Full Stack Application",
   "scripts": {
-    "start": "node server.js",
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "server": "nodemon server.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.8.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1",
-    "browser-sync": "^2.29.3",
-    "@types/react": "^18.0.27",
-    "@types/react-dom": "^18.0.10",
-    "@vitejs/plugin-react": "^3.1.0",
-    "vite": "^4.1.0"
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && npm install",
+    "install:all": "npm run install:frontend && npm run install:backend",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "start:backend": "cd backend && npm start",
+    "docker:up": "docker-compose up --build",
+    "docker:down": "docker-compose down"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
 }

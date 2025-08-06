@@ -1,9 +1,16 @@
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
+// Configure CORS to allow requests from frontend
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+    credentials: true
+}));
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -28,9 +35,9 @@ app.get('/api/employees/:leaderId/team-members', (req, res) => {
     const leaderId = req.params.leaderId;
     
     // Load JSON data files
-    const employees = readJSONFile(path.join(__dirname, 'src/data/employees.json'));
-    const projects = readJSONFile(path.join(__dirname, 'src/data/projects.json'));
-    const assignments = readJSONFile(path.join(__dirname, 'src/data/employee_projects.json'));
+    const employees = readJSONFile(path.join(__dirname, 'data/employees.json'));
+    const projects = readJSONFile(path.join(__dirname, 'data/projects.json'));
+    const assignments = readJSONFile(path.join(__dirname, 'data/employee_projects.json'));
     
     if (!employees || !projects || !assignments) {
         return res.status(500).json({ error: 'Error loading data files' });
@@ -68,9 +75,9 @@ app.get('/api/employees/:id/details', (req, res) => {
     const employeeId = req.params.id;
     
     // Load JSON data files
-    const employees = readJSONFile(path.join(__dirname, 'src/data/employees.json'));
-    const projects = readJSONFile(path.join(__dirname, 'src/data/projects.json'));
-    const assignments = readJSONFile(path.join(__dirname, 'src/data/employee_projects.json'));
+    const employees = readJSONFile(path.join(__dirname, 'data/employees.json'));
+    const projects = readJSONFile(path.join(__dirname, 'data/projects.json'));
+    const assignments = readJSONFile(path.join(__dirname, 'data/employee_projects.json'));
     
     if (!employees || !projects || !assignments) {
         return res.status(500).json({ error: 'Error loading data files' });
@@ -123,10 +130,10 @@ app.get('/api/employees/:id/details', (req, res) => {
 // API route to get consolidated movements data
 app.get('/api/movements', (req, res) => {
     // Load JSON data files
-    const employees = readJSONFile(path.join(__dirname, 'src/data/employees.json'));
-    const projects = readJSONFile(path.join(__dirname, 'src/data/projects.json'));
-    const entries = readJSONFile(path.join(__dirname, 'src/data/entries.json'));
-    const exits = readJSONFile(path.join(__dirname, 'src/data/exits.json'));
+    const employees = readJSONFile(path.join(__dirname, 'data/employees.json'));
+    const projects = readJSONFile(path.join(__dirname, 'data/projects.json'));
+    const entries = readJSONFile(path.join(__dirname, 'data/entries.json'));
+    const exits = readJSONFile(path.join(__dirname, 'data/exits.json'));
     
     if (!employees || !projects || !entries || !exits) {
         return res.status(500).json({ error: 'Error loading data files' });
@@ -194,6 +201,12 @@ app.get('/api/movements', (req, res) => {
     res.json(movements);
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Backend server running on http://localhost:${PORT}`);
+    console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
 });
