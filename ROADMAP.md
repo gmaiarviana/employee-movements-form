@@ -33,6 +33,73 @@
       - É necessário implementar a lógica de migração dos dados mock existentes (dos arquivos JSON) para o novo banco de dados.
       - Todas as APIs existentes no backend devem ser modificadas para realizar operações de leitura e escrita no PostgreSQL, em vez dos arquivos JSON.
 
+Funcionalidade 4.1: Persistência de Dados com PostgreSQL
+Esta funcionalidade será dividida em 8 tarefas, começando pela configuração do ambiente e avançando para a adaptação das APIs existentes para utilizar o novo banco de dados.
+
+4.1.1 -Adicionar o serviço do PostgreSQL ao docker-compose.yml
+
+Objetivo: Incluir o contêiner do banco de dados no ambiente Docker para que o backend possa se conectar a ele.
+
+Descrição: Atualizar o arquivo docker-compose.yml para adicionar um novo serviço chamado db (ou similar) que utiliza uma imagem PostgreSQL, mapeia a porta e configura o volume para persistência dos dados.
+
+Critério de Aceite: Ao executar docker-compose up -d, o contêiner do PostgreSQL deve ser iniciado com sucesso, junto com os serviços de frontend e backend.
+
+4.1.2 - Instalar a biblioteca pg no backend
+
+Objetivo: Adicionar o driver do PostgreSQL ao projeto backend para permitir a comunicação com o banco de dados.
+
+Descrição: Executar o comando npm install pg no diretório do backend para adicionar a dependência.
+
+Critério de Aceite: O arquivo backend/package.json deve ser atualizado com a dependência pg.
+
+4.1.3 - Configurar variáveis de ambiente de conexão com o banco de dados
+
+Objetivo: Definir as variáveis de ambiente necessárias para que o backend se conecte ao banco de dados de forma segura e configurável.
+
+Descrição: Adicionar as variáveis DB_USER, DB_PASSWORD, DB_NAME, e DB_HOST ao arquivo backend/.env.example e, posteriormente, ao docker-compose.yml.
+
+Critério de Aceite: As novas variáveis devem estar presentes nos arquivos e prontas para serem lidas pela aplicação.
+
+4.1.4 - Criar a lógica de conexão com o PostgreSQL no server.js
+
+Objetivo: Implementar o código inicial no backend para estabelecer a conexão com o banco de dados.
+
+Descrição: No arquivo backend/server.js, adicionar o código para importar a biblioteca pg, criar um cliente de conexão usando as variáveis de ambiente e tentar conectar.
+
+Critério de Aceite: Ao iniciar o servidor com npm run dev dentro do contêiner, o log deve exibir uma mensagem indicando que a conexão com o banco de dados foi bem-sucedida.
+
+4.1.5 - Criar o script de migração para o PostgreSQL
+
+Objetivo: Migrar os dados existentes nos arquivos JSON (employees, projects, entries, exits) para o novo banco de dados.
+
+Descrição: Criar um script ou uma função na inicialização do backend que lê os dados dos arquivos JSON e os insere nas tabelas correspondentes do PostgreSQL.
+
+Critério de Aceite: O banco de dados deve conter as tabelas necessárias e os dados dos arquivos JSON devem ter sido inseridos com sucesso após a execução do script.
+
+4.1.6 - Adaptar a API GET /api/employees/:leaderId/team-members para usar o PostgreSQL
+
+Objetivo: Modificar o endpoint para buscar os membros da equipe diretamente do banco de dados em vez de ler os arquivos JSON.
+
+Descrição: Alterar a lógica na rota app.get('/api/employees/:leaderId/team-members') para executar consultas SQL no PostgreSQL.
+
+Critério de Aceite: A API deve retornar os mesmos dados que antes, mas obtidos do banco de dados.
+
+4.1.7 - Adaptar a API GET /api/employees/:id/details para usar o PostgreSQL
+
+Objetivo: Alterar o endpoint para buscar os detalhes de um funcionário diretamente do banco de dados.
+
+Descrição: Modificar a lógica na rota app.get('/api/employees/:id/details') para usar consultas SQL.
+
+Critério de Aceite: A API deve retornar os detalhes corretos de um funcionário, agora obtidos do PostgreSQL.
+
+4.1.8 - Adaptar a API GET /api/movements para usar o PostgreSQL
+
+Objetivo: Atualizar o endpoint para buscar todas as movimentações (entradas e saídas) do banco de dados.
+
+Descrição: Modificar a lógica na rota app.get('/api/movements') para realizar consultas no banco de dados e consolidar os resultados de entradas e saídas.
+
+Critério de Aceite: A API deve retornar a lista completa e ordenada de movimentações, obtida do PostgreSQL.
+
   - **2. Sistema de Autenticação e Cadastro (Básico):**
     - **Objetivo:** Adicionar uma camada de segurança para proteger o acesso a rotas críticas do sistema.
     - **Critérios de Aceite:**
