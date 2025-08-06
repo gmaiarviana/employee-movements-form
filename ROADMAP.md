@@ -25,17 +25,27 @@
 ## 🔮 Épico 4: Mínimo Produto Viável (MVP) - Persistência, Autenticação e Relatórios Básicos
 - Objetivo: Transformar o sistema em uma ferramenta funcional e utilizável por usuários selecionados, com persistência real de dados, segurança de acesso e capacidade de gerar relatórios.
 - Funcionalidades:
-  - **Persistência de Dados com PostgreSQL:**
-    - Substituição completa dos arquivos JSON por um banco de dados PostgreSQL para armazenar todas as movimentações de forma persistente.
-    - Migração dos dados mock existentes para a nova estrutura do banco de dados.
-    - Adaptação das APIs existentes para interagir com o PostgreSQL.
-  - **Sistema de Autenticação e Cadastro (Básico):**
-    - Implementação de um fluxo de cadastro para novos usuários.
-    - Desenvolvimento de uma tela de login simples (usuário/senha).
-    - Proteção das rotas e páginas críticas (e.g., `select-employee`, `entry-form`, `admin-dashboard`) exigindo autenticação do usuário.
-    - Possibilidade de compartilhar com usuários selecionados.
-  - **Geração de Relatório de Movimentação (PDF):**
-    - Funcionalidade para gerar e permitir o download de um relatório em formato PDF com os detalhes completos de uma movimentação (saída ou entrada).
+  - **1. Persistência de Dados com PostgreSQL:**
+    - **Objetivo:** Substituir os arquivos JSON por um banco de dados PostgreSQL para armazenar todas as movimentações de forma persistente.
+    - **Critérios de Aceite:**
+      - O arquivo `docker-compose.yml` deve ser atualizado para incluir o serviço do banco de dados PostgreSQL.
+      - O backend deve ser configurado para se conectar ao PostgreSQL usando variáveis de ambiente.
+      - É necessário implementar a lógica de migração dos dados mock existentes (dos arquivos JSON) para o novo banco de dados.
+      - Todas as APIs existentes no backend devem ser modificadas para realizar operações de leitura e escrita no PostgreSQL, em vez dos arquivos JSON.
+
+  - **2. Sistema de Autenticação e Cadastro (Básico):**
+    - **Objetivo:** Adicionar uma camada de segurança para proteger o acesso a rotas críticas do sistema.
+    - **Critérios de Aceite:**
+      - O frontend deve incluir novas páginas para `Login` e `Cadastro de Usuários`.
+      - O backend deve expor novas rotas de API para `POST /api/register` e `POST /api/login`.
+      - As rotas do frontend `/select-employee`, `/entry-form` e `/admin-dashboard` devem ser protegidas, exigindo autenticação do usuário antes de serem acessadas.
+
+  - **3. Geração de Relatório de Movimentação (PDF):**
+    - **Objetivo:** Permitir que o usuário gere e baixe um relatório em PDF com os detalhes de uma movimentação específica.
+    - **Critérios de Aceite:**
+      - O frontend do `AdminDashboard.jsx` deve exibir um botão para `Gerar PDF` ao lado de cada movimentação na tabela.
+      - Ao clicar no botão, uma nova API no backend deve ser chamada.
+      - O backend deve gerar um arquivo PDF formatado com os dados completos da movimentação e enviá-lo para download.
 
 ## 🔮 Épico 5: Integração de Dados Reais
 - Objetivo: Reduzir a entrada manual de dados através da integração com sistemas externos.
