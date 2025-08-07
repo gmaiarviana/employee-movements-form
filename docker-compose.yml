@@ -1,4 +1,17 @@
 services:
+  db:
+    image: postgres:15-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=employee_movements
+      - POSTGRES_USER=app_user
+      - POSTGRES_PASSWORD=app_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
   backend:
     build: ./backend
     ports:
@@ -13,6 +26,8 @@ services:
       - CORS_ORIGIN=http://localhost:3001
       # Use service name for internal Docker networking
       - VITE_API_URL=http://backend:3000
+    depends_on:
+      - db
     networks:
       - app-network
 
@@ -37,3 +52,6 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  postgres_data:
