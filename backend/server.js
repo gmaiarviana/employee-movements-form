@@ -1,7 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
 const { Client } = require('pg');
 
 // Load environment variables from .env file if exists
@@ -68,17 +66,6 @@ app.use(cors(corsOptions));
 
 // Middleware to parse JSON bodies
 app.use(express.json());
-
-// Helper function to read JSON files
-function readJSONFile(filePath) {
-    try {
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error(`Error reading file ${filePath}:`, error);
-        return null;
-    }
-}
 
 // =============================================================================
 // API ROUTES
