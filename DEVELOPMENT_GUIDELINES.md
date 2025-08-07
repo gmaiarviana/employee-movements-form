@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-Este documento define **como trabalhar** no projeto Contract Movements. O **que construir** está em `ROADMAP.md` e detalhes técnicos em `ARCHITECTURE.md`.
+Este documento define **como trabalhar** no projeto Contract Movements. O **que construir** está em `ROADMAP.md` e detalhes técnicos em `README.md` de cada componente.
 
 ## Ambiente de Desenvolvimento
 

@@ -13,7 +13,7 @@ O backend utiliza PostgreSQL database com Docker para persistência de dados.
 
 ## Desenvolvimento
 
-O backend roda via Docker junto com PostgreSQL. Para detalhes técnicos completos, consulte `DEVELOPMENT_GUIDELINES.md` na raiz do projeto.
+O backend roda via Docker junto com PostgreSQL.
 
 ```bash
 # Na raiz do projeto - inicia backend + banco de dados

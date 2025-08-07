@@ -12,7 +12,7 @@ Interface moderna desenvolvida em React com:
 
 ## Desenvolvimento
 
-O frontend roda exclusivamente via Docker. Para detalhes técnicos completos, consulte `ARCHITECTURE.md` na raiz do projeto.
+O frontend roda exclusivamente via Docker.
 
 ```bash
 # Na raiz do projeto
