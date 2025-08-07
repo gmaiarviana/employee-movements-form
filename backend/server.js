@@ -2,12 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const { Client } = require('pg');
 
 // Load environment variables from .env file if exists
 require('dotenv').config();
 
 // Validate required environment variables
-const requiredEnvVars = ['PORT', 'NODE_ENV'];
+const requiredEnvVars = ['PORT', 'NODE_ENV', 'DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER'];
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
 if (missingEnvVars.length > 0) {
@@ -15,6 +16,29 @@ if (missingEnvVars.length > 0) {
     console.error('💡 Please check your .env file or environment configuration');
     process.exit(1);
 }
+
+// Database configuration
+const dbClient = new Client({
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD
+});
+
+// Database connection function
+async function connectDatabase() {
+    try {
+        await dbClient.connect();
+        console.log('🐘 Database connected successfully');
+    } catch (error) {
+        console.error('❌ Database connection failed:', error);
+        process.exit(1);
+    }
+}
+
+// Connect to database
+connectDatabase();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
