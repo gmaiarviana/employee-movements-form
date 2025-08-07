@@ -179,77 +179,76 @@ app.get('/api/employees/:id/details', async (req, res) => {
 });
 
 // API route to get consolidated movements data
-app.get('/api/movements', (req, res) => {
-    // Load JSON data files
-    const employees = readJSONFile(path.join(__dirname, 'data/employees.json'));
-    const projects = readJSONFile(path.join(__dirname, 'data/projects.json'));
-    const entries = readJSONFile(path.join(__dirname, 'data/entries.json'));
-    const exits = readJSONFile(path.join(__dirname, 'data/exits.json'));
-    
-    if (!employees || !projects || !entries || !exits) {
-        return res.status(500).json({ error: 'Error loading data files' });
-    }
-    
-    const movements = [];
-    
-    // Process entries
-    if (entries.length > 0) {
-        entries.forEach(entry => {
-            const employee = employees.employees.find(emp => emp.id === entry.employeeId);
-            let project = null;
+app.get('/api/movements', async (req, res) => {
+    try {
+        const movements = [];
+        
+        // Query entries with JOINs
+        const entriesQuery = `
+            SELECT e.*, emp.name as employee_name, p.name as project_name 
+            FROM entries e 
+            LEFT JOIN employees emp ON e.employee_id = emp.id 
+            LEFT JOIN projects p ON e.project_id = p.id
+        `;
+        const entriesResult = await dbClient.query(entriesQuery);
+        
+        // Query exits with JOINs
+        const exitsQuery = `
+            SELECT ex.*, emp.name as employee_name, p.name as project_name 
+            FROM exits ex 
+            LEFT JOIN employees emp ON ex.employee_id = emp.id 
+            LEFT JOIN projects p ON ex.project_id = p.id
+        `;
+        const exitsResult = await dbClient.query(exitsQuery);
+        
+        // Process entries
+        entriesResult.rows.forEach(entry => {
             let details = 'Entrada';
             
-            if (entry.projectId) {
-                project = projects.projects.find(proj => proj.id === entry.projectId);
-                details = project 
-                    ? `Entrada como ${entry.role || employee?.role || 'Funcionário'} no Projeto ${project.name}`
-                    : `Entrada como ${entry.role || employee?.role || 'Funcionário'} - Projeto Não Encontrado`;
+            if (entry.project_id && entry.project_name) {
+                details = `Entrada como ${entry.role || 'Funcionário'} no Projeto ${entry.project_name}`;
             } else {
-                details = `Entrada como ${entry.role || employee?.role || 'Funcionário'} - Não atribuído`;
+                details = `Entrada como ${entry.role || 'Funcionário'} - Não atribuído`;
             }
             
             movements.push({
                 type: 'entrada',
-                date: entry.date || entry.startDate,
-                employeeName: employee ? employee.name : 'Funcionário não encontrado',
+                date: entry.date || entry.start_date,
+                employeeName: entry.employee_name || 'Funcionário não encontrado',
                 details: details
             });
         });
-    }
-    
-    // Process exits
-    if (exits.length > 0) {
-        exits.forEach(exit => {
-            const employee = employees.employees.find(emp => emp.id === exit.employeeId);
-            let project = null;
+        
+        // Process exits
+        exitsResult.rows.forEach(exit => {
             let details = 'Saída';
             
-            if (exit.projectId) {
-                project = projects.projects.find(proj => proj.id === exit.projectId);
-                details = project 
-                    ? `Saída por ${exit.reason || 'Motivo não especificado'} do Projeto ${project.name}`
-                    : `Saída por ${exit.reason || 'Motivo não especificado'} - Projeto Não Encontrado`;
+            if (exit.project_id && exit.project_name) {
+                details = `Saída por ${exit.reason || 'Motivo não especificado'} do Projeto ${exit.project_name}`;
             } else {
                 details = `Saída por ${exit.reason || 'Motivo não especificado'} - Não atribuído`;
             }
             
             movements.push({
                 type: 'saida',
-                date: exit.date || exit.exitDate,
-                employeeName: employee ? employee.name : 'Funcionário não encontrado',
+                date: exit.date || exit.exit_date,
+                employeeName: exit.employee_name || 'Funcionário não encontrado',
                 details: details
             });
         });
+        
+        // Sort movements chronologically (oldest to newest)
+        movements.sort((a, b) => {
+            const dateA = new Date(a.date || '1970-01-01');
+            const dateB = new Date(b.date || '1970-01-01');
+            return dateA - dateB;
+        });
+        
+        res.json(movements);
+    } catch (error) {
+        console.error('Error fetching movements:', error);
+        res.status(500).json({ error: 'Error fetching movements data' });
     }
-    
-    // Sort movements chronologically (oldest to newest)
-    movements.sort((a, b) => {
-        const dateA = new Date(a.date || '1970-01-01');
-        const dateB = new Date(b.date || '1970-01-01');
-        return dateA - dateB;
-    });
-    
-    res.json(movements);
 });
 
 // Health check endpoint

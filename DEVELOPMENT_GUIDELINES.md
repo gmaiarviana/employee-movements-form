@@ -27,7 +27,7 @@ Este documento define **como trabalhar** no projeto Contract Movements. O **que 
 
 ### **2. FUNCIONALIDADES → TAREFAS**
 - Para cada funcionalidade, **o Gemini irá propor a quebra em tarefas de 5-15 minutos.**
-- Cada tarefa deve idealmente corresponder à criação ou modificação de um único arquivo.
+- Cada tarefa deve ser uma unidade de trabalho específica e validável, podendo abranger modificações relacionadas em poucos arquivos.
 - Manter no máximo 3-6 tarefas por sessão de trabalho em uma funcionalidade.
 - Cada tarefa deve ser testável individualmente.
 
