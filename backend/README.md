@@ -9,95 +9,103 @@ Este serviço fornece endpoints para:
 - Dados de projetos e atribuições
 - Histórico de movimentações (entradas e saídas)
 
+O backend utiliza PostgreSQL database com Docker para persistência de dados.
+
 ## Desenvolvimento
 
-O backend roda exclusivamente via Docker. Para detalhes técnicos completos, consulte `ARCHITECTURE.md` na raiz do projeto.
+O backend roda via Docker junto com PostgreSQL. Para detalhes técnicos completos, consulte `DEVELOPMENT_GUIDELINES.md` na raiz do projeto.
 
 ```bash
-# Na raiz do projeto
+# Na raiz do projeto - inicia backend + banco de dados
 docker-compose up backend
+
+# Para configurar o banco de dados pela primeira vez
+docker-compose exec backend node migrate.js
 ```
 
 ## Stack Técnico
 
 - **Node.js 18** + **Express.js 4**
 - **CORS** configurado para frontend
-- **JSON files** como database (MVP)
+- **PostgreSQL 15** + **pg driver** para database
 - **Nodemon** para hot reload em desenvolvimento
 
-## Estrutura de Dados
+## Database Schema
 
-### employees.json - Dados dos funcionários
-```json
-{
-  "employees": [
-    {
-      "id": "EMP001",
-      "name": "Maria Santos", 
-      "email": "maria.santos@company.com",
-      "role": "Tech Lead",
-      "isLeader": true,
-      "company": "Instituto Atlântico"
-    }
-  ]
-}
+### Tabela: employees
+```sql
+CREATE TABLE employees (
+    id VARCHAR(10) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    is_leader BOOLEAN DEFAULT FALSE,
+    company VARCHAR(100) NOT NULL
+);
 ```
 
-### projects.json - Projetos disponíveis
-```json
-{
-  "projects": [
-    {
-      "id": "PROJ001",
-      "name": "Sistema ERP",
-      "type": "Desenvolvimento", 
-      "sow": "SOW-2024-001",
-      "leaderId": "EMP001"
-    }
-  ]
-}
+### Tabela: projects
+```sql
+CREATE TABLE projects (
+    id VARCHAR(10) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    sow VARCHAR(50),
+    leader_id VARCHAR(10),
+    FOREIGN KEY (leader_id) REFERENCES employees(id)
+);
 ```
 
-### employee_projects.json - Atribuições ativo/inativo
-```json
-{
-  "assignments": [
-    {
-      "employeeId": "EMP002",
-      "projectId": "PROJ001", 
-      "isActive": true
-    }
-  ]
-}
+### Tabela: employee_projects
+```sql
+CREATE TABLE employee_projects (
+    employee_id VARCHAR(10),
+    project_id VARCHAR(10),
+    is_active BOOLEAN DEFAULT TRUE,
+    PRIMARY KEY (employee_id, project_id),
+    FOREIGN KEY (employee_id) REFERENCES employees(id),
+    FOREIGN KEY (project_id) REFERENCES projects(id)
+);
 ```
 
-### entries.json - Histórico de entradas
-```json
-[
-  {
-    "id": "ENTRY001",
-    "employeeId": "EMP002",
-    "projectId": "PROJ001", 
-    "date": "2025-01-15",
-    "role": "Desenvolvedor Senior",
-    "startDate": "2025-01-15"
-  }
-]
+### Tabela: entries
+```sql
+CREATE TABLE entries (
+    id VARCHAR(20) PRIMARY KEY,
+    employee_id VARCHAR(10) NOT NULL,
+    project_id VARCHAR(10) NOT NULL,
+    date DATE NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    start_date DATE NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES employees(id),
+    FOREIGN KEY (project_id) REFERENCES projects(id)
+);
 ```
 
-### exits.json - Histórico de saídas
-```json
-[
-  {
-    "id": "EXIT001", 
-    "employeeId": "EMP002",
-    "projectId": "PROJ001",
-    "date": "2025-07-30",
-    "reason": "Fim de contrato",
-    "exitDate": "2025-07-30"
-  }
-]
+### Tabela: exits
+```sql
+CREATE TABLE exits (
+    id VARCHAR(20) PRIMARY KEY,
+    employee_id VARCHAR(10) NOT NULL,
+    project_id VARCHAR(10) NOT NULL,
+    date DATE NOT NULL,
+    reason TEXT NOT NULL,
+    exit_date DATE NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES employees(id),
+    FOREIGN KEY (project_id) REFERENCES projects(id)
+);
 ```
+
+## Database Migration
+
+Para configurar o banco de dados, execute o script de migração:
+
+```bash
+# Na raiz do projeto, após docker-compose up
+docker-compose exec backend node migrate.js
+```
+
+Este comando criará todas as tabelas e inserirá dados de exemplo necessários para o funcionamento da aplicação.
 
 ## API Endpoints
 
@@ -106,23 +114,25 @@ docker-compose up backend
 - `GET /api/employees/:id/details` - Detalhes do funcionário
 - `GET /api/movements` - Histórico de movimentações
 
+Todos os endpoints agora utilizam PostgreSQL para consulta e manipulação de dados.
+
 ### GET /api/employees/:leaderId/team-members
 **Lógica**:
-1. Busca projetos liderados pelo `leaderId`
-2. Encontra atribuições ativas para estes projetos  
-3. Retorna dados consolidados funcionário + projeto
+1. Consulta projetos liderados pelo `leaderId` na tabela projects
+2. Encontra atribuições ativas para estes projetos na tabela employee_projects
+3. Retorna dados consolidados funcionário + projeto via JOIN
 
 ### GET /api/employees/:id/details  
 **Lógica**:
-1. Busca dados do funcionário por ID
-2. Encontra projeto ativo do funcionário
+1. Busca dados do funcionário por ID na tabela employees
+2. Encontra projeto ativo do funcionário via JOIN com employee_projects e projects
 3. Retorna dados consolidados
 
 ### GET /api/movements
 **Lógica**:
-1. Lê `entries.json` e `exits.json`
-2. Para cada entrada/saída, busca dados do funcionário e projeto
-3. Consolida em formato único ordenado cronologicamente
+1. Consulta tabelas entries e exits com JOIN para dados de funcionários e projetos
+2. Consolida em formato único ordenado cronologicamente
+3. Retorna histórico completo de movimentações
 
 ## Configurações
 
@@ -131,6 +141,11 @@ docker-compose up backend
 PORT=3000                           # Porta do servidor
 FRONTEND_URL=http://localhost:3001  # URL do frontend para CORS
 NODE_ENV=development                # Ambiente
+DB_HOST=localhost                   # Host do banco PostgreSQL
+DB_PORT=5432                        # Porta do banco PostgreSQL
+DB_NAME=employee_movements          # Nome do banco de dados
+DB_USER=postgres                    # Usuário do banco de dados
+DB_PASSWORD=postgres                # Senha do banco de dados
 ```
 
 ### CORS Setup
@@ -140,15 +155,3 @@ app.use(cors({
     credentials: true
 }))
 ```
-
-## Preparação para Produção
-
-### Migração para PostgreSQL
-A arquitetura atual facilita esta migração - APIs mantêm mesma interface, apenas implementação interna muda de arquivos JSON para queries SQL.
-
-### Melhorias Sugeridas
-1. **Validação**: Express Validator para input validation
-2. **Logging**: Winston para logs estruturados  
-3. **Rate Limiting**: Express-rate-limit
-4. **Authentication**: JWT middleware
-5. **Testing**: Jest + Supertest para testes de API
