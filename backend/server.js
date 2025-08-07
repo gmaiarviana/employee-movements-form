@@ -85,43 +85,41 @@ function readJSONFile(filePath) {
 // =============================================================================
 
 // API route to get team members for a leader
-app.get('/api/employees/:leaderId/team-members', (req, res) => {
+app.get('/api/employees/:leaderId/team-members', async (req, res) => {
     const leaderId = req.params.leaderId;
     
-    // Load JSON data files
-    const employees = readJSONFile(path.join(__dirname, 'data/employees.json'));
-    const projects = readJSONFile(path.join(__dirname, 'data/projects.json'));
-    const assignments = readJSONFile(path.join(__dirname, 'data/employee_projects.json'));
-    
-    if (!employees || !projects || !assignments) {
-        return res.status(500).json({ error: 'Error loading data files' });
-    }
-    
-    // Find projects led by the specified leader
-    const leaderProjects = projects.projects.filter(project => project.leaderId === leaderId);
-    
-    // Find active assignments for those projects
-    const teamMembers = [];
-    
-    leaderProjects.forEach(project => {
-        const projectAssignments = assignments.assignments.filter(
-            assignment => assignment.projectId === project.id && assignment.isActive
+    try {
+        // Find projects led by the specified leader
+        const projectsResult = await dbClient.query(
+            'SELECT * FROM projects WHERE leader_id = $1',
+            [leaderId]
         );
         
-        projectAssignments.forEach(assignment => {
-            const employee = employees.employees.find(emp => emp.id === assignment.employeeId);
-            if (employee) {
+        const teamMembers = [];
+        
+        // For each project, find active assignments
+        for (const project of projectsResult.rows) {
+            const assignmentsResult = await dbClient.query(
+                'SELECT ep.*, e.name, e.role FROM employee_projects ep JOIN employees e ON ep.employee_id = e.id WHERE ep.project_id = $1 AND ep.is_active = true',
+                [project.id]
+            );
+            
+            // Add team members to the result array
+            assignmentsResult.rows.forEach(assignment => {
                 teamMembers.push({
-                    id: employee.id,
-                    name: employee.name,
+                    id: assignment.employee_id,
+                    name: assignment.name,
                     project: project.name,
-                    role: employee.role
+                    role: assignment.role
                 });
-            }
-        });
-    });
-    
-    res.json({ teamMembers });
+            });
+        }
+        
+        res.json({ teamMembers });
+    } catch (error) {
+        console.error('Error fetching team members:', error);
+        res.status(500).json({ error: 'Error loading data' });
+    }
 });
 
 // API route to get employee details with project information
