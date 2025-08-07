@@ -123,60 +123,59 @@ app.get('/api/employees/:leaderId/team-members', async (req, res) => {
 });
 
 // API route to get employee details with project information
-app.get('/api/employees/:id/details', (req, res) => {
+app.get('/api/employees/:id/details', async (req, res) => {
     const employeeId = req.params.id;
     
-    // Load JSON data files
-    const employees = readJSONFile(path.join(__dirname, 'data/employees.json'));
-    const projects = readJSONFile(path.join(__dirname, 'data/projects.json'));
-    const assignments = readJSONFile(path.join(__dirname, 'data/employee_projects.json'));
-    
-    if (!employees || !projects || !assignments) {
-        return res.status(500).json({ error: 'Error loading data files' });
-    }
-    
-    // Find the employee
-    const employee = employees.employees.find(emp => emp.id === employeeId);
-    if (!employee) {
-        return res.status(404).json({ error: 'Employee not found' });
-    }
-    
-    // Find the employee's active project assignment
-    const assignment = assignments.assignments.find(
-        assignment => assignment.employeeId === employeeId && assignment.isActive
-    );
-    
-    let project = null;
-    if (assignment) {
-        project = projects.projects.find(proj => proj.id === assignment.projectId);
-    }
-    
-    // Prepare response
-    const response = {
-        employee: {
-            id: employee.id,
-            name: employee.name,
-            email: employee.email,
-            role: employee.role,
-            company: employee.company
+    try {
+        // Find the employee
+        const employeeResult = await dbClient.query(
+            'SELECT * FROM employees WHERE id = $1',
+            [employeeId]
+        );
+        
+        if (employeeResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Employee not found' });
         }
-    };
-    
-    if (project) {
-        response.project = {
-            name: project.name,
-            type: project.type,
-            sow: project.sow
+        
+        const employee = employeeResult.rows[0];
+        
+        // Find the employee's active project
+        const projectResult = await dbClient.query(
+            'SELECT p.* FROM employee_projects ep JOIN projects p ON ep.project_id = p.id WHERE ep.employee_id = $1 AND ep.is_active = true LIMIT 1',
+            [employeeId]
+        );
+        
+        // Prepare response
+        const response = {
+            employee: {
+                id: employee.id,
+                name: employee.name,
+                email: employee.email,
+                role: employee.role,
+                company: employee.company
+            }
         };
-    } else {
-        response.project = {
-            name: "Não atribuído",
-            type: "N/A",
-            sow: "N/A"
-        };
+        
+        if (projectResult.rows.length > 0) {
+            const project = projectResult.rows[0];
+            response.project = {
+                name: project.name,
+                type: project.type,
+                sow: project.sow
+            };
+        } else {
+            response.project = {
+                name: "Não atribuído",
+                type: "N/A",
+                sow: "N/A"
+            };
+        }
+        
+        res.json(response);
+    } catch (error) {
+        console.error('Error fetching employee details:', error);
+        res.status(500).json({ error: 'Error loading data' });
     }
-    
-    res.json(response);
 });
 
 // API route to get consolidated movements data
