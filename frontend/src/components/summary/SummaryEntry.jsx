@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { employees, movements } from '../../services/api'
 
 const SummaryEntry = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const [summaryData, setSummaryData] = useState(null)
   const [error, setError] = useState(null)
-  const { getToken } = useAuth()
 
   // Função para formatar data de YYYY-MM-DD para DD/MM/YYYY
   const formatDate = (dateString) => {
@@ -53,8 +52,6 @@ const SummaryEntry = () => {
   // Função para lidar com a confirmação
   const handleConfirm = async () => {
     try {
-      const token = getToken()
-      
       // Gerar ID único para novo funcionário
       const newEmployeeId = `EMP${Date.now().toString().slice(-3)}`
       
@@ -70,21 +67,7 @@ const SummaryEntry = () => {
       
       console.log('Criando funcionário:', employeeData)
       
-      const employeeResponse = await fetch('/api/employees', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(employeeData)
-      })
-      
-      if (!employeeResponse.ok) {
-        const errorData = await employeeResponse.json()
-        throw new Error(errorData.message || `Erro ao criar funcionário: ${employeeResponse.status}`)
-      }
-      
-      const employeeResult = await employeeResponse.json()
+      const employeeResult = await employees.create(employeeData)
       console.log('Funcionário criado:', employeeResult)
       
       // SEGUNDO: Criar a entrada
@@ -98,16 +81,7 @@ const SummaryEntry = () => {
       
       console.log('Criando entrada:', entryData)
       
-      const entryResponse = await fetch('/api/movements/entries', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(entryData)
-      })
-      
-      const entryResult = await entryResponse.json()
+      const entryResult = await movements.createEntry(entryData)
       console.log('Resultado entrada:', entryResult)
       
       if (entryResult.success) {

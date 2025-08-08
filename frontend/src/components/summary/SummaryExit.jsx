@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { employees, movements } from '../../services/api'
 
 const SummaryExit = () => {
   const [searchParams] = useSearchParams()
@@ -8,7 +8,6 @@ const SummaryExit = () => {
   const [summaryData, setSummaryData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const { getToken } = useAuth()
 
   // Extrair parâmetros da URL
   const employeeId = searchParams.get('employeeId')
@@ -41,19 +40,7 @@ const SummaryExit = () => {
       }
 
       try {
-        const token = getToken()
-        const response = await fetch(`/api/employees/${employeeId}/details`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        })
-        
-        if (!response.ok) {
-          throw new Error('Erro ao carregar dados do funcionário')
-        }
-        
-        const data = await response.json()
+        const data = await employees.getDetails(employeeId)
         
         // Verificar se resposta tem estrutura correta
         if (data.success && data.data) {
@@ -64,7 +51,7 @@ const SummaryExit = () => {
         setLoading(false)
       } catch (error) {
         console.error('Erro ao carregar dados:', error)
-        setError('Erro ao carregar informações do resumo.')
+        setError(error.message || 'Erro ao carregar informações do resumo.')
         setLoading(false)
       }
     }
@@ -75,8 +62,6 @@ const SummaryExit = () => {
   // Função para lidar com a confirmação
   const handleConfirm = async () => {
     try {
-      const token = getToken()
-      
       // Preparar dados para API seguindo formato do backend
       const exitData = {
         employeeId: employeeId,
@@ -88,21 +73,7 @@ const SummaryExit = () => {
       
       console.log('Salvando saída:', exitData)
       
-      const response = await fetch('/api/movements/exits', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(exitData)
-      })
-      
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
-      }
-      
-      const result = await response.json()
+      const result = await movements.createExit(exitData)
       console.log('Resultado da saída:', result)
       
       if (result.success) {

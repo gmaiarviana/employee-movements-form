@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { movements } from '../../services/api'
 
 const AdminDashboard = () => {
   const [movements, setMovements] = useState([])
@@ -8,7 +8,6 @@ const AdminDashboard = () => {
   const [endDate, setEndDate] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const { getToken } = useAuth()
   const navigate = useNavigate()
 
   // Function to filter movements by date (identical to JS original)
@@ -67,20 +66,7 @@ const AdminDashboard = () => {
       setLoading(true)
       setError('')
       
-      const token = getToken()
-      // Fazer requisição para a API
-      const response = await fetch('/api/movements', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      
-      let movementsData = await response.json()
+      let movementsData = await movements.getAll()
       
       // Verificar se resposta tem estrutura correta
       if (movementsData.success && movementsData.data) {

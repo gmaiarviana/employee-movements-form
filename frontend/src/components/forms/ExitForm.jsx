@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { useAuth } from '../context/AuthContext'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { employees } from '../../services/api'
 
 const ExitForm = () => {
   const [searchParams] = useSearchParams()
@@ -10,7 +10,6 @@ const ExitForm = () => {
   const [exitDate, setExitDate] = useState('')
   const [exitReason, setExitReason] = useState('')
   const navigate = useNavigate()
-  const { getToken } = useAuth()
 
   const employeeId = searchParams.get('employeeId')
 
@@ -24,19 +23,7 @@ const ExitForm = () => {
 
     try {
       setLoading(true)
-      const token = getToken()
-      const response = await fetch(`/api/employees/${employeeId}/details`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      
-      const data = await response.json()
+      const data = await employees.getDetails(employeeId)
       
       // Verificar se resposta tem estrutura correta
       if (data.success && data.data) {
@@ -47,7 +34,7 @@ const ExitForm = () => {
       setError(null)
     } catch (error) {
       console.error('Erro ao carregar informações do funcionário:', error)
-      setError('Não foi possível carregar as informações do funcionário. Tente novamente.')
+      setError(error.message || 'Não foi possível carregar as informações do funcionário. Tente novamente.')
       setEmployeeInfo(null)
     } finally {
       setLoading(false)

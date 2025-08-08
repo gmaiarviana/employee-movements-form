@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { auth } from '../../services/api'
 
 const headerStyle = {
   backgroundColor: '#374151',
@@ -66,19 +67,7 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erro ao criar conta')
-      }
+      const data = await auth.register(formData)
 
       if (data.success) {
         setSuccess('Conta criada com sucesso! Redirecionando para o login...')
@@ -119,11 +108,11 @@ const Register = () => {
       console.error('Registration error:', err)
       
       // Show user-friendly error messages
-      if (err.message.includes('fetch')) {
+      if (err.message.includes('Network error')) {
         setError('Erro de conexão. Verifique se o servidor está funcionando.')
       } else if (err.message.includes('já existe') || err.message.includes('already exists')) {
         setError('Username ou email já estão em uso. Tente outros valores.')
-      } else if (err.message.includes('400')) {
+      } else if (err.status === 400) {
         setError('Dados inválidos. Verifique os campos e tente novamente.')
       } else {
         setError(err.message || 'Erro inesperado. Tente novamente.')
