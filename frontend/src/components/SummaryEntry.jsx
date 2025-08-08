@@ -58,7 +58,7 @@ const SummaryEntry = () => {
       // Gerar ID único para novo funcionário
       const newEmployeeId = `EMP${Date.now().toString().slice(-3)}`
       
-      // Primeiro criar o funcionário (API ainda não existe - será erro esperado)
+      // PRIMEIRO: Criar o funcionário
       const employeeData = {
         id: newEmployeeId,
         name: summaryData.fullName,
@@ -68,9 +68,26 @@ const SummaryEntry = () => {
         is_leader: false
       }
       
-      console.log('Tentando criar funcionário:', employeeData)
+      console.log('Criando funcionário:', employeeData)
       
-      // Para MVP: pular criação de funcionário e criar entrada diretamente
+      const employeeResponse = await fetch('/api/employees', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(employeeData)
+      })
+      
+      if (!employeeResponse.ok) {
+        const errorData = await employeeResponse.json()
+        throw new Error(errorData.message || `Erro ao criar funcionário: ${employeeResponse.status}`)
+      }
+      
+      const employeeResult = await employeeResponse.json()
+      console.log('Funcionário criado:', employeeResult)
+      
+      // SEGUNDO: Criar a entrada
       const entryData = {
         employeeId: newEmployeeId,
         projectId: 'PROJ001', 
@@ -81,7 +98,7 @@ const SummaryEntry = () => {
       
       console.log('Criando entrada:', entryData)
       
-      const response = await fetch('/api/movements/entries', {
+      const entryResponse = await fetch('/api/movements/entries', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -90,15 +107,19 @@ const SummaryEntry = () => {
         body: JSON.stringify(entryData)
       })
       
-      const result = await response.json()
-      console.log('Resultado:', result)
+      const entryResult = await entryResponse.json()
+      console.log('Resultado entrada:', entryResult)
       
-      alert(`Entrada registrada para: ${summaryData.fullName}`)
-      navigate('/')
+      if (entryResult.success) {
+        alert(`✅ Funcionário ${summaryData.fullName} cadastrado e entrada registrada com sucesso!`)
+        navigate('/')
+      } else {
+        throw new Error(entryResult.message || 'Erro ao criar entrada')
+      }
       
     } catch (error) {
       console.error('Erro:', error)
-      alert(`Erro: ${error.message}`)
+      alert(`❌ Erro: ${error.message}`)
     }
   }
 
