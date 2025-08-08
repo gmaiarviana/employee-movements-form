@@ -1,6 +1,6 @@
 const express = require('express');
 const { dbClient } = require('../config/database');
-const { authenticateToken } = require('../middleware/auth');
+const { auth } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -9,7 +9,7 @@ const router = express.Router();
 // =============================================================================
 
 // GET /api/employees/:leaderId/team-members - Get team members for a leader
-router.get('/:leaderId/team-members', authenticateToken, async (req, res) => {
+router.get('/:leaderId/team-members', auth, async (req, res) => {
     const leaderId = req.params.leaderId;
     
     try {
@@ -54,7 +54,7 @@ router.get('/:leaderId/team-members', authenticateToken, async (req, res) => {
 });
 
 // GET /api/employees/:id/details - Get employee details with project information
-router.get('/:id/details', authenticateToken, async (req, res) => {
+router.get('/:id/details', auth, async (req, res) => {
     const employeeId = req.params.id;
     
     try {
