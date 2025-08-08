@@ -36,14 +36,13 @@ src/
 ├── main.jsx                    # Entry point React
 ├── App.jsx                     # Router principal + rotas
 ├── design-system.css          # Sistema de design unificado
+├── services/
+│   └── api.js                 # Service centralizado para APIs
 └── components/
-    ├── Home.jsx               # Página inicial (navegação)
-    ├── SelectEmployee.jsx     # Seleção funcionário (saída)
-    ├── EntryForm.jsx         # Formulário entrada
-    ├── ExitForm.jsx          # Formulário saída  
-    ├── SummaryExit.jsx       # Resumo saída
-    ├── SummaryEntry.jsx      # Resumo entrada
-    └── AdminDashboard.jsx    # Dashboard administrativo
+    ├── pages/                 # Home, Login, Register, AdminDashboard
+    ├── forms/                 # EntryForm, ExitForm, SelectEmployee
+    ├── summary/               # SummaryEntry, SummaryExit
+    └── common/                # ProtectedRoute, componentes reutilizáveis
 ```
 
 ## Fluxos de Navegação
@@ -76,11 +75,9 @@ Home → SelectEmployee → ExitForm → Summary → Home
 
 ## APIs Consumidas
 
-| Endpoint | Componente | Uso |
-|----------|------------|-----|
-| `GET /api/employees/EMP001/team-members` | SelectEmployee | Lista funcionários da equipe |
-| `GET /api/employees/:id/details` | ExitForm, Summary | Dados do funcionário selecionado |
-| `GET /api/movements` | AdminDashboard | Histórico completo de movimentações |
+- Todas as APIs agora consumidas via `services/api.js`
+- Autenticação JWT automática
+- Tratamento centralizado de erros
 
 **Base URL**: `http://localhost:3000/api` (backend PostgreSQL)
 
