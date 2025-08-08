@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
 const SelectEmployee = () => {
@@ -6,28 +7,42 @@ const SelectEmployee = () => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const { getToken } = useAuth()
   const navigate = useNavigate()
 
   // Função para carregar funcionários da equipe
   const loadEmployees = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/employees/EMP001/team-members')
+      const token = getToken()
+      console.log('🔐 Token:', token ? 'Presente' : 'Ausente')
+      
+      const response = await fetch('/api/employees/EMP001/team-members', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      console.log('📡 Response status:', response.status)
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
       
       const data = await response.json()
+      console.log('📊 Data received:', data)
       
-      if (data.teamMembers && data.teamMembers.length > 0) {
-        setEmployees(data.teamMembers)
+      if (data.success && data.data && data.data.teamMembers && data.data.teamMembers.length > 0) {
+        setEmployees(data.data.teamMembers)
+        console.log('✅ Funcionários carregados:', data.data.teamMembers.length)
       } else {
         setEmployees([])
+        console.log('❌ Nenhum funcionário encontrado')
       }
       
     } catch (error) {
-      console.error('Erro ao carregar funcionários:', error)
+      console.error('💥 Erro ao carregar funcionários:', error)
       setError('Erro ao carregar funcionários. Tente novamente.')
     } finally {
       setLoading(false)
