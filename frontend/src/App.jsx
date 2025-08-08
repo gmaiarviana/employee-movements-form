@@ -3,18 +3,22 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 // Import context and protected route
 import { AuthContextProvider } from './context/AuthContext'
-import ProtectedRoute from './components/ProtectedRoute'
+import ProtectedRoute from './components/common/ProtectedRoute'
 
-// Import components
-import Home from './components/Home'
-import Login from './components/Login'
-import Register from './components/Register'
-import AdminDashboard from './components/AdminDashboard'
-import SelectEmployee from './components/SelectEmployee'
-import EntryForm from './components/EntryForm'
-import ExitForm from './components/ExitForm'
-import SummaryExit from './components/SummaryExit'
-import SummaryEntry from './components/SummaryEntry'
+// Import page components
+import Home from './components/pages/Home'
+import Login from './components/pages/Login'
+import Register from './components/pages/Register'
+import AdminDashboard from './components/pages/AdminDashboard'
+
+// Import form components
+import SelectEmployee from './components/forms/SelectEmployee'
+import EntryForm from './components/forms/EntryForm'
+import ExitForm from './components/forms/ExitForm'
+
+// Import summary components
+import SummaryExit from './components/summary/SummaryExit'
+import SummaryEntry from './components/summary/SummaryEntry'
 
 function App() {
   return (
