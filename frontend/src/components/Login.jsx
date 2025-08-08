@@ -69,6 +69,11 @@ const Login = () => {
     }
   }
 
+  const handleQuickLogin = () => {
+    setEmail('admin@admin.com')
+    setPassword('admin123')
+  }
+
   return (
     <>
       <header style={headerStyle}>
@@ -82,6 +87,31 @@ const Login = () => {
           <div className="text-center mb-lg">
             <h2>Login</h2>
             <p>Entre com suas credenciais para acessar o sistema</p>
+            
+            {/* Credenciais para experimentação */}
+            <div style={{
+              backgroundColor: '#f3f4f6',
+              padding: '1rem',
+              borderRadius: '0.5rem',
+              marginTop: '1rem',
+              border: '1px solid #d1d5db'
+            }}>
+              <p style={{ 
+                fontSize: '0.875rem', 
+                color: '#374151', 
+                margin: '0 0 0.5rem 0',
+                fontWeight: '600'
+              }}>
+                Credenciais para experimentação:
+              </p>
+              <p style={{ 
+                fontSize: '0.8rem', 
+                color: '#6b7280', 
+                margin: '0'
+              }}>
+                Email: <strong>admin@admin.com</strong> | Senha: <strong>admin123</strong>
+              </p>
+            </div>
           </div>
           
           <div style={{ maxWidth: '400px', margin: '0 auto' }}>
@@ -153,6 +183,22 @@ const Login = () => {
                 style={{ width: '100%', marginBottom: '1rem' }}
               >
                 {isLoading ? 'Entrando...' : 'Entrar'}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleQuickLogin}
+                className="btn btn--secondary"
+                disabled={isLoading}
+                style={{ 
+                  width: '100%', 
+                  marginBottom: '1rem',
+                  backgroundColor: '#f59e0b',
+                  color: '#ffffff',
+                  border: 'none'
+                }}
+              >
+                Login Rápido (Admin)
               </button>
 
               <div className="text-center">
