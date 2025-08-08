@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const headerStyle = {
   backgroundColor: '#374151',
@@ -16,11 +17,58 @@ const titleStyle = {
 }
 
 const Home = () => {
+  const { isAuthenticated, currentUser, logout } = useAuth()
+
   return (
     <>
       <header style={headerStyle}>
         <div className="container">
           <h1 style={titleStyle}>Sistema de Gestão de Funcionários</h1>
+          
+          {/* User welcome section */}
+          {isAuthenticated && currentUser ? (
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              marginTop: '1rem',
+              paddingTop: '1rem',
+              borderTop: '1px solid rgba(255, 255, 255, 0.2)'
+            }}>
+              <span style={{ color: '#e5e7eb' }}>
+                Bem-vindo, {currentUser.username}!
+              </span>
+              <button 
+                className="btn btn--secondary" 
+                onClick={logout}
+                style={{ 
+                  backgroundColor: '#6b7280',
+                  border: 'none',
+                  color: 'white',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Sair
+              </button>
+            </div>
+          ) : (
+            !isAuthenticated && (
+              <div style={{ 
+                marginTop: '1rem',
+                paddingTop: '1rem',
+                borderTop: '1px solid rgba(255, 255, 255, 0.2)'
+              }}>
+                <Link to="/login" style={{ color: '#e5e7eb', marginRight: '1rem' }}>
+                  Entrar
+                </Link>
+                <Link to="/register" style={{ color: '#e5e7eb' }}>
+                  Cadastrar
+                </Link>
+              </div>
+            )
+          )}
         </div>
       </header>
       

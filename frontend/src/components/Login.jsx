@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const headerStyle = {
   backgroundColor: '#374151',
@@ -16,22 +17,22 @@ const titleStyle = {
 }
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    username: '',
-    password: ''
-  })
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
+    if (name === 'email') {
+      setEmail(value)
+    } else if (name === 'password') {
+      setPassword(value)
+    }
     // Clear errors when user starts typing
     if (error) setError('')
   }
@@ -43,38 +44,15 @@ const Login = () => {
     setSuccess('')
 
     try {
-      const response = await fetch('http://localhost:3000/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      })
+      // Use the login function from AuthContext
+      await login(email, password)
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erro ao fazer login')
-      }
-
-      if (data.success && data.token) {
-        // Store JWT token and user data in localStorage
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify({
-          id: data.user.id,
-          username: data.user.username,
-          email: data.user.email
-        }))
-
-        setSuccess('Login realizado com sucesso! Redirecionando...')
-        
-        // Redirect to home page after successful login
-        setTimeout(() => {
-          navigate('/')
-        }, 1500)
-      } else {
-        throw new Error('Resposta inválida do servidor')
-      }
+      setSuccess('Login realizado com sucesso! Redirecionando...')
+      
+      // Redirect to home page after successful login
+      setTimeout(() => {
+        navigate('/')
+      }, 1500)
     } catch (err) {
       console.error('Login error:', err)
       
@@ -82,7 +60,7 @@ const Login = () => {
       if (err.message.includes('fetch')) {
         setError('Erro de conexão. Verifique se o servidor está funcionando.')
       } else if (err.message.includes('401') || err.message.includes('credenciais')) {
-        setError('Credenciais inválidas. Verifique seu username e senha.')
+        setError('Credenciais inválidas. Verifique seu email e senha.')
       } else {
         setError(err.message || 'Erro inesperado. Tente novamente.')
       }
@@ -109,19 +87,19 @@ const Login = () => {
           <div style={{ maxWidth: '400px', margin: '0 auto' }}>
             <form onSubmit={handleSubmit} className="form">
               <div className="form-group">
-                <label htmlFor="username" className="form-label">
-                  Username
+                <label htmlFor="email" className="form-label">
+                  Email
                 </label>
                 <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={email}
                   onChange={handleChange}
                   className="form-field"
                   required
                   disabled={isLoading}
-                  placeholder="Digite seu username"
+                  placeholder="Digite seu email"
                 />
               </div>
 
@@ -133,7 +111,7 @@ const Login = () => {
                   type="password"
                   id="password"
                   name="password"
-                  value={formData.password}
+                  value={password}
                   onChange={handleChange}
                   className="form-field"
                   required

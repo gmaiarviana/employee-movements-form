@@ -41,6 +41,7 @@ const isValidToken = (token) => {
 export const AuthContextProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [currentUser, setCurrentUser] = useState(null)
 
   // Initialize authentication state from localStorage
   useEffect(() => {
@@ -50,15 +51,30 @@ export const AuthContextProvider = ({ children }) => {
         
         if (token && isValidToken(token)) {
           setIsAuthenticated(true)
+          
+          // Decode the token payload to get user data
+          try {
+            const parts = token.split('.')
+            const payload = JSON.parse(atob(parts[1]))
+            setCurrentUser({
+              username: payload.username || payload.email, // Use username do payload ou email como fallback
+              email: payload.email || null
+            })
+          } catch (decodeError) {
+            console.error('Error decoding token payload:', decodeError)
+            setCurrentUser(null)
+          }
         } else {
           // Remove invalid or expired token
           localStorage.removeItem('jwt_token')
           setIsAuthenticated(false)
+          setCurrentUser(null)
         }
       } catch (error) {
         console.error('Error initializing auth:', error)
         localStorage.removeItem('jwt_token')
         setIsAuthenticated(false)
+        setCurrentUser(null)
       } finally {
         setIsLoading(false)
       }
@@ -67,19 +83,52 @@ export const AuthContextProvider = ({ children }) => {
     initializeAuth()
   }, [])
 
-  // Login function - receives JWT and stores it in localStorage
-  const login = (token) => {
+  // Login function - receives email and password, makes API call and stores JWT
+  const login = async (email, password) => {
     try {
-      if (!token) {
-        throw new Error('Token is required')
+      if (!email || !password) {
+        throw new Error('Email e senha são obrigatórios')
       }
 
+      const response = await fetch('http://localhost:3000/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao fazer login')
+      }
+
+      if (!data.success || !data.data || !data.data.token) {
+        throw new Error(data.message || 'Resposta inválida do servidor: token ausente ou estrutura incorreta.')
+      }
+
+      const token = data.data.token
+
       if (!isValidToken(token)) {
-        throw new Error('Invalid token format')
+        throw new Error('Token inválido recebido do servidor')
       }
 
       localStorage.setItem('jwt_token', token)
       setIsAuthenticated(true)
+      
+      // Decode the token payload to get user data
+      try {
+        const parts = token.split('.')
+        const payload = JSON.parse(atob(parts[1]))
+        setCurrentUser({
+          username: payload.username || payload.email, // Use username do payload ou email como fallback
+          email: payload.email || null
+        })
+      } catch (decodeError) {
+        console.error('Error decoding token payload during login:', decodeError)
+        setCurrentUser(null)
+      }
       
       console.log('User logged in successfully')
     } catch (error) {
@@ -93,6 +142,7 @@ export const AuthContextProvider = ({ children }) => {
     try {
       localStorage.removeItem('jwt_token')
       setIsAuthenticated(false)
+      setCurrentUser(null)
       
       console.log('User logged out successfully')
     } catch (error) {
@@ -108,6 +158,7 @@ export const AuthContextProvider = ({ children }) => {
   const value = {
     isAuthenticated,
     isLoading,
+    currentUser,
     login,
     logout,
     getToken
