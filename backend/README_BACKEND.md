@@ -34,6 +34,7 @@ docker-compose exec db psql -U app_user -d employee_movements
 - **JWT (jsonwebtoken)** para autenticação
 - **bcryptjs** para hash de senhas
 - **dotenv** para gerenciamento de variáveis de ambiente
+- **Arquitetura MVC parcial** com controllers separados
 
 ## Database Schema
 
@@ -243,7 +244,8 @@ JWT_SECRET=your-super-secret-key    # Chave secreta para JWT (deve ser aleatóri
 
 ### Estrutura Modular
 O servidor está organizado em módulos separados:
-- **Routes**: `/routes/auth.js`, `/routes/employees.js`, `/routes/movements.js`, `/routes/health.js`
+- **Controllers**: `/controllers/authController.js`, `/controllers/employeeController.js`, `/controllers/movementController.js`
+- **Routes**: `/routes/auth.js`, `/routes/employees.js`, `/routes/movements.js`, `/routes/health.js` - Agora usam controllers para lógica de negócio
 - **Middlewares**: `/middleware/auth.js` 
 - **Configurações**: `/config/cors.js`, `/config/database.js`
 
