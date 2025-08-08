@@ -238,6 +238,69 @@ app.get('/api/movements', async (req, res) => {
     }
 });
 
+// POST /api/entries - Create new entry
+app.post('/api/entries', async (req, res) => {
+    try {
+        const { employeeId, projectId, date, role, startDate } = req.body;
+        
+        // Validate required fields
+        if (!employeeId || !projectId || !date || !role || !startDate) {
+            return res.status(400).json({ 
+                error: 'Missing required fields',
+                message: 'employeeId, projectId, date, role, and startDate are required'
+            });
+        }
+        
+        // Generate unique ID in format ENTRY{timestamp}
+        const entryId = `ENTRY${Date.now()}`;
+        
+        // Insert into entries table
+        const insertQuery = `
+            INSERT INTO entries (id, employee_id, project_id, date, role, start_date)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING *
+        `;
+        
+        const result = await dbClient.query(insertQuery, [
+            entryId,
+            employeeId,
+            projectId,
+            date,
+            role,
+            startDate
+        ]);
+        
+        res.status(201).json({
+            success: true,
+            message: 'Entry created successfully',
+            data: result.rows[0]
+        });
+        
+    } catch (error) {
+        console.error('Error creating entry:', error);
+        
+        // Handle specific PostgreSQL errors
+        if (error.code === '23503') { // Foreign key violation
+            return res.status(400).json({ 
+                error: 'Invalid reference',
+                message: 'Employee ID or Project ID does not exist'
+            });
+        }
+        
+        if (error.code === '23505') { // Unique violation
+            return res.status(409).json({ 
+                error: 'Duplicate entry',
+                message: 'Entry with this ID already exists'
+            });
+        }
+        
+        res.status(500).json({ 
+            error: 'Internal server error',
+            message: 'Failed to create entry'
+        });
+    }
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });

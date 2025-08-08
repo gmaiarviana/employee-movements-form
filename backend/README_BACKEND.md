@@ -19,8 +19,8 @@ O backend roda via Docker junto com PostgreSQL.
 # Na raiz do projeto - inicia backend + banco de dados
 docker-compose up backend
 
-# Para configurar o banco de dados pela primeira vez
-docker-compose exec backend node migrate.js
+# Para verificar se o banco está funcionando
+docker-compose exec db psql -U app_user -d employee_movements
 ```
 
 ## Stack Técnico
@@ -96,16 +96,28 @@ CREATE TABLE exits (
 );
 ```
 
-## Database Migration
+## Verificando o Database
 
-Para configurar o banco de dados, execute o script de migração:
+Para verificar se o banco possui dados de exemplo:
 
 ```bash
-# Na raiz do projeto, após docker-compose up
-docker-compose exec backend node migrate.js
-```
+# Conectar ao PostgreSQL
+docker-compose exec db psql -U app_user -d employee_movements
 
-Este comando criará todas as tabelas e inserirá dados de exemplo necessários para o funcionamento da aplicação.
+# No PostgreSQL, verificar dados:
+\dt                                    -- Listar tabelas
+SELECT COUNT(*) FROM employees;        -- Deve retornar 10
+SELECT COUNT(*) FROM projects;         -- Deve retornar 1  
+SELECT COUNT(*) FROM entries;          -- Deve retornar 2
+SELECT COUNT(*) FROM exits;            -- Deve retornar 1
+
+# Ver dados de exemplo
+SELECT * FROM employees LIMIT 3;
+SELECT * FROM entries;
+SELECT * FROM exits;
+
+\q                                     -- Sair do PostgreSQL
+```
 
 ## API Endpoints
 

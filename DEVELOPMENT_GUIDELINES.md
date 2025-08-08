@@ -96,16 +96,17 @@ O Gemini realizará uma auto-reflexão técnica antes de gerar sub-tasks e promp
 [Detalhe 2]: especificação técnica
 [Detalagem N]: especificação técnica
 
-### Expectativas Técnicas:
-[DESCRIÇÃO DAS EXPECTATIVAS TÉCNICAS DA SUB-TASK]
-
-### Validação PowerShell:
+### Validação PowerShell (para execução pelo desenvolvedor):
 ```powershell
 docker-compose up -d
-# Testar: [comportamento esperado no browser após a execução da sub-task]
+# Comandos específicos para testar a funcionalidade implementada
+# Exemplo: Invoke-WebRequest -Uri "..." -Method POST
+
 Critério de Aceite:
-✅ Deve: [output específico ou comportamento esperado no browser]
-❌ NÃO deve: [erros específicos ou comportamentos indesejados]
+✅ Deve: [comportamento esperado]
+❌ NÃO deve: [comportamentos indesejados]
+
+**Nota:** A seção "Validação PowerShell" contém comandos para o desenvolvedor executar após a implementação pelo Copilot, não instruções para o Copilot em si.
 
 ## Princípios de Qualidade
 

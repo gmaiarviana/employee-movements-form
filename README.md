@@ -8,7 +8,7 @@ Sistema web para registro de movimentações de funcionários (entradas e saída
 - **Registro de Entrada**: Formulário para registrar entrada de novos funcionários  
 - **Dashboard Admin**: Visualização de todas as movimentações registradas
 - **Interface Responsiva**: Design adaptativo para diferentes dispositivos
-- **Persistência PostgreSQL**: Banco de dados robusto com migração automatizada
+- **Persistência PostgreSQL**: Banco de dados robusto
 
 ## 🚀 Como executar
 
@@ -30,7 +30,20 @@ docker-compose up -d --build
 
 **Acesse**: http://localhost:3001
 
-## � Documentação Técnica
+### Verificar se está funcionando
+
+```bash
+# Verificar se os containers estão rodando
+docker-compose ps
+
+# Testar a API
+Invoke-WebRequest -Uri "http://localhost:3000/api/health"
+
+# Verificar dados no banco
+docker-compose exec db psql -U app_user -d employee_movements -c "SELECT COUNT(*) FROM employees;"
+```
+
+## 📖 Documentação Técnica
 
 - `backend/README_BACKEND.md` - API, banco PostgreSQL, endpoints
 - `frontend/README_FRONTEND.md` - React, componentes, design system
