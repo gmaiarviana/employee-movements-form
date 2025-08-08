@@ -81,7 +81,7 @@ const SummaryExit = () => {
       const exitData = {
         employeeId: employeeId,
         projectId: 'PROJ001', // Projeto padrão por enquanto
-        date: new Date().toISOString().split('T')[0], // Data atual
+        date: exitDate, // Data de saída informada no formulário
         reason: reason, // Motivo da saída (ex: "interno-externo")
         exitDate: exitDate // Data de saída informada no formulário
       }

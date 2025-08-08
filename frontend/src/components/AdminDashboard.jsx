@@ -14,7 +14,18 @@ const AdminDashboard = () => {
   // Function to filter movements by date (identical to JS original)
   const filterMovementsByDate = (movements, startDate, endDate) => {
     return movements.filter(movement => {
-      const movementDate = new Date(movement.date)
+      // Função para criar Date local correto a partir de string do PostgreSQL
+      const createLocalDate = (dateString) => {
+        const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(dateString)
+        if (isDateOnly) {
+          const [year, month, day] = dateString.split('-')
+          return new Date(year, month - 1, day) // mês é 0-indexado
+        } else {
+          return new Date(dateString)
+        }
+      }
+      
+      const movementDate = createLocalDate(movement.date)
       
       // Se startDate estiver definida, verificar se a data da movimentação é >= startDate
       if (startDate) {
@@ -35,7 +46,19 @@ const AdminDashboard = () => {
       }
       
       return true
-    }).sort((a, b) => new Date(b.date) - new Date(a.date)) // Manter ordenação cronológica (mais recente primeiro)
+    }).sort((a, b) => {
+      // Usar a mesma lógica de createLocalDate para ordenação
+      const createLocalDate = (dateString) => {
+        const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(dateString)
+        if (isDateOnly) {
+          const [year, month, day] = dateString.split('-')
+          return new Date(year, month - 1, day)
+        } else {
+          return new Date(dateString)
+        }
+      }
+      return createLocalDate(b.date) - createLocalDate(a.date) // Manter ordenação cronológica (mais recente primeiro)
+    })
   }
 
   // Function to load movements with filters
@@ -196,13 +219,34 @@ const AdminDashboard = () => {
                 {!loading && !error && movements.map((movement, index) => {
                   const typeClass = movement.type === 'entrada' ? 'movement-entry' : 'movement-exit'
                   const typeText = movement.type === 'entrada' ? 'Entrada' : 'Saída'
-                  const formattedDate = new Date(movement.date).toLocaleString('pt-BR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })
+                  
+                  // Função para tratar datas do PostgreSQL corretamente
+                  const formatMovementDate = (dateString) => {
+                    // Verificar se é apenas uma data (formato YYYY-MM-DD) ou timestamp completo
+                    const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(dateString)
+                    
+                    if (isDateOnly) {
+                      // Tratar como data local, não UTC
+                      const [year, month, day] = dateString.split('-')
+                      const localDate = new Date(year, month - 1, day) // mês é 0-indexado
+                      return localDate.toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                      })
+                    } else {
+                      // Para timestamps completos, manter formatação atual
+                      return new Date(dateString).toLocaleString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })
+                    }
+                  }
+                  
+                  const formattedDate = formatMovementDate(movement.date)
                   
                   return (
                     <tr key={index} className="movement-row">

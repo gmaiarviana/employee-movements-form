@@ -41,7 +41,7 @@ src/
     ├── SelectEmployee.jsx     # Seleção funcionário (saída)
     ├── EntryForm.jsx         # Formulário entrada
     ├── ExitForm.jsx          # Formulário saída  
-    ├── Summary.jsx           # Resumo saída
+    ├── SummaryExit.jsx       # Resumo saída
     ├── SummaryEntry.jsx      # Resumo entrada
     └── AdminDashboard.jsx    # Dashboard administrativo
 ```

@@ -91,7 +91,7 @@ const SummaryEntry = () => {
       const entryData = {
         employeeId: newEmployeeId,
         projectId: 'PROJ001', 
-        date: new Date().toISOString().split('T')[0],
+        date: summaryData.startDate, // Data de início informada no formulário
         role: summaryData.role,
         startDate: summaryData.startDate
       }
