@@ -13,7 +13,7 @@ import AdminDashboard from './components/AdminDashboard'
 import SelectEmployee from './components/SelectEmployee'
 import EntryForm from './components/EntryForm'
 import ExitForm from './components/ExitForm'
-import Summary from './components/Summary'
+import SummaryExit from './components/SummaryExit'
 import SummaryEntry from './components/SummaryEntry'
 
 function App() {
@@ -71,7 +71,7 @@ function App() {
               path="/summary" 
               element={
                 <ProtectedRoute>
-                  <Summary />
+                  <SummaryExit />
                 </ProtectedRoute>
               } 
             />

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-const Summary = () => {
+const SummaryExit = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const [summaryData, setSummaryData] = useState(null)
@@ -212,4 +212,4 @@ const Summary = () => {
   )
 }
 
-export default Summary
+export default SummaryExit
