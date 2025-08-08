@@ -1,0 +1,258 @@
+// =============================================================================
+// API SERVICE - Centralized API calls
+// =============================================================================
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const REQUEST_TIMEOUT = 10000; // 10 seconds
+
+// =============================================================================
+// UTILITY FUNCTIONS
+// =============================================================================
+
+/**
+ * Get JWT token from localStorage
+ */
+const getAuthToken = () => {
+  return localStorage.getItem('token');
+};
+
+/**
+ * Base API call function with authentication headers and error handling
+ */
+const apiCall = async (endpoint, options = {}) => {
+  const url = `${API_BASE_URL}${endpoint}`;
+  const token = getAuthToken();
+  
+  // Default headers
+  const defaultHeaders = {
+    'Content-Type': 'application/json',
+  };
+  
+  // Add authorization header if token exists
+  if (token) {
+    defaultHeaders.Authorization = `Bearer ${token}`;
+  }
+  
+  // Merge headers
+  const headers = {
+    ...defaultHeaders,
+    ...options.headers,
+  };
+  
+  // Setup request configuration
+  const config = {
+    method: 'GET',
+    ...options,
+    headers,
+  };
+  
+  // Add body if it's not GET request and body exists
+  if (config.method !== 'GET' && options.body) {
+    config.body = typeof options.body === 'string' 
+      ? options.body 
+      : JSON.stringify(options.body);
+  }
+  
+  try {
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+    
+    config.signal = controller.signal;
+    
+    const response = await fetch(url, config);
+    clearTimeout(timeoutId);
+    
+    // Handle HTTP errors
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const error = new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+      error.status = response.status;
+      error.data = errorData;
+      throw error;
+    }
+    
+    // Parse JSON response
+    const data = await response.json();
+    return data;
+    
+  } catch (error) {
+    // Handle specific error types
+    if (error.name === 'AbortError') {
+      throw new Error('Request timeout - please try again');
+    }
+    
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Network error - please check your connection');
+    }
+    
+    // Handle authentication errors
+    if (error.status === 401) {
+      // Clear invalid token
+      localStorage.removeItem('token');
+      throw new Error('Session expired - please login again');
+    }
+    
+    // Handle forbidden access
+    if (error.status === 403) {
+      throw new Error('Access denied - insufficient permissions');
+    }
+    
+    // Handle not found
+    if (error.status === 404) {
+      throw new Error('Resource not found');
+    }
+    
+    // Handle server errors
+    if (error.status >= 500) {
+      throw new Error('Server error - please try again later');
+    }
+    
+    // Re-throw the error with original message
+    throw error;
+  }
+};
+
+// =============================================================================
+// AUTHENTICATION API
+// =============================================================================
+
+const auth = {
+  /**
+   * Login user
+   * @param {string} email - User email
+   * @param {string} password - User password
+   * @returns {Promise<Object>} User data and token
+   */
+  login: async (email, password) => {
+    const response = await apiCall('/login', {
+      method: 'POST',
+      body: { email, password }
+    });
+    
+    // Store token if login successful
+    if (response.token) {
+      localStorage.setItem('token', response.token);
+    }
+    
+    return response;
+  },
+
+  /**
+   * Register new user
+   * @param {Object} data - User registration data
+   * @returns {Promise<Object>} User data and token
+   */
+  register: async (data) => {
+    const response = await apiCall('/register', {
+      method: 'POST',
+      body: data
+    });
+    
+    // Store token if registration successful
+    if (response.token) {
+      localStorage.setItem('token', response.token);
+    }
+    
+    return response;
+  },
+
+  /**
+   * Logout user (clear local token)
+   */
+  logout: () => {
+    localStorage.removeItem('token');
+  }
+};
+
+// =============================================================================
+// EMPLOYEES API
+// =============================================================================
+
+const employees = {
+  /**
+   * Get team members for a leader
+   * @param {string} leaderId - Leader ID
+   * @returns {Promise<Array>} Team members list
+   */
+  getTeamMembers: async (leaderId) => {
+    return await apiCall(`/employees/${leaderId}/team-members`);
+  },
+
+  /**
+   * Get employee details with project information
+   * @param {string} id - Employee ID
+   * @returns {Promise<Object>} Employee details
+   */
+  getDetails: async (id) => {
+    return await apiCall(`/employees/${id}/details`);
+  },
+
+  /**
+   * Create new employee
+   * @param {Object} data - Employee data
+   * @returns {Promise<Object>} Created employee
+   */
+  create: async (data) => {
+    return await apiCall('/employees', {
+      method: 'POST',
+      body: data
+    });
+  }
+};
+
+// =============================================================================
+// MOVEMENTS API
+// =============================================================================
+
+const movements = {
+  /**
+   * Get all movements
+   * @returns {Promise<Array>} Movements list
+   */
+  getAll: async () => {
+    return await apiCall('/movements');
+  },
+
+  /**
+   * Create entry movement
+   * @param {Object} data - Entry movement data
+   * @returns {Promise<Object>} Created entry movement
+   */
+  createEntry: async (data) => {
+    return await apiCall('/movements/entries', {
+      method: 'POST',
+      body: data
+    });
+  },
+
+  /**
+   * Create exit movement
+   * @param {Object} data - Exit movement data
+   * @returns {Promise<Object>} Created exit movement
+   */
+  createExit: async (data) => {
+    return await apiCall('/movements/exits', {
+      method: 'POST',
+      body: data
+    });
+  }
+};
+
+// =============================================================================
+// EXPORTS
+// =============================================================================
+
+export { 
+  apiCall, 
+  auth, 
+  employees, 
+  movements 
+};
+
+export default {
+  apiCall,
+  auth,
+  employees,
+  movements
+};
