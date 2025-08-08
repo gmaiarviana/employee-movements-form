@@ -66,7 +66,7 @@ Para cada Feature, o trabalho será dividido e executado em sub-tasks sequenciai
 * Uma Feature é considerada completa quando todas as suas Sub-tasks foram executadas, validadas e commitadas individualmente.
 * Ao final da Feature, será realizada uma validação abrangente para confirmar o comportamento esperado.
 * Um commit final será feito para a conclusão da feature, referenciando-a.
-* Atualizar a documentação relevante (ex: ARCHITECTURE.md, ROADMAP.md, DEVELOPMENT_GUIDELINES.md) para refletir as mudanças ou o status da feature concluída, se necessário.
+* Atualizar a documentação relevante (ex: README.md, ROADMAP.md, DEVELOPMENT_GUIDELINES.md) para refletir as mudanças ou o status da feature concluída, se necessário.
 
 ### 4. SUB-TASKS → PROMPTS (Sessão de Implementação com Gemini para GitHub Copilot)
 

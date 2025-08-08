@@ -9,7 +9,7 @@ const router = express.Router();
 // =============================================================================
 
 // GET /api/movements - Get consolidated movements data
-router.get('/movements', authenticateToken, async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
     try {
         const movements = [];
         
