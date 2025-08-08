@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const Summary = () => {
   const [searchParams] = useSearchParams()
@@ -7,6 +8,7 @@ const Summary = () => {
   const [summaryData, setSummaryData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const { getToken } = useAuth()
 
   // Extrair parâmetros da URL
   const employeeId = searchParams.get('employeeId')
@@ -39,14 +41,26 @@ const Summary = () => {
       }
 
       try {
-        const response = await fetch(`/api/employees/${employeeId}/details`)
+        const token = getToken()
+        const response = await fetch(`/api/employees/${employeeId}/details`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
         
         if (!response.ok) {
           throw new Error('Erro ao carregar dados do funcionário')
         }
         
         const data = await response.json()
-        setSummaryData(data)
+        
+        // Verificar se resposta tem estrutura correta
+        if (data.success && data.data) {
+          setSummaryData(data.data)
+        } else {
+          setSummaryData(data)
+        }
         setLoading(false)
       } catch (error) {
         console.error('Erro ao carregar dados:', error)
@@ -59,9 +73,49 @@ const Summary = () => {
   }, [employeeId])
 
   // Função para lidar com a confirmação
-  const handleConfirm = () => {
-    alert('Saída confirmada com sucesso!')
-    navigate('/')
+  const handleConfirm = async () => {
+    try {
+      const token = getToken()
+      
+      // Preparar dados para API seguindo formato do backend
+      const exitData = {
+        employeeId: employeeId,
+        projectId: 'PROJ001', // Projeto padrão por enquanto
+        date: new Date().toISOString().split('T')[0], // Data atual
+        reason: reason, // Motivo da saída (ex: "interno-externo")
+        exitDate: exitDate // Data de saída informada no formulário
+      }
+      
+      console.log('Salvando saída:', exitData)
+      
+      const response = await fetch('/api/movements/exits', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(exitData)
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+      }
+      
+      const result = await response.json()
+      console.log('Resultado da saída:', result)
+      
+      if (result.success) {
+        alert(`✅ Saída de ${summaryData.employee.name} registrada com sucesso!`)
+        navigate('/')
+      } else {
+        throw new Error(result.message || 'Erro ao salvar saída')
+      }
+      
+    } catch (error) {
+      console.error('Erro ao salvar saída:', error)
+      alert(`❌ Erro ao salvar saída: ${error.message}`)
+    }
   }
 
   // Função para lidar com o botão voltar
