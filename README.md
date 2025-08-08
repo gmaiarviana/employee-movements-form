@@ -17,12 +17,15 @@ Sistema web para registro de movimentações de funcionários (entradas e saída
 
 ### Iniciar o sistema
 ```bash
-git clone <repository-url>
+git clone https://guilherme_viana1@bitbucket.org/institutoatlantico/employee-movements-form.git
 cd employee-movements-form
-docker-compose up -d --build
 
-# Configurar banco de dados na primeira execução
-docker-compose exec backend node migrate.js
+# Copiar arquivos de configuração
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+
+# Iniciar os containers
+docker-compose up -d --build
 ```
 
 **Acesse**: http://localhost:3001
