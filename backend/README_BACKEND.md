@@ -98,13 +98,13 @@ CREATE TABLE exits (
 
 ## Verificando o Database
 
-Para verificar se o banco possui dados de exemplo:
+Para verificar a estrutura do banco e dados de exemplo:
 
 ```bash
 # Conectar ao PostgreSQL
 docker-compose exec db psql -U app_user -d employee_movements
 
-# No PostgreSQL, verificar dados:
+# No PostgreSQL, verificar estrutura:
 \dt                                    -- Listar tabelas
 SELECT COUNT(*) FROM employees;        -- Deve retornar 10
 SELECT COUNT(*) FROM projects;         -- Deve retornar 1  
@@ -125,8 +125,10 @@ SELECT * FROM exits;
 - `GET /api/employees/:leaderId/team-members` - Membros da equipe
 - `GET /api/employees/:id/details` - Detalhes do funcionário
 - `GET /api/movements` - Histórico de movimentações
+- `POST /api/entries` - Criar nova entrada
+- `POST /api/exits` - Criar nova saída
 
-Todos os endpoints agora utilizam PostgreSQL para consulta e manipulação de dados.
+Todos os endpoints utilizam PostgreSQL para consulta e manipulação de dados.
 
 ### GET /api/employees/:leaderId/team-members
 **Lógica**:
