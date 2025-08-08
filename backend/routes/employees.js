@@ -120,4 +120,88 @@ router.get('/:id/details', auth, async (req, res) => {
     }
 });
 
+// POST /api/employees - Create new employee
+router.post('/', auth, async (req, res) => {
+    try {
+        const { id, name, email, role, company, is_leader = false } = req.body;
+        
+        // Validate required fields
+        if (!id || !name || !email || !role || !company) {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing required fields',
+                message: 'id, name, email, role, and company are required'
+            });
+        }
+        
+        // Check if employee ID already exists
+        const existingEmployee = await dbClient.query(
+            'SELECT id FROM employees WHERE id = $1',
+            [id]
+        );
+        
+        if (existingEmployee.rows.length > 0) {
+            return res.status(409).json({
+                success: false,
+                error: 'Employee already exists',
+                message: 'Employee with this ID already exists'
+            });
+        }
+        
+        // Check if email already exists
+        const existingEmail = await dbClient.query(
+            'SELECT id FROM employees WHERE email = $1',
+            [email]
+        );
+        
+        if (existingEmail.rows.length > 0) {
+            return res.status(409).json({
+                success: false,
+                error: 'Email already exists',
+                message: 'Employee with this email already exists'
+            });
+        }
+        
+        // Insert new employee
+        const insertQuery = `
+            INSERT INTO employees (id, name, email, role, is_leader, company)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING *
+        `;
+        
+        const result = await dbClient.query(insertQuery, [
+            id,
+            name,
+            email,
+            role,
+            is_leader,
+            company
+        ]);
+        
+        res.status(201).json({
+            success: true,
+            message: 'Employee created successfully',
+            data: result.rows[0]
+        });
+        
+    } catch (error) {
+        console.error('Error creating employee:', error);
+        
+        // Handle specific PostgreSQL errors
+        if (error.code === '23505') { // Unique violation
+            return res.status(409).json({
+                success: false,
+                error: 'Duplicate value',
+                message: 'Employee ID or email already exists'
+            });
+        }
+        
+        res.status(500).json({
+            success: false,
+            error: 'Internal server error',
+            message: 'Failed to create employee'
+        });
+    }
+});
+
 module.exports = router;
