@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const SummaryEntry = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const [summaryData, setSummaryData] = useState(null)
   const [error, setError] = useState(null)
+  const { getToken } = useAuth()
 
   // Função para formatar data de YYYY-MM-DD para DD/MM/YYYY
   const formatDate = (dateString) => {
@@ -49,10 +51,55 @@ const SummaryEntry = () => {
   }
 
   // Função para lidar com a confirmação
-  const handleConfirm = () => {
-    // TODO: Implementar lógica de confirmação (salvar no banco de dados/API)
-    alert('Entrada confirmada com sucesso!')
-    navigate('/')
+  const handleConfirm = async () => {
+    try {
+      const token = getToken()
+      
+      // Gerar ID único para novo funcionário
+      const newEmployeeId = `EMP${Date.now().toString().slice(-3)}`
+      
+      // Primeiro criar o funcionário (API ainda não existe - será erro esperado)
+      const employeeData = {
+        id: newEmployeeId,
+        name: summaryData.fullName,
+        email: summaryData.email,
+        role: summaryData.role,
+        company: summaryData.instituteName,
+        is_leader: false
+      }
+      
+      console.log('Tentando criar funcionário:', employeeData)
+      
+      // Para MVP: pular criação de funcionário e criar entrada diretamente
+      const entryData = {
+        employeeId: newEmployeeId,
+        projectId: 'PROJ001', 
+        date: new Date().toISOString().split('T')[0],
+        role: summaryData.role,
+        startDate: summaryData.startDate
+      }
+      
+      console.log('Criando entrada:', entryData)
+      
+      const response = await fetch('/api/movements/entries', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(entryData)
+      })
+      
+      const result = await response.json()
+      console.log('Resultado:', result)
+      
+      alert(`Entrada registrada para: ${summaryData.fullName}`)
+      navigate('/')
+      
+    } catch (error) {
+      console.error('Erro:', error)
+      alert(`Erro: ${error.message}`)
+    }
   }
 
   return (
