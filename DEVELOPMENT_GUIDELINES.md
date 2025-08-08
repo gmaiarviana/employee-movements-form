@@ -70,6 +70,7 @@ Para cada Feature, o trabalho será dividido e executado em sub-tasks sequenciai
 
 ### **4. SUB-TASKS → PROMPTS (Sessão de Implementação com Gemini para GitHub Copilot)**
 - Para cada sub-task, **o Gemini irá gerar um prompt estruturado, seguindo o template específico abaixo, para ser utilizado diretamente com o GitHub Copilot no VSCode.**
+-Importante para o Gemini: Ao gerar o prompt, certifique-se de que segue conforme o template. Esta estrutura é mandátoria para a correta operação do Copilot e validação.
 - Após a geração do prompt, aguardar a sua validação e execução, e então prosseguir para a próxima sub-task.
 
 ## Reflexão Técnica Interna do Gemini
@@ -95,6 +96,8 @@ O Gemini realizará uma auto-reflexão técnica antes de gerar sub-tasks e promp
 [Detalhe 2]: especificação técnica
 [Detalagem N]: especificação técnica
 
+### Expectativas Técnicas:
+[DESCRIÇÃO DAS EXPECTATIVAS TÉCNICAS DA SUB-TASK]
 
 ### Validação PowerShell:
 ```powershell
