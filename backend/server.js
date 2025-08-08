@@ -301,6 +301,69 @@ app.post('/api/entries', async (req, res) => {
     }
 });
 
+// POST /api/exits - Create new exit
+app.post('/api/exits', async (req, res) => {
+    try {
+        const { employeeId, projectId, date, reason, exitDate } = req.body;
+        
+        // Validate required fields
+        if (!employeeId || !projectId || !date || !reason || !exitDate) {
+            return res.status(400).json({ 
+                error: 'Missing required fields',
+                message: 'employeeId, projectId, date, reason, and exitDate are required'
+            });
+        }
+        
+        // Generate unique ID in format EXIT{timestamp}
+        const exitId = `EXIT${Date.now()}`;
+        
+        // Insert into exits table
+        const insertQuery = `
+            INSERT INTO exits (id, employee_id, project_id, date, reason, exit_date)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING *
+        `;
+        
+        const result = await dbClient.query(insertQuery, [
+            exitId,
+            employeeId,
+            projectId,
+            date,
+            reason,
+            exitDate
+        ]);
+        
+        res.status(201).json({
+            success: true,
+            message: 'Exit created successfully',
+            data: result.rows[0]
+        });
+        
+    } catch (error) {
+        console.error('Error creating exit:', error);
+        
+        // Handle specific PostgreSQL errors
+        if (error.code === '23503') { // Foreign key violation
+            return res.status(400).json({ 
+                error: 'Invalid reference',
+                message: 'Employee ID or Project ID does not exist'
+            });
+        }
+        
+        if (error.code === '23505') { // Unique violation
+            return res.status(409).json({ 
+                error: 'Duplicate exit',
+                message: 'Exit with this ID already exists'
+            });
+        }
+        
+        res.status(500).json({ 
+            error: 'Internal server error',
+            message: 'Failed to create exit'
+        });
+    }
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
