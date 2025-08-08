@@ -14,67 +14,79 @@ Este documento define **como trabalhar** no projeto Contract Movements. O **que 
 
 ### **Controle de Versão**
 - **Commits específicos**: SEMPRE `git add arquivo1.js arquivo2.html` - NUNCA `git add .`
-- **Mensagens**: "feat/fix: descrição - Funcionalidade X.Y concluída"
-- **Frequência**: 1 commit por tarefa validada
+- **Mensagens**: "feat/fix: descrição - Feature X.Y concluída"
+- **Frequência**: 1 commit por sub-task validada
 
 ## Processo de Refinamento
 
-### **1. ÉPICOS → FUNCIONALIDADES**
-- Ler o Épico no `ROADMAP.md` (ex: "Épico 2: Protótipo Estendido").
-- **Com o auxílio do Gemini, quebrar o épico em 2-5 funcionalidades específicas.**
-- Cada funcionalidade deve entregar valor demonstrável para o usuário.
-- Definir critérios de aceite comportamentais para a funcionalidade completa.
+### **1. ÉPICOS → FEATURES**
+- **Com o auxílio do Gemini, quebrar o épico em 2-5 features específicas no Jira.**
+- Cada feature deve entregar valor demonstrável para o usuário.
+- Definir critérios de aceite comportamentais para a feature completa.
 
-### **2. FUNCIONALIDADES → TAREFAS**
-- Para cada funcionalidade, **o Gemini irá propor a quebra em tarefas de 5-15 minutos.**
-- Cada tarefa deve ser uma unidade de trabalho específica e validável, podendo abranger modificações relacionadas em poucos arquivos.
-- Manter no máximo 3-6 tarefas por sessão de trabalho em uma funcionalidade.
-- Cada tarefa deve ser testável individualmente.
+### **2. FEATURES → SUB-TASKS**
+- Para cada feature, **o Gemini irá propor a quebra em sub-tasks de 5-15 minutos.**
+- Cada sub-task deve ser uma unidade de trabalho específica e validável, podendo abranger modificações relacionadas em poucos arquivos.
+- Manter no máximo 3-6 sub-tasks por sessão de implementação em uma feature.
+- Cada sub-task deve ser testável individualmente.
+- **Features e sub-tasks no Jira não precisam de "Summary"**.
+- **Numeração:** Features usam formato '4.2' e sub-tasks usam '4.2.1, 4.2.2, 4.2.3...'
 
-### 3. FLUXO DE TRABALHO: TAREFA A TAREFA (COM AUXÍLIO DO GEMINI/COPILOT)
+**Template para descrição de sub-tasks no Jira:**
+```
+**Expectativas Técnicas:**
+**Validação:**  
+**Critérios de Aceite:**
+```
 
-Para cada Funcionalidade, o trabalho será dividido e executado em tarefas sequenciais e validáveis, seguindo o seguinte ciclo:
+**Nota:** Prompts do Copilot ficam na sessão de implementação, não no Jira.
 
-1.  **Definição da Funcionalidade Atual:**
-    * O Gemini indicará claramente qual Funcionalidade do Épico atual está em foco.
+### 3. FLUXO DE TRABALHO: SUB-TASK A SUB-TASK (COM AUXÍLIO DO GEMINI/COPILOT)
 
-2.  **Lista de Tarefas da Funcionalidade:**
-    * O Gemini apresentará uma lista numerada de todas as Tarefas necessárias para completar a Funcionalidade, incluindo passos de frontend e backend quando aplicável.
-    * Cada Tarefa será concisa e com um objetivo claro e **único**.
+Para cada Feature, o trabalho será dividido e executado em sub-tasks sequenciais e validáveis, seguindo o seguinte ciclo:
 
-3.  **Execução da Tarefa N:**
-    * O Gemini declarará explicitamente: "Vamos agora para a Tarefa N: [Descrição da Tarefa]".
-    * **Prompt para o Copilot:** O Gemini fornecerá o prompt específico para o GitHub Copilot para a tarefa atual.
-    * **Expectativa:** O Gemini descreverá o resultado esperado da execução da tarefa (ex: "O Copilot deve gerar o arquivo X.html com Y campos. Após isso, você deverá verificar e criar/atualizar o arquivo.").
-    * **Validação:** O desenvolvedor (você) confirmará a conclusão da tarefa e sua validação (ex: "Tarefa N concluída. Código revisado/aplicado.").
-    * **Commit:** Realizar um `git add <arquivos>` e `git commit -m "feat: [descrição da tarefa] - Funcionalidade X.Y"` para **cada tarefa validada**.
+1.  **Definição da Feature Atual:**
+    * O Gemini indicará claramente qual Feature do Épico atual está em foco.
 
-4.  **Próxima Tarefa:**
-    * Após a validação da Tarefa N, o Gemini passará para a Tarefa N+1, repetindo o ciclo.
+2.  **Lista de Sub-tasks da Feature:**
+    * As sub-tasks serão fornecidas pelo usuário no início da sessão de implementação, já planejadas e numeradas (4.2.1, 4.2.2, etc.).
+    * Cada Sub-task será concisa e com um objetivo claro e **único**.
 
-**Critério de Conclusão da Funcionalidade:**
-* Uma Funcionalidade é considerada completa quando todas as suas Tarefas foram executadas, validadas e commitadas individualmente.
-* Ao final da Funcionalidade, será realizada uma validação abrangente no browser (`http://localhost:3000`) para confirmar o comportamento esperado.
-* Um commit final será feito para a conclusão da funcionalidade, referenciando-a.
-* Atualizar a documentação relevante (ex: ARCHITECTURE.md, ROADMAP.md, DEVELOPMENT_GUIDELINES.md) para refletir as mudanças ou o status da funcionalidade concluída, se necessário.
+3.  **Execução da Sub-task N:**
+    * O Gemini declarará explicitamente: "Vamos agora para a Sub-task N: [Descrição da Sub-task]".
+    * **Prompt para o Copilot:** O Gemini fornecerá o prompt específico para o GitHub Copilot para a sub-task atual.
+    * **Expectativa:** O Gemini descreverá o resultado esperado da execução da sub-task (ex: "O Copilot deve gerar o arquivo X.html com Y campos. Após isso, você deverá verificar e criar/atualizar o arquivo.").
+    * **Validação:** O desenvolvedor (você) confirmará a conclusão da sub-task e sua validação (ex: "Sub-task N concluída. Código revisado/aplicado.").
+    * **Commit:** Realizar um `git add <arquivos>` e `git commit -m "feat: [descrição da sub-task] - Feature X.Y"` para **cada sub-task validada**.
 
-### **4. TAREFAS → PROMPTS (Geração com Gemini para GitHub Copilot)**
-- Para cada tarefa, **o Gemini irá gerar um prompt estruturado, seguindo o template específico abaixo, para ser utilizado diretamente com o GitHub Copilot no VSCode.**
-- Após a geração do prompt, aguardar a sua validação e execução, e então prosseguir para a próxima tarefa.
+4.  **Próxima Sub-task:**
+    * Após a validação da Sub-task N, o Gemini passará para a Sub-task N+1, repetindo o ciclo.
+
+**Critério de Conclusão da Feature:**
+* Uma Feature é considerada completa quando todas as suas Sub-tasks foram executadas, validadas e commitadas individualmente.
+* Ao final da Feature, será realizada uma validação abrangente para confirmar o comportamento esperado.
+* Um commit final será feito para a conclusão da feature, referenciando-a.
+* Atualizar a documentação relevante (ex: ARCHITECTURE.md, ROADMAP.md, DEVELOPMENT_GUIDELINES.md) para refletir as mudanças ou o status da feature concluída, se necessário.
+
+### **4. SUB-TASKS → PROMPTS (Sessão de Implementação com Gemini para GitHub Copilot)**
+- Para cada sub-task, **o Gemini irá gerar um prompt estruturado, seguindo o template específico abaixo, para ser utilizado diretamente com o GitHub Copilot no VSCode.**
+- Após a geração do prompt, aguardar a sua validação e execução, e então prosseguir para a próxima sub-task.
 
 ## Reflexão Técnica Interna do Gemini
 
-O Gemini realizará uma auto-reflexão técnica antes de gerar tarefas e prompts. Para isso, consultará o contexto existente (arquivos fornecidos, histórico da conversa) e, se necessário, **solicitará a visualização de arquivos específicos ou fará perguntas para esclarecer**:
+O usuário fornecerá as sub-tasks e documentações no início da sessão. O Gemini deve solicitar arquivos específicos se necessário para obter contexto antes de gerar prompts.
+
+O Gemini realizará uma auto-reflexão técnica antes de gerar sub-tasks e prompts. Para isso, consultará o contexto existente (arquivos fornecidos, histórico da conversa) e, se necessário, **solicitará a visualização de arquivos específicos ou fará perguntas para esclarecer**:
 1.  **STACK**: Confirmar as tecnologias envolvidas (Node.js + Express + Docker + JSON/DB).
 2.  **COMPATIBILITY**: Garantir que os comandos gerados são compatíveis com PowerShell e o ambiente Docker.
-3.  **ARCHITECTURE**: Entender como a nova funcionalidade se encaixa na estrutura de páginas (`src`), APIs (`server.js`) e fluxo de dados existente.
+3.  **ARCHITECTURE**: Entender como a nova feature se encaixa na estrutura de páginas (`src`), APIs (`server.js`) e fluxo de dados existente.
 4.  **DATA**: Verificar a necessidade de criar ou atualizar arquivos JSON, ou antecipar alterações para o banco de dados futuro. Identificar quais APIs serão impactadas ou criadas.
-5.  **VALIDATION**: Definir a melhor forma de testar o comportamento esperado no browser após a implementação da tarefa.
+5.  **VALIDATION**: Definir a melhor forma de testar o comportamento esperado no browser após a implementação da sub-task.
 
-## Template para Prompts (Gerado pelo Gemini para o GitHub Copilot)
+## Template para Sub-tasks (Gerado pelo Gemini para o GitHub Copilot)
 
 ```markdown
-## 🎯 TAREFA: [Nome Específico da Tarefa]
+## 🎯 SUB-TASK: [Nome Específico da Sub-task]
 
 ### Para o GitHub Copilot:
 [AÇÃO] arquivo [CAMINHO]
@@ -87,7 +99,7 @@ O Gemini realizará uma auto-reflexão técnica antes de gerar tarefas e prompts
 ### Validação PowerShell:
 ```powershell
 docker-compose up -d
-# Testar: [comportamento esperado no browser após a execução da tarefa]
+# Testar: [comportamento esperado no browser após a execução da sub-task]
 Critério de Aceite:
 ✅ Deve: [output específico ou comportamento esperado no browser]
 ❌ NÃO deve: [erros específicos ou comportamentos indesejados]
@@ -104,9 +116,9 @@ Critério de Aceite:
 - Porta 3000 para acesso
 
 ### **Incremental**
-- Sistema funcionando após cada tarefa
+- Sistema funcionando após cada sub-task
 - Validação no browser obrigatória
-- 1 commit por tarefa validada
+- 1 commit por sub-task validada
 
 ### **Simples e Funcional**
 - Foco na funcionalidade sobre otimização
@@ -116,10 +128,10 @@ Critério de Aceite:
 ## Regras Fundamentais
 
 ✅ **SEMPRE:**
-- Valide cada tarefa no navegador (`http://localhost:3000`) antes do próximo commit.
+- Valide cada sub-task adequadamente antes do próximo commit.
 - Adicione apenas os arquivos modificados/criados ao `git` (`git add arquivo.js`).
-- Garanta que o sistema esteja sempre funcionando ao final de cada tarefa/commit.
-- Mantenha o foco na tarefa atual, evitando desvios para otimizações prematuras.
+- Garanta que o sistema esteja sempre funcionando ao final de cada sub-task/commit.
+- Mantenha o foco na sub-task atual, evitando desvios para otimizações prematuras.
 
 ❌ **NUNCA:**
 - Use `git add .` ou `git commit -am "mensagem"`.
@@ -130,7 +142,7 @@ Critério de Aceite:
 #### 4.1. Dicas para Prompts e "Bloqueios" do Copilot
 
 * **Priorizar Especificidade:** Quanto mais específicos os requisitos (IDs, classes CSS únicas, nomes de variáveis, lógica de negócios customizada), menor a chance de colisões com código público.
-* **Dividir Tarefas Complexas:** Para grandes blocos de código (especialmente HTML de formulários complexos), pode ser mais eficaz pedir ao Copilot para gerar partes menores ou elementos específicos, e então montar o resultado final manualmente, se necessário.
+* **Dividir Sub-tasks Complexas:** Para grandes blocos de código (especialmente HTML de formulários complexos), pode ser mais eficaz pedir ao Copilot para gerar partes menores ou elementos específicos, e então montar o resultado final manualmente, se necessário.
 * **Refrasear Agresivamente:** Se um prompt for bloqueado, reformular de forma diferente, alterando a estrutura da frase ou focando em aspectos mais nichados, é a primeira linha de defesa.
 * **Compreender a Natureza do Conteúdo:**
     * **HTML (Estruturas Comuns):** Formulários, tabelas, layouts básicos são altamente padronizados e mais propensos a serem bloqueados. Nesses casos, a criação manual ou prompts *muito* detalhados com nomes e classes únicas são preferíveis.
