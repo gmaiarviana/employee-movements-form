@@ -68,9 +68,10 @@ Para cada Feature, o trabalho será dividido e executado em sub-tasks sequenciai
 * Um commit final será feito para a conclusão da feature, referenciando-a.
 * Atualizar a documentação relevante (ex: ARCHITECTURE.md, ROADMAP.md, DEVELOPMENT_GUIDELINES.md) para refletir as mudanças ou o status da feature concluída, se necessário.
 
-### **4. SUB-TASKS → PROMPTS (Sessão de Implementação com Gemini para GitHub Copilot)**
+### 4. SUB-TASKS → PROMPTS (Sessão de Implementação com Gemini para GitHub Copilot)
+
 - Para cada sub-task, **o Gemini irá gerar um prompt estruturado, seguindo o template específico abaixo, para ser utilizado diretamente com o GitHub Copilot no VSCode.**
--Importante para o Gemini: Ao gerar o prompt, certifique-se de que segue conforme o template. Esta estrutura é mandátoria para a correta operação do Copilot e validação.
+- Importante para o Gemini: Ao gerar o prompt, certifique-se de que segue conforme o template, **incluindo obrigatoriamente a seção completa de 'Validação PowerShell' com comandos e critérios de aceite.** Esta estrutura é mandátoria para a correta operação do Copilot e validação.
 - Após a geração do prompt, aguardar a sua validação e execução, e então prosseguir para a próxima sub-task.
 
 ## Reflexão Técnica Interna do Gemini
