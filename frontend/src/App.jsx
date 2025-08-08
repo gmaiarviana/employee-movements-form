@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 // Import components
 import Home from './components/Home'
+import Login from './components/Login'
+import Register from './components/Register'
 import AdminDashboard from './components/AdminDashboard'
 import SelectEmployee from './components/SelectEmployee'
 import EntryForm from './components/EntryForm'
@@ -16,6 +18,8 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/select-employee" element={<SelectEmployee />} />
           <Route path="/entry-form" element={<EntryForm />} />
