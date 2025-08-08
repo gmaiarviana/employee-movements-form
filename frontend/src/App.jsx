@@ -1,6 +1,10 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
+// Import context and protected route
+import { AuthContextProvider } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
+
 // Import components
 import Home from './components/Home'
 import Login from './components/Login'
@@ -14,21 +18,75 @@ import SummaryEntry from './components/SummaryEntry'
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/select-employee" element={<SelectEmployee />} />
-          <Route path="/entry-form" element={<EntryForm />} />
-          <Route path="/exit-form" element={<ExitForm />} />
-          <Route path="/summary" element={<Summary />} />
-          <Route path="/summary-entry" element={<SummaryEntry />} />
-        </Routes>
-      </div>
-    </Router>
+    <AuthContextProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            {/* Rotas NÃO Protegidas */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+
+            {/* Rotas Protegidas */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
+            <Route 
+              path="/admin-dashboard" 
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/select-employee" 
+              element={
+                <ProtectedRoute>
+                  <SelectEmployee />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/entry-form" 
+              element={
+                <ProtectedRoute>
+                  <EntryForm />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/exit-form" 
+              element={
+                <ProtectedRoute>
+                  <ExitForm />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/summary" 
+              element={
+                <ProtectedRoute>
+                  <Summary />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/summary-entry" 
+              element={
+                <ProtectedRoute>
+                  <SummaryEntry />
+                </ProtectedRoute>
+              } 
+            />
+          </Routes>
+        </div>
+      </Router>
+    </AuthContextProvider>
   )
 }
 

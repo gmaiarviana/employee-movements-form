@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const headerStyle = {
   backgroundColor: '#374151',
@@ -27,6 +28,7 @@ const Register = () => {
   const [success, setSuccess] = useState('')
   
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -89,10 +91,27 @@ const Register = () => {
           confirmPassword: ''
         })
         
-        // Redirect to login page after successful registration
-        setTimeout(() => {
-          navigate('/login')
-        }, 2000)
+        // If backend returns a token, automatically log the user in
+        if (data.token) {
+          try {
+            login(data.token)
+            setSuccess('Conta criada com sucesso! Redirecionando...')
+            setTimeout(() => {
+              navigate('/select-employee')
+            }, 1500)
+          } catch (loginError) {
+            console.error('Auto-login error:', loginError)
+            // Fall back to manual login redirect
+            setTimeout(() => {
+              navigate('/login')
+            }, 2000)
+          }
+        } else {
+          // Redirect to login page after successful registration
+          setTimeout(() => {
+            navigate('/login')
+          }, 2000)
+        }
       } else {
         throw new Error('Resposta inválida do servidor')
       }
