@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useAuth } from '../context/AuthContext'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 const ExitForm = () => {
@@ -9,6 +10,7 @@ const ExitForm = () => {
   const [exitDate, setExitDate] = useState('')
   const [exitReason, setExitReason] = useState('')
   const navigate = useNavigate()
+  const { getToken } = useAuth()
 
   const employeeId = searchParams.get('employeeId')
 
@@ -22,14 +24,26 @@ const ExitForm = () => {
 
     try {
       setLoading(true)
-      const response = await fetch(`/api/employees/${employeeId}/details`)
+      const token = getToken()
+      const response = await fetch(`/api/employees/${employeeId}/details`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
       
       const data = await response.json()
-      setEmployeeInfo(data)
+      
+      // Verificar se resposta tem estrutura correta
+      if (data.success && data.data) {
+        setEmployeeInfo(data.data)
+      } else {
+        setEmployeeInfo(data)
+      }
       setError(null)
     } catch (error) {
       console.error('Erro ao carregar informações do funcionário:', error)
