@@ -12,10 +12,13 @@ Interface moderna desenvolvida em React com:
 
 ## Desenvolvimento
 
-O frontend roda exclusivamente via Docker.
+O frontend roda via Docker junto com o backend.
 
 ```bash
-# Na raiz do projeto
+# Na raiz do projeto - inicia frontend + backend + PostgreSQL
+docker-compose up frontend
+
+# Ou apenas o frontend (requer backend rodando separadamente)
 docker-compose up frontend
 ```
 
@@ -75,9 +78,11 @@ Home → SelectEmployee → ExitForm → Summary → Home
 
 | Endpoint | Componente | Uso |
 |----------|------------|-----|
-| `GET /api/employees/EMP001/team-members` | SelectEmployee | Lista funcionários |
-| `GET /api/employees/:id/details` | ExitForm, Summary | Dados do funcionário |
-| `GET /api/movements` | AdminDashboard | Histórico movimentações |
+| `GET /api/employees/EMP001/team-members` | SelectEmployee | Lista funcionários da equipe |
+| `GET /api/employees/:id/details` | ExitForm, Summary | Dados do funcionário selecionado |
+| `GET /api/movements` | AdminDashboard | Histórico completo de movimentações |
+
+**Base URL**: `http://localhost:3000/api` (backend PostgreSQL)
 
 ## Gerenciamento de Estado
 
