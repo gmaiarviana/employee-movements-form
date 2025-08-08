@@ -19,7 +19,8 @@ const Register = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -56,6 +57,12 @@ const Register = () => {
       return
     }
 
+    if (formData.password !== formData.confirmPassword) {
+      setError('As senhas não coincidem.')
+      setIsLoading(false)
+      return
+    }
+
     try {
       const response = await fetch('http://localhost:3000/api/register', {
         method: 'POST',
@@ -78,7 +85,8 @@ const Register = () => {
         setFormData({
           username: '',
           email: '',
-          password: ''
+          password: '',
+          confirmPassword: ''
         })
         
         // Redirect to login page after successful registration
@@ -172,6 +180,24 @@ const Register = () => {
                   required
                   disabled={isLoading}
                   placeholder="Digite uma senha (mín. 6 caracteres)"
+                  minLength="6"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="confirmPassword" className="form-label">
+                  Confirmar Senha
+                </label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="form-field"
+                  required
+                  disabled={isLoading}
+                  placeholder="Digite a senha novamente"
                   minLength="6"
                 />
               </div>
