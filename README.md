@@ -4,11 +4,12 @@ Sistema web para registro de movimentações de funcionários (entradas e saída
 
 ## 🚀 Funcionalidades
 
+- **Autenticação JWT**: Sistema de login/registro seguro
 - **Registro de Saída**: Formulário para registrar saída de funcionários
 - **Registro de Entrada**: Formulário para registrar entrada de novos funcionários  
 - **Dashboard Admin**: Visualização de todas as movimentações registradas
 - **Interface Responsiva**: Design adaptativo para diferentes dispositivos
-- **Persistência PostgreSQL**: Banco de dados robusto
+- **Persistência PostgreSQL**: Banco de dados robusto com autenticação
 
 ## 🚀 Como executar
 
@@ -41,6 +42,9 @@ Invoke-WebRequest -Uri "http://localhost:3000/api/health"
 
 # Verificar dados no banco
 docker-compose exec db psql -U app_user -d employee_movements -c "SELECT COUNT(*) FROM employees;"
+
+# Testar autenticação
+Invoke-WebRequest -Uri "http://localhost:3000/api/register" -Method POST -ContentType "application/json" -Body '{"username":"test","email":"test@email.com","password":"123456"}'
 ```
 
 ## 📖 Documentação Técnica
