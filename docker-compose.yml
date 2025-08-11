@@ -48,8 +48,8 @@ services:
       - ./frontend/.env
     environment:
       - NODE_ENV=development
-      # Use service name for internal Docker networking
-      - VITE_API_URL=http://backend:3000
+      # Use localhost for browser access to API
+      - VITE_API_URL=http://localhost:3000
     depends_on:
       - backend
     networks:
