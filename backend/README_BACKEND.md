@@ -36,105 +36,19 @@ docker-compose exec db psql -U app_user -d employee_movements
 - **dotenv** para gerenciamento de variáveis de ambiente
 - **Arquitetura MVC parcial** com controllers separados
 
-## Database Schema
-
-### Tabela: users
-```sql
-CREATE TABLE users (
-    id VARCHAR(20) PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-### Tabela: employees
-```sql
-CREATE TABLE employees (
-    id VARCHAR(10) PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    role VARCHAR(50) NOT NULL,
-    is_leader BOOLEAN DEFAULT FALSE,
-    company VARCHAR(100) NOT NULL
-);
-```
-
-### Tabela: projects
-```sql
-CREATE TABLE projects (
-    id VARCHAR(10) PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    type VARCHAR(50) NOT NULL,
-    sow VARCHAR(50),
-    leader_id VARCHAR(10),
-    FOREIGN KEY (leader_id) REFERENCES employees(id)
-);
-```
-
-### Tabela: employee_projects
-```sql
-CREATE TABLE employee_projects (
-    employee_id VARCHAR(10),
-    project_id VARCHAR(10),
-    is_active BOOLEAN DEFAULT TRUE,
-    PRIMARY KEY (employee_id, project_id),
-    FOREIGN KEY (employee_id) REFERENCES employees(id),
-    FOREIGN KEY (project_id) REFERENCES projects(id)
-);
-```
-
-### Tabela: entries
-```sql
-CREATE TABLE entries (
-    id VARCHAR(20) PRIMARY KEY,
-    employee_id VARCHAR(10) NOT NULL,
-    project_id VARCHAR(10) NOT NULL,
-    date DATE NOT NULL,
-    role VARCHAR(50) NOT NULL,
-    start_date DATE NOT NULL,
-    FOREIGN KEY (employee_id) REFERENCES employees(id),
-    FOREIGN KEY (project_id) REFERENCES projects(id)
-);
-```
-
-### Tabela: exits
-```sql
-CREATE TABLE exits (
-    id VARCHAR(20) PRIMARY KEY,
-    employee_id VARCHAR(10) NOT NULL,
-    project_id VARCHAR(10) NOT NULL,
-    date DATE NOT NULL,
-    reason TEXT NOT NULL,
-    exit_date DATE NOT NULL,
-    FOREIGN KEY (employee_id) REFERENCES employees(id),
-    FOREIGN KEY (project_id) REFERENCES projects(id)
-);
-```
+> **Database Schema**: Ver `DATABASE.md` para schema completo e queries detalhadas
 
 ## Verificando o Database
 
-Para verificar a estrutura do banco e dados de exemplo:
+Para verificar a estrutura do banco:
 
 ```bash
 # Conectar ao PostgreSQL
 docker-compose exec db psql -U app_user -d employee_movements
 
-# No PostgreSQL, verificar estrutura:
+# Verificação básica
 \dt                                    -- Listar tabelas
-SELECT COUNT(*) FROM users;            -- Usuários registrados
-SELECT COUNT(*) FROM employees;        -- Deve retornar 10
-SELECT COUNT(*) FROM projects;         -- Deve retornar 1  
-SELECT COUNT(*) FROM entries;          -- Deve retornar 2
-SELECT COUNT(*) FROM exits;            -- Deve retornar 1
-
-# Ver dados de exemplo
-SELECT * FROM users LIMIT 3;
-SELECT * FROM employees LIMIT 3;
-SELECT * FROM entries;
-SELECT * FROM exits;
-
+SELECT COUNT(*) FROM employees;        -- Verificar dados
 \q                                     -- Sair do PostgreSQL
 ```
 
