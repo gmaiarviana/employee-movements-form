@@ -40,7 +40,7 @@ const register = async (req, res) => {
         }
 
         // Check if user already exists
-        const existingUserQuery = 'SELECT id FROM users WHERE email = $1';
+        const existingUserQuery = 'SELECT id FROM core.users WHERE email = $1';
         const existingUser = await dbClient.query(existingUserQuery, [email.toLowerCase()]);
 
         if (existingUser.rows.length > 0) {
@@ -57,7 +57,7 @@ const register = async (req, res) => {
 
         // Insert new user
         const insertUserQuery = `
-            INSERT INTO users (email, password_hash, created_at)
+            INSERT INTO core.users (email, password_hash, created_at)
             VALUES ($1, $2, NOW())
             RETURNING id, email, created_at
         `;
@@ -114,7 +114,7 @@ const login = async (req, res) => {
         }
 
         // Find user by email
-        const userQuery = 'SELECT id, email, password_hash FROM users WHERE email = $1';
+        const userQuery = 'SELECT id, email, password_hash FROM core.users WHERE email = $1';
         const userResult = await dbClient.query(userQuery, [email.toLowerCase()]);
 
         if (userResult.rows.length === 0) {
