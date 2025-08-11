@@ -22,6 +22,9 @@ docker-compose up frontend
 docker-compose up frontend
 ```
 
+### Configuração da API
+A URL da API é configurada via `VITE_API_URL=http://localhost:3000` no docker-compose.yml para conectar ao backend.
+
 ## Stack Técnico
 
 - **React 18** + **Vite** (desenvolvimento)
@@ -59,7 +62,7 @@ Home → SelectEmployee → ExitForm → Summary → Home
 
 ## Design System
 
-### Arquivo único: design-system.css (7.6KB)
+### Arquivo único: design-system.css
 - CSS Vanilla com variáveis CSS (custom properties)
 - Mobile-first responsive design
 - Dark mode automático via `prefers-color-scheme`
@@ -79,7 +82,7 @@ Home → SelectEmployee → ExitForm → Summary → Home
 - Autenticação JWT automática
 - Tratamento centralizado de erros
 
-**Base URL**: `http://localhost:3000/api` (backend PostgreSQL)
+**Base URL**: `http://localhost:3000/api`
 
 ## Gerenciamento de Estado
 
@@ -94,3 +97,8 @@ Home → SelectEmployee → ExitForm → Summary → Home
 - Entry and exit forms
 - Administrative dashboard
 - Responsive design with dark mode support
+
+## Credenciais de Teste
+
+- **Email:** admin@admin.com
+- **Senha:** admin123
