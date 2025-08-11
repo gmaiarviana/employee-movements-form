@@ -11,7 +11,7 @@ const getTeamMembers = async (req, res) => {
     try {
         // Find projects led by the specified leader
         const projectsResult = await dbClient.query(
-            'SELECT * FROM projects WHERE leader_id = $1',
+            'SELECT p.* FROM projects.projects p JOIN projects.project_managers pm ON p.id = pm.project_id WHERE pm.employee_id = $1',
             [leaderId]
         );
         
@@ -20,7 +20,7 @@ const getTeamMembers = async (req, res) => {
         // For each project, find active assignments
         for (const project of projectsResult.rows) {
             const assignmentsResult = await dbClient.query(
-                'SELECT ep.*, e.name, e.role FROM employee_projects ep JOIN employees e ON ep.employee_id = e.id WHERE ep.project_id = $1 AND ep.is_active = true',
+                'SELECT ca.*, e.name, e.role FROM allocations.current_allocations ca JOIN core.employees e ON ca.employee_id = e.id WHERE ca.project_id = $1 AND ca.is_active = true',
                 [project.id]
             );
             
@@ -56,7 +56,7 @@ const getEmployeeDetails = async (req, res) => {
     try {
         // Find the employee
         const employeeResult = await dbClient.query(
-            'SELECT * FROM employees WHERE id = $1',
+            'SELECT * FROM core.employees WHERE id = $1',
             [employeeId]
         );
         
@@ -72,7 +72,7 @@ const getEmployeeDetails = async (req, res) => {
         
         // Find the employee's active project
         const projectResult = await dbClient.query(
-            'SELECT p.* FROM employee_projects ep JOIN projects p ON ep.project_id = p.id WHERE ep.employee_id = $1 AND ep.is_active = true LIMIT 1',
+            'SELECT p.* FROM allocations.current_allocations ca JOIN projects.projects p ON ca.project_id = p.id WHERE ca.employee_id = $1 AND ca.is_active = true LIMIT 1',
             [employeeId]
         );
         
@@ -132,7 +132,7 @@ const createEmployee = async (req, res) => {
         
         // Check if employee ID already exists
         const existingEmployee = await dbClient.query(
-            'SELECT id FROM employees WHERE id = $1',
+            'SELECT id FROM core.employees WHERE id = $1',
             [id]
         );
         
@@ -146,7 +146,7 @@ const createEmployee = async (req, res) => {
         
         // Check if email already exists
         const existingEmail = await dbClient.query(
-            'SELECT id FROM employees WHERE email = $1',
+            'SELECT id FROM core.employees WHERE email = $1',
             [email]
         );
         
@@ -160,7 +160,7 @@ const createEmployee = async (req, res) => {
         
         // Insert new employee
         const insertQuery = `
-            INSERT INTO employees (id, name, email, role, is_leader, company)
+            INSERT INTO core.employees (id, name, email, role, is_leader, company)
             VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *
         `;
