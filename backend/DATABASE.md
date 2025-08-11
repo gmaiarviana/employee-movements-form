@@ -18,34 +18,81 @@ employee_movements_db/
 
 ## DIAGRAMA DE RELACIONAMENTOS
 
+### SCHEMA CORE - Usuários e Funcionários
 ```
-core.users
-    │
-    │ (auth)
-    ▼
-core.employees ──────┬─────────────┐
-    │                │             │
-    │                │             │ (manager)
-    │ (team member)  │             ▼
-    │                │    projects.project_managers
-    │                │             │
-    │                │             │ (project_id)
-    │                │             ▼
-    │                └────► projects.projects
-    │                              │
-    │ (employee_id)                │ (project_id)
-    │                              │
-    ▼                              │
-allocations.current_allocations ◄──┘
-    │
-    │ (movement tracking)
-    ▼
-allocations.allocation_history
-    │
-    │ (aggregated data)
-    ▼
-reporting.* (views)
+┌─────────────────────┐       ┌─────────────────────┐
+│     core.users      │       │   core.employees    │
+├─────────────────────┤       ├─────────────────────┤
+│ PK: user_id         │ 1:1   │ PK: employee_id     │
+│     email           │ ◄───► │ FK: user_id         │
+│     password_hash   │       │     name            │
+│     role            │       │     department      │
+│     created_at      │       │     status          │
+└─────────────────────┘       └─────────────────────┘
 ```
+
+### SCHEMA PROJECTS - Projetos e Gerência
+```
+┌─────────────────────┐       ┌─────────────────────┐
+│  projects.projects  │       │project_managers     │
+├─────────────────────┤       ├─────────────────────┤
+│ PK: project_id      │ 1:1   │ PK: manager_id      │
+│     name            │ ◄───► │ FK: project_id      │
+│     description     │       │ FK: employee_id     │
+│     start_date      │       │     assigned_at     │
+│     end_date        │       └─────────────────────┘
+│     status          │                 │
+└─────────────────────┘                 │
+                                        │ 1:N
+                                        ▼
+                               ┌─────────────────────┐
+                               │   core.employees    │
+                               │ (referência cruzada)│
+                               └─────────────────────┘
+```
+
+### SCHEMA ALLOCATIONS - Alocações e Histórico
+```
+┌─────────────────────┐       ┌─────────────────────┐
+│current_allocations  │       │ allocation_history  │
+├─────────────────────┤       ├─────────────────────┤
+│ PK: allocation_id   │ 1:N   │ PK: history_id      │
+│ FK: employee_id     │ ────► │ FK: allocation_id   │
+│ FK: project_id      │       │     movement_type   │
+│     allocated_hours │       │     timestamp       │
+│     start_date      │       │     hours_changed   │
+│     is_active       │       │     notes           │
+└─────────────────────┘       └─────────────────────┘
+         │                            │
+         │ N:1                        │ N:1
+         ▼                            ▼
+┌─────────────────────┐       ┌─────────────────────┐
+│   core.employees    │       │  projects.projects  │
+│ (referência cruzada)│       │ (referência cruzada)│
+└─────────────────────┘       └─────────────────────┘
+```
+
+### FLUXO LÓGICO PRINCIPAL
+```
+User ──1:1──► Employee ──1:N──► Current_Allocations ──N:1──► Projects
+  │                                      │
+  │                                      │ 1:N
+  │                                      ▼
+  └──► Authentication                Allocation_History
+                                          │
+                                          │ (agregação)
+                                          ▼
+                                    reporting.views
+```
+
+### LEGENDA
+- **PK** = Primary Key (Chave Primária)
+- **FK** = Foreign Key (Chave Estrangeira)  
+- **1:1** = Relacionamento um para um
+- **1:N** = Relacionamento um para muitos
+- **N:1** = Relacionamento muitos para um
+- **◄─►** = Relacionamento bidirecional
+- **────►** = Relacionamento unidirecional
 
 ---
 
