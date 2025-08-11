@@ -14,7 +14,7 @@ const getMovements = async (req, res) => {
             FROM allocations.allocation_history ah 
             LEFT JOIN core.employees e ON ah.employee_id = e.id 
             LEFT JOIN projects.projects p ON ah.project_id = p.id
-            ORDER BY ah.movement_date ASC
+            ORDER BY ah.registration_date DESC
         `;
         const result = await dbClient.query(query);
         
@@ -43,9 +43,12 @@ const getMovements = async (req, res) => {
             
             movements.push({
                 type: type,
-                date: record.date || record.start_date || record.exit_date,
+                movementDate: record.movement_date, // Data do evento (apenas data)
+                registrationDate: record.registration_date, // Data/hora do registro
                 employeeName: record.employee_name || 'Funcionário não encontrado',
-                details: details
+                details: details,
+                // Manter compatibilidade com frontend atual
+                date: record.movement_date
             });
         });
         
@@ -105,9 +108,9 @@ const createEntry = async (req, res) => {
             // Insert into allocation_history
             const historyQuery = `
                 INSERT INTO allocations.allocation_history (
-                    id, employee_id, project_id, movement_type, date, role, start_date
+                    id, employee_id, project_id, movement_type, movement_date, role
                 )
-                VALUES ($1, $2, $3, 'entry', $4, $5, $6)
+                VALUES ($1, $2, $3, 'entry', $4, $5)
                 RETURNING *
             `;
             
@@ -115,9 +118,8 @@ const createEntry = async (req, res) => {
                 historyId,
                 employeeId,
                 projectId,
-                date,
-                role,
-                startDate
+                startDate,
+                role
             ]);
             
             // Commit the transaction
@@ -184,7 +186,7 @@ const createExit = async (req, res) => {
         await dbClient.query('BEGIN');
         
         try {
-            // Update current_allocations to set is_active = false
+            // Update current_allocations to set is_active = false and set end_date
             const updateCurrentQuery = `
                 UPDATE allocations.current_allocations 
                 SET is_active = false, end_date = $1
@@ -211,9 +213,9 @@ const createExit = async (req, res) => {
             // Insert into allocation_history
             const historyQuery = `
                 INSERT INTO allocations.allocation_history (
-                    id, employee_id, project_id, movement_type, date, reason, exit_date
+                    id, employee_id, project_id, movement_type, movement_date, reason
                 )
-                VALUES ($1, $2, $3, 'exit', $4, $5, $6)
+                VALUES ($1, $2, $3, 'exit', $4, $5)
                 RETURNING *
             `;
             
@@ -221,9 +223,8 @@ const createExit = async (req, res) => {
                 historyId,
                 employeeId,
                 projectId,
-                date,
-                reason,
-                exitDate
+                exitDate,
+                reason
             ]);
             
             // Commit the transaction

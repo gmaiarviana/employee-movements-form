@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { employees } from '../../services/api'
+import { employees as employeesApi } from '../../services/api'
 
 const SelectEmployee = () => {
   const [employees, setEmployees] = useState([])
@@ -9,13 +9,13 @@ const SelectEmployee = () => {
   const [error, setError] = useState(null)
   const navigate = useNavigate()
 
-  // Função para carregar funcionários da equipe
+  // Função para carregar funcionários
   const loadEmployees = async () => {
     try {
       setLoading(true)
-      console.log('� Carregando funcionários da equipe...')
+      console.log('🔄 Carregando todos os funcionários...')
       
-      const data = await employees.getTeamMembers('EMP001')
+      const data = await employeesApi.getAll()
       console.log('📊 Data received:', data)
       
       if (data.success && data.data && data.data.teamMembers && data.data.teamMembers.length > 0) {
@@ -28,6 +28,14 @@ const SelectEmployee = () => {
       
     } catch (error) {
       console.error('💥 Erro ao carregar funcionários:', error)
+      
+      // Se o erro é de autenticação, redirecionar para login
+      if (error.message.includes('Session expired') || error.message.includes('Unauthorized')) {
+        console.log('🔑 Sessão expirada, redirecionando para login...')
+        navigate('/login')
+        return
+      }
+      
       setError(error.message || 'Erro ao carregar funcionários. Tente novamente.')
     } finally {
       setLoading(false)

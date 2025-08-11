@@ -13,7 +13,9 @@ const REQUEST_TIMEOUT = 10000; // 10 seconds
  * Get JWT token from localStorage
  */
 const getAuthToken = () => {
-  return localStorage.getItem('token');
+  const token = localStorage.getItem('token');
+  console.log('🔑 Getting token from localStorage:', token ? `${token.substring(0, 50)}...` : 'null');
+  return token;
 };
 
 /**
@@ -23,6 +25,9 @@ const apiCall = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   const token = getAuthToken();
   
+  console.log('🌐 Making API call to:', url);
+  console.log('🔐 Token available:', !!token);
+  
   // Default headers
   const defaultHeaders = {
     'Content-Type': 'application/json',
@@ -31,6 +36,9 @@ const apiCall = async (endpoint, options = {}) => {
   // Add authorization header if token exists
   if (token) {
     defaultHeaders.Authorization = `Bearer ${token}`;
+    console.log('✅ Authorization header added');
+  } else {
+    console.log('❌ No token available - making unauthenticated request');
   }
   
   // Merge headers
@@ -130,9 +138,14 @@ const auth = {
       body: { email, password }
     });
     
+    console.log('🔓 Login response:', response);
+    
     // Store token if login successful
-    if (response.token) {
-      localStorage.setItem('token', response.token);
+    if (response.success && response.data && response.data.token) {
+      console.log('💾 Storing token in localStorage');
+      localStorage.setItem('token', response.data.token);
+    } else {
+      console.log('❌ No token received in login response');
     }
     
     return response;
@@ -150,8 +163,8 @@ const auth = {
     });
     
     // Store token if registration successful
-    if (response.token) {
-      localStorage.setItem('token', response.token);
+    if (response.success && response.data && response.data.token) {
+      localStorage.setItem('token', response.data.token);
     }
     
     return response;
@@ -170,6 +183,14 @@ const auth = {
 // =============================================================================
 
 const employees = {
+  /**
+   * Get all employees for admin/manager
+   * @returns {Promise<Array>} All employees list
+   */
+  getAll: async () => {
+    return await apiCall('/employees');
+  },
+
   /**
    * Get team members for a leader
    * @param {string} leaderId - Leader ID

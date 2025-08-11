@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { movements } from '../../services/api'
+import { movements as movementsApi } from '../../services/api'
 
 const AdminDashboard = () => {
   const [movements, setMovements] = useState([])
@@ -66,7 +66,7 @@ const AdminDashboard = () => {
       setLoading(true)
       setError('')
       
-      let movementsData = await movements.getAll()
+      let movementsData = await movementsApi.getAll()
       
       // Verificar se resposta tem estrutura correta
       if (movementsData.success && movementsData.data) {
@@ -188,7 +188,8 @@ const AdminDashboard = () => {
             <table id="movements-table" className="movements-table">
               <thead>
                 <tr>
-                  <th>Data</th>
+                  <th>Data da Movimentação</th>
+                  <th>Data de Registro</th>
                   <th>Tipo</th>
                   <th>Funcionário</th>
                   <th>Detalhes</th>
@@ -197,7 +198,7 @@ const AdminDashboard = () => {
               <tbody id="movements-table-body">
                 {!loading && !error && movements.length === 0 && (
                   <tr>
-                    <td colSpan="4" className="no-movements">
+                    <td colSpan="5" className="no-movements">
                       Nenhuma movimentação encontrada.
                     </td>
                   </tr>
@@ -206,37 +207,39 @@ const AdminDashboard = () => {
                   const typeClass = movement.type === 'entrada' ? 'movement-entry' : 'movement-exit'
                   const typeText = movement.type === 'entrada' ? 'Entrada' : 'Saída'
                   
-                  // Função para tratar datas do PostgreSQL corretamente
+                  // Função para formatar data de movimentação (apenas data)
                   const formatMovementDate = (dateString) => {
-                    // Verificar se é apenas uma data (formato YYYY-MM-DD) ou timestamp completo
+                    if (!dateString) return '-'
                     const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(dateString)
                     
                     if (isDateOnly) {
-                      // Tratar como data local, não UTC
                       const [year, month, day] = dateString.split('-')
-                      const localDate = new Date(year, month - 1, day) // mês é 0-indexado
-                      return localDate.toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                      })
+                      const localDate = new Date(year, month - 1, day)
+                      return localDate.toLocaleDateString('pt-BR')
                     } else {
-                      // Para timestamps completos, manter formatação atual
-                      return new Date(dateString).toLocaleString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })
+                      return new Date(dateString).toLocaleDateString('pt-BR')
                     }
                   }
                   
-                  const formattedDate = formatMovementDate(movement.date)
+                  // Função para formatar data de registro (data + hora)
+                  const formatRegistrationDate = (dateString) => {
+                    if (!dateString) return '-'
+                    return new Date(dateString).toLocaleString('pt-BR', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })
+                  }
+                  
+                  const formattedMovementDate = formatMovementDate(movement.movementDate || movement.date)
+                  const formattedRegistrationDate = formatRegistrationDate(movement.registrationDate)
                   
                   return (
                     <tr key={index} className="movement-row">
-                      <td className="movement-date">{formattedDate}</td>
+                      <td className="movement-date">{formattedMovementDate}</td>
+                      <td className="registration-date">{formattedRegistrationDate}</td>
                       <td className={`movement-type ${typeClass}`}>{typeText}</td>
                       <td className="movement-employee">{movement.employeeName}</td>
                       <td className="movement-details">{movement.details || '-'}</td>

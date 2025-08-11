@@ -73,6 +73,7 @@ app.use('*', (req, res) => {
                 'GET /api/health',
                 'POST /api/register',
                 'POST /api/login',
+                'GET /api/employees',
                 'GET /api/employees/:leaderId/team-members',
                 'GET /api/employees/:id/details',
                 'POST /api/entries',

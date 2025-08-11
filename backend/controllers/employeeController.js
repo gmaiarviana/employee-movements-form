@@ -4,6 +4,48 @@ const { dbClient } = require('../config/database');
 // EMPLOYEE CONTROLLER
 // =============================================================================
 
+// Get all employees for admin/manager
+const getAllEmployees = async (req, res) => {
+    try {
+        // Get all active employees
+        const employeesResult = await dbClient.query(
+            'SELECT id, name, role, company FROM core.employees ORDER BY name'
+        );
+        
+        const employees = employeesResult.rows.map(emp => ({
+            id: emp.id,
+            name: emp.name,
+            role: emp.role,
+            company: emp.company,
+            project: 'N/A' // Default, will be updated if they have active allocation
+        }));
+        
+        // Get project assignments for each employee
+        for (let employee of employees) {
+            const projectResult = await dbClient.query(
+                'SELECT p.name FROM allocations.current_allocations ca JOIN projects.projects p ON ca.project_id = p.id WHERE ca.employee_id = $1 AND ca.is_active = true LIMIT 1',
+                [employee.id]
+            );
+            
+            if (projectResult.rows.length > 0) {
+                employee.project = projectResult.rows[0].name;
+            }
+        }
+        
+        res.json({
+            success: true,
+            data: { teamMembers: employees }
+        });
+    } catch (error) {
+        console.error('Error fetching all employees:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Internal server error',
+            message: 'Error loading employees data'
+        });
+    }
+};
+
 // Get team members for a leader
 const getTeamMembers = async (req, res) => {
     const leaderId = req.params.leaderId;
@@ -119,7 +161,7 @@ const getEmployeeDetails = async (req, res) => {
 // Create new employee
 const createEmployee = async (req, res) => {
     try {
-        const { id, name, email, role, company, is_leader = false } = req.body;
+        const { id, name, email, role, company } = req.body;
         
         // Validate required fields
         if (!id || !name || !email || !role || !company) {
@@ -160,8 +202,8 @@ const createEmployee = async (req, res) => {
         
         // Insert new employee
         const insertQuery = `
-            INSERT INTO core.employees (id, name, email, role, is_leader, company)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO core.employees (id, name, email, role, company)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING *
         `;
         
@@ -170,7 +212,6 @@ const createEmployee = async (req, res) => {
             name,
             email,
             role,
-            is_leader,
             company
         ]);
         
@@ -201,6 +242,7 @@ const createEmployee = async (req, res) => {
 };
 
 module.exports = {
+    getAllEmployees,
     getTeamMembers,
     getEmployeeDetails,
     createEmployee
