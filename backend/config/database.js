@@ -20,13 +20,43 @@ async function connectDatabase() {
     try {
         await dbClient.connect();
         console.log('🐘 Database connected successfully');
+        
+        // Validate schemas after connection
+        await validateSchemas();
     } catch (error) {
         console.error('❌ Database connection failed:', error);
         process.exit(1);
     }
 }
 
+// Schema validation function
+async function validateSchemas() {
+    try {
+        const schemaQuery = `
+            SELECT schemaname 
+            FROM pg_tables 
+            WHERE schemaname IN ('core', 'projects', 'allocations', 'reporting') 
+            GROUP BY schemaname 
+            ORDER BY schemaname
+        `;
+        
+        const result = await dbClient.query(schemaQuery);
+        const foundSchemas = result.rows.map(row => row.schemaname);
+        
+        console.log('📋 Schema validation completed');
+        if (foundSchemas.length > 0) {
+            console.log('✅ Available schemas:', foundSchemas.join(', '));
+        } else {
+            console.log('⚠️  No target schemas found (core, projects, allocations, reporting)');
+        }
+    } catch (error) {
+        console.error('❌ Schema validation failed:', error);
+        // Note: Not exiting process here to maintain compatibility
+    }
+}
+
 module.exports = {
     dbClient,
-    connectDatabase
+    connectDatabase,
+    validateSchemas
 };
