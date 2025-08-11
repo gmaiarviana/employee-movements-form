@@ -76,99 +76,16 @@ SELECT COUNT(*) FROM employees;        -- Verificar dados
 - O servidor valida automaticamente todas as variáveis de ambiente obrigatórias na inicialização
 - Rotas não encontradas retornam lista de endpoints disponíveis para facilitar o desenvolvimento
 
-### POST /api/register
-**Lógica**:
-1. Valida dados de entrada (username, email, password)
-2. Verifica se usuário/email já existe
-3. Hash da senha com bcryptjs
-4. Insere usuário na tabela users
-5. Retorna sucesso (sem token)
-
-**Body**:
-```json
-{
-  "username": "usuario123",
-  "email": "usuario@email.com", 
-  "password": "senha123"
-}
-```
-
-### POST /api/login
-**Lógica**:
-1. Busca usuário por username na tabela users
-2. Compara senha fornecida com hash armazenado
-3. Gera token JWT com dados do usuário
-4. Retorna token de autenticação
-
-**Body**:
-```json
-{
-  "username": "usuario123",
-  "password": "senha123"
-}
-```
-
-**Response**:
-```json
-{
-  "success": true,
-  "token": "eyJhbGciOiJIUzI1NiIs...",
-  "user": {
-    "id": "USER123456789",
-    "username": "usuario123",
-    "email": "usuario@email.com"
-  }
-}
-```
-
-### GET /api/employees/:leaderId/team-members
-**Lógica**:
-1. Consulta projetos liderados pelo `leaderId` na tabela projects
-2. Encontra atribuições ativas para estes projetos na tabela employee_projects
-3. Retorna dados consolidados funcionário + projeto via JOIN
-
-### GET /api/employees/:id/details  
-**Lógica**:
-1. Busca dados do funcionário por ID na tabela employees
-2. Encontra projeto ativo do funcionário via JOIN com employee_projects e projects
-3. Retorna dados consolidados
-
-### GET /api/movements
-**Lógica**:
-1. Consulta tabelas entries e exits com JOIN para dados de funcionários e projetos
-2. Consolida em formato único ordenado cronologicamente
-3. Retorna histórico completo de movimentações
+> **Exemplos detalhados**: Ver `backend/routes/` para implementações completas
 
 ## Configurações
 
-### Environment Variables
-```bash
-PORT=3000                           # Porta do servidor
-CORS_ORIGIN=http://localhost:3001   # URL do frontend para CORS
-NODE_ENV=development                # Ambiente
-DB_HOST=localhost                   # Host do banco PostgreSQL
-DB_PORT=5432                        # Porta do banco PostgreSQL
-DB_NAME=employee_movements          # Nome do banco de dados
-DB_USER=app_user                    # Usuário do banco de dados
-DB_PASSWORD=secure_password         # Senha do banco de dados
-JWT_SECRET=your-super-secret-key    # Chave secreta para JWT (deve ser aleatória em produção)
-```
+> **Environment Variables**: Ver `backend/.env.example` para todas as variáveis disponíveis
 
 **Validação Automática**: O servidor valida automaticamente todas as variáveis obrigatórias na inicialização e interrompe a execução se alguma estiver ausente, mostrando quais variáveis estão faltando.
 
-### Estrutura Modular
-O servidor está organizado em módulos separados:
-- **Controllers**: `/controllers/authController.js`, `/controllers/employeeController.js`, `/controllers/movementController.js`
-- **Routes**: `/routes/auth.js`, `/routes/employees.js`, `/routes/movements.js`, `/routes/health.js` - Agora usam controllers para lógica de negócio
-- **Middlewares**: `/middleware/auth.js` 
-- **Configurações**: `/config/cors.js`, `/config/database.js`
-
 ### Logs de Inicialização
-Ao iniciar, o servidor exibe:
-- Status da configuração carregada
-- Informações de conexão (sem valores sensíveis)
-- URLs importantes para health check
-- Configuração do CORS
+O servidor exibe status da configuração, URLs de health check e configuração do CORS.
 
 ### CORS Setup
 ```js
@@ -179,32 +96,16 @@ app.use(cors({
 ```
 
 ### Autenticação JWT
-```js
-// Middleware de autenticação aplicado automaticamente em rotas protegidas
-// Token deve ser enviado no header: Authorization: Bearer <token>
+Rotas protegidas requerem token JWT via header `Authorization: Bearer <token>`.
 
-// Exemplo de requisição autenticada:
+```js
 fetch('/api/movements', {
-  headers: {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
-  }
+  headers: { 'Authorization': `Bearer ${token}` }
 })
 ```
 
-### Estrutura de Resposta da API
-```js
-// Resposta de sucesso
-{
-  "success": true,
-  "data": {...},
-  "message": "Operação realizada com sucesso"
-}
+## Links Úteis
 
-// Resposta de erro
-{
-  "success": false,
-  "error": "Tipo do erro",
-  "message": "Descrição detalhada do erro"
-}
-```
+- **`DATABASE.md`** - Schema completo
+- **`.env.example`** - Configurações  
+- **`frontend/README_FRONTEND.md`** - Interface React
