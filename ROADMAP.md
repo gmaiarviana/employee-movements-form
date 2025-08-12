@@ -14,18 +14,10 @@
 
 ---
 
-## 🔮 Épico 5: Fluxos Realistas MVP - Integração com Dados Corporativos
+## � Épico 5: Fluxos Realistas MVP - Integração com Dados Corporativos - EM ANDAMENTO
+- ✅ **CONCLUÍDO:** Reestruturação de banco hp_portfolio implementada
 - Objetivo: Adaptar formulários para replicar fluxo real do MVP, integrando dados da base corporativa (Instituto Atlântico) com dados específicos do cliente HP, criando distinção clara entre dados canônicos e dados gerenciados pela ferramenta.
 - Funcionalidades:
-  - **5.1. Reestruturação de Banco de Dados:**
-    - **Objetivo:** Reorganizar schemas e tabelas para separar dados corporativos de dados específicos HP.
-    - **Critérios de Aceite:**
-      - Schema `core.*` deve conter apenas dados mestres da empresa (funcionários, usuários)
-      - Criar schema `hp_portfolio.*` unificado para projetos e alocações HP
-      - Migrar `projects.*` → `hp_portfolio.projects` e `allocations.*` → `hp_portfolio.allocations`
-      - Adicionar campos específicos em `allocation_history` para dados de movimentação HP
-      - Criar VIEW consolidada para consultas otimizadas
-
   - **5.2. Fluxo de Entrada Realista:**
     - **Objetivo:** Gestor seleciona funcionário existente da base corporativa e preenche apenas dados específicos do projeto HP.
     - **Critérios de Aceite:**

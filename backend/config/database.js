@@ -35,7 +35,7 @@ async function validateSchemas() {
         const schemaQuery = `
             SELECT schemaname 
             FROM pg_tables 
-            WHERE schemaname IN ('core', 'projects', 'allocations', 'reporting') 
+            WHERE schemaname IN ('core', 'hp_portfolio') 
             GROUP BY schemaname 
             ORDER BY schemaname
         `;
@@ -47,7 +47,7 @@ async function validateSchemas() {
         if (foundSchemas.length > 0) {
             console.log('✅ Available schemas:', foundSchemas.join(', '));
         } else {
-            console.log('⚠️  No target schemas found (core, projects, allocations, reporting)');
+            console.log('⚠️  No target schemas found (core, hp_portfolio)');
         }
     } catch (error) {
         console.error('❌ Schema validation failed:', error);

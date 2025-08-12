@@ -20,13 +20,13 @@ async function validateForeignKeys() {
     };
 
     try {
-        // 1. Check if all employee_id in allocations.* exist in core.employees
-        console.log('🔍 Validating employee IDs in allocations...');
+        // 1. Check if all employee_id in hp_portfolio.* exist in core.employees
+        console.log('🔍 Validating employee IDs in HP Portfolio allocations...');
         
         // Check current_allocations
         const currentAllocationsQuery = `
             SELECT DISTINCT ca.employee_id
-            FROM allocations.current_allocations ca
+            FROM hp_portfolio.current_allocations ca
             LEFT JOIN core.employees e ON ca.employee_id = e.id
             WHERE e.id IS NULL
         `;
@@ -36,7 +36,7 @@ async function validateForeignKeys() {
         // Check allocation_history
         const allocationHistoryQuery = `
             SELECT DISTINCT ah.employee_id
-            FROM allocations.allocation_history ah
+            FROM hp_portfolio.allocation_history ah
             LEFT JOIN core.employees e ON ah.employee_id = e.id
             WHERE e.id IS NULL
         `;
@@ -52,17 +52,17 @@ async function validateForeignKeys() {
         if (invalidEmployeeIds.length > 0) {
             results.isValid = false;
             results.details.invalidEmployeeIds = [...new Set(invalidEmployeeIds)];
-            results.errors.push(`Found ${invalidEmployeeIds.length} invalid employee_id references in allocations tables`);
+            results.errors.push(`Found ${invalidEmployeeIds.length} invalid employee_id references in HP Portfolio allocation tables`);
         }
 
-        // 2. Check if all project_id in allocations.* exist in projects.projects
-        console.log('🔍 Validating project IDs in allocations...');
+        // 2. Check if all project_id in hp_portfolio.* exist in hp_portfolio.projects
+        console.log('🔍 Validating project IDs in HP Portfolio allocations...');
         
         // Check current_allocations
         const currentProjectQuery = `
             SELECT DISTINCT ca.project_id
-            FROM allocations.current_allocations ca
-            LEFT JOIN projects.projects p ON ca.project_id = p.id
+            FROM hp_portfolio.current_allocations ca
+            LEFT JOIN hp_portfolio.projects p ON ca.project_id = p.id
             WHERE p.id IS NULL
         `;
         
@@ -71,8 +71,8 @@ async function validateForeignKeys() {
         // Check allocation_history
         const historyProjectQuery = `
             SELECT DISTINCT ah.project_id
-            FROM allocations.allocation_history ah
-            LEFT JOIN projects.projects p ON ah.project_id = p.id
+            FROM hp_portfolio.allocation_history ah
+            LEFT JOIN hp_portfolio.projects p ON ah.project_id = p.id
             WHERE p.id IS NULL
         `;
         
@@ -87,15 +87,15 @@ async function validateForeignKeys() {
         if (invalidProjectIds.length > 0) {
             results.isValid = false;
             results.details.invalidProjectIds = [...new Set(invalidProjectIds)];
-            results.errors.push(`Found ${invalidProjectIds.length} invalid project_id references in allocations tables`);
+            results.errors.push(`Found ${invalidProjectIds.length} invalid project_id references in HP Portfolio allocation tables`);
         }
 
-        // 3. Check if all employee_id in projects.project_managers exist in core.employees
-        console.log('🔍 Validating employee IDs in project_managers...');
+        // 3. Check if all employee_id in hp_portfolio.project_managers exist in core.employees
+        console.log('🔍 Validating employee IDs in HP Portfolio project managers...');
         
         const managerQuery = `
             SELECT DISTINCT pm.employee_id
-            FROM projects.project_managers pm
+            FROM hp_portfolio.project_managers pm
             LEFT JOIN core.employees e ON pm.employee_id = e.id
             WHERE e.id IS NULL
         `;
@@ -106,7 +106,7 @@ async function validateForeignKeys() {
         if (invalidManagerIds.length > 0) {
             results.isValid = false;
             results.details.invalidManagerIds = invalidManagerIds;
-            results.errors.push(`Found ${invalidManagerIds.length} invalid employee_id references in project_managers table`);
+            results.errors.push(`Found ${invalidManagerIds.length} invalid employee_id references in HP Portfolio project managers table`);
         }
 
         if (results.isValid) {
@@ -145,11 +145,9 @@ async function getDataCounts() {
                 users: 0,
                 employees: 0
             },
-            projects: {
+            hp_portfolio: {
                 projects: 0,
-                project_managers: 0
-            },
-            allocations: {
+                project_managers: 0,
                 current_allocations: 0,
                 allocation_history: 0
             }
@@ -175,42 +173,27 @@ async function getDataCounts() {
             }
         }
 
-        // Projects schema counts
-        const projectQueries = [
-            { table: 'projects.projects', key: 'projects' },
-            { table: 'projects.project_managers', key: 'project_managers' }
+        // HP Portfolio schema counts
+        const hpPortfolioQueries = [
+            { table: 'hp_portfolio.projects', key: 'projects' },
+            { table: 'hp_portfolio.project_managers', key: 'project_managers' },
+            { table: 'hp_portfolio.current_allocations', key: 'current_allocations' },
+            { table: 'hp_portfolio.allocation_history', key: 'allocation_history' }
         ];
 
-        for (const { table, key } of projectQueries) {
+        for (const { table, key } of hpPortfolioQueries) {
             try {
                 const result = await dbClient.query(`SELECT COUNT(*) as count FROM ${table}`);
-                counts.data.projects[key] = parseInt(result.rows[0].count);
+                counts.data.hp_portfolio[key] = parseInt(result.rows[0].count);
             } catch (error) {
                 console.warn(`⚠️  Could not count ${table}: ${error.message}`);
-                counts.data.projects[key] = -1; // Indicates error
-            }
-        }
-
-        // Allocations schema counts
-        const allocationQueries = [
-            { table: 'allocations.current_allocations', key: 'current_allocations' },
-            { table: 'allocations.allocation_history', key: 'allocation_history' }
-        ];
-
-        for (const { table, key } of allocationQueries) {
-            try {
-                const result = await dbClient.query(`SELECT COUNT(*) as count FROM ${table}`);
-                counts.data.allocations[key] = parseInt(result.rows[0].count);
-            } catch (error) {
-                console.warn(`⚠️  Could not count ${table}: ${error.message}`);
-                counts.data.allocations[key] = -1; // Indicates error
+                counts.data.hp_portfolio[key] = -1; // Indicates error
             }
         }
 
         // Calculate totals
         const totalRecords = Object.values(counts.data.core).reduce((sum, count) => sum + (count > 0 ? count : 0), 0) +
-                           Object.values(counts.data.projects).reduce((sum, count) => sum + (count > 0 ? count : 0), 0) +
-                           Object.values(counts.data.allocations).reduce((sum, count) => sum + (count > 0 ? count : 0), 0);
+                           Object.values(counts.data.hp_portfolio).reduce((sum, count) => sum + (count > 0 ? count : 0), 0);
 
         console.log('✅ Data count collection completed');
         console.log(`📈 Total records across all tables: ${totalRecords}`);
@@ -224,8 +207,12 @@ async function getDataCounts() {
             error: error.message,
             data: {
                 core: { users: -1, employees: -1 },
-                projects: { projects: -1, project_managers: -1 },
-                allocations: { current_allocations: -1, allocation_history: -1 }
+                hp_portfolio: { 
+                    projects: -1, 
+                    project_managers: -1,
+                    current_allocations: -1, 
+                    allocation_history: -1 
+                }
             }
         };
     }
@@ -278,34 +265,34 @@ async function validateDataIntegrity() {
         // Foreign key recommendations
         if (!results.summary.foreignKeysValid) {
             if (results.foreignKeys.details.invalidEmployeeIds.length > 0) {
-                results.recommendations.push('Fix invalid employee_id references in allocations tables');
+                results.recommendations.push('Fix invalid employee_id references in HP Portfolio allocation tables');
             }
             if (results.foreignKeys.details.invalidProjectIds.length > 0) {
-                results.recommendations.push('Fix invalid project_id references in allocations tables');
+                results.recommendations.push('Fix invalid project_id references in HP Portfolio allocation tables');
             }
             if (results.foreignKeys.details.invalidManagerIds.length > 0) {
-                results.recommendations.push('Fix invalid employee_id references in project_managers table');
+                results.recommendations.push('Fix invalid employee_id references in HP Portfolio project managers table');
             }
         }
 
         // Data count recommendations
         if (results.dataCounts.success) {
-            const { core, projects, allocations } = results.dataCounts.data;
+            const { core, hp_portfolio } = results.dataCounts.data;
             
             if (core.employees === 0) {
                 results.recommendations.push('No employees found - consider adding employee data');
             }
             
-            if (projects.projects === 0) {
-                results.recommendations.push('No projects found - consider adding project data');
+            if (hp_portfolio.projects === 0) {
+                results.recommendations.push('No projects found in HP Portfolio - consider adding project data');
             }
             
-            if (allocations.current_allocations === 0 && allocations.allocation_history === 0) {
-                results.recommendations.push('No allocations found - consider adding allocation data');
+            if (hp_portfolio.current_allocations === 0 && hp_portfolio.allocation_history === 0) {
+                results.recommendations.push('No allocations found in HP Portfolio - consider adding allocation data');
             }
             
-            if (projects.project_managers === 0 && projects.projects > 0) {
-                results.recommendations.push('Projects exist but no managers assigned - consider assigning project managers');
+            if (hp_portfolio.project_managers === 0 && hp_portfolio.projects > 0) {
+                results.recommendations.push('Projects exist but no managers assigned in HP Portfolio - consider assigning project managers');
             }
         }
 
