@@ -17,6 +17,20 @@ Este documento define **como trabalhar** no projeto Contract Movements. O **que 
 - **Mensagens**: "feat/fix: descrição - Feature X.Y concluída"
 - **Frequência**: 1 commit por sub-task validada
 
+## Divisão de Responsabilidades
+
+### **Gemini - Comandos de Banco de Dados**
+- **Responsabilidade:** Todos os comandos e scripts SQL devem ser gerados e fornecidos pelo Gemini
+- **Escopo:** Criação de tabelas, alterações de schema, migrations, queries complexas, procedures
+- **Formato:** O Gemini fornecerá os comandos SQL completos prontos para execução
+- **Validação:** Scripts devem ser testados via PowerShell usando `docker exec` para acessar o container PostgreSQL
+
+### **GitHub Copilot - Alterações de Código**
+- **Responsabilidade:** Todas as modificações em arquivos de código fonte (JavaScript, HTML, CSS, etc.)
+- **Escopo:** Componentes React, APIs Node.js, configurações, estilos, lógica de negócio
+- **Formato:** Prompts estruturados seguindo o template específico definido neste documento
+- **Validação:** Código deve ser testado via browser e comandos PowerShell específicos
+
 ## Processo de Refinamento
 
 ### **1. ÉPICOS → FEATURES**
