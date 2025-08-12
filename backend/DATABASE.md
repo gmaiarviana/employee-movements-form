@@ -9,9 +9,8 @@ Sistema de gestão de movimentações para consultoria, projetado para gerenciar
 ```
 employee_movements_db/
 ├── core/           # Usuários e funcionários (autenticação + dados pessoais)
-├── projects/       # Projetos e gerentes (1 gerente por projeto)
-├── allocations/    # Alocações ativas + histórico completo
-└── reporting/      # Views agregadas para dashboards
+├── hp_portfolio/   # Projetos, alocações, histórico e views (estrutura HP específica)
+└── public/         # Schema padrão PostgreSQL
 ```
 
 ---
@@ -32,6 +31,23 @@ employee_movements_db/
 ```
 
 ### SCHEMA PROJECTS - Projetos e Gerência
+```
+┌─────────────────────┐       ┌─────────────────────┐
+│hp_portfolio.projects│       │project_managers     │
+├─────────────────────┤       ├─────────────────────┤
+│ PK: project_id (uuid)│ 1:1   │ PK: manager_id      │
+│     name            │ ◄───► │ FK: project_id      │
+│     description     │       │ FK: employee_id     │
+│     start_date      │       │     assigned_at     │
+│     end_date        │       └─────────────────────┘
+│     status          │                 │
+│     client_name     │                 │ 1:N
+│     budget          │                 ▼
+│     priority        │       ┌─────────────────────┐
+└─────────────────────┘       │   core.employees    │
+                               │ (referência cruzada)│
+                               └─────────────────────┘
+```
 ```
 ┌─────────────────────┐       ┌─────────────────────┐
 │  projects.projects  │       │project_managers     │
@@ -62,27 +78,33 @@ employee_movements_db/
 │     allocated_hours │       │     timestamp       │
 │     start_date      │       │     hours_changed   │
 │     is_active       │       │     notes           │
+└─────────────────────┘       │     hp_employee_id  │
+         │                    │     project_type    │
+         │ N:1                │     compliance_training │
+         ▼                    │     billable        │
+┌─────────────────────┐       │     has_replacement │
+│   core.employees    │       │     machine_type    │
+│ (referência cruzada)│       │     machine_reuse   │
 └─────────────────────┘       └─────────────────────┘
-         │                            │
-         │ N:1                        │ N:1
-         ▼                            ▼
-┌─────────────────────┐       ┌─────────────────────┐
-│   core.employees    │       │  projects.projects  │
-│ (referência cruzada)│       │ (referência cruzada)│
-└─────────────────────┘       └─────────────────────┘
+                                       │ N:1
+                                       ▼
+                               ┌─────────────────────┐
+                               │hp_portfolio.projects│
+                               │ (referência cruzada)│
+                               └─────────────────────┘
 ```
 
 ### FLUXO LÓGICO PRINCIPAL
 ```
-User ──1:1──► Employee ──1:N──► Current_Allocations ──N:1──► Projects
+User ──1:1──► Employee ──1:N──► HP_Portfolio.Current_Allocations ──N:1──► HP_Portfolio.Projects
   │                                      │
   │                                      │ 1:N
   │                                      ▼
-  └──► Authentication                Allocation_History
+  └──► Authentication            HP_Portfolio.Allocation_History
                                           │
                                           │ (agregação)
                                           ▼
-                                    reporting.views
+                            employee_movements_consolidated (VIEW)
 ```
 
 ### LEGENDA
@@ -118,21 +140,56 @@ User ──1:1──► Employee ──1:N──► Current_Allocations ──N:
 Invoke-WebRequest -Uri "http://localhost:3000/api/health"
 
 # Conectar ao banco
-docker-compose exec db psql -U app_user -d employee_movements
+docker exec employee-movements-form-db-1 psql -U app_user -d employee_movements
 
 # Ver tabelas por schema
 \dt core.*
-\dt projects.*
-\dt allocations.*
+\dt hp_portfolio.*
+
+# Ver views importantes
+\dv hp_portfolio.*
 ```
 
 ---
 
 ### Notas de Desenvolvimento
 
-- **Schemas**: Estrutura modular permite controle granular de permissões
+- **Schemas**: `core` (usuários/funcionários) e `hp_portfolio` (projetos/alocações)
 - **Relacionamentos**: Foreign keys garantem integridade referencial
-- **Performance**: Indexes otimizados para queries de movimentação frequentes
-- **Auditoria**: Histórico completo mantido em `allocations.allocation_history`
+- **Auditoria**: Histórico completo mantido em `hp_portfolio.allocation_history`
+- **Views**: `employee_movements_consolidated` centraliza dados para dashboards
+- **Campos HP**: `hp_employee_id`, `compliance_training`, `billable`, `machine_type`
+
+**Views Disponíveis:**
+- `employee_movements_consolidated` - Dados consolidados de movimentações
+- `v_active_projects_with_managers` - Projetos ativos com gerentes
+- `v_current_resource_utilization` - Utilização atual de recursos
 
 Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos SQL descritivos como `\d schema.table`.
+
+---
+
+## ESTRUTURA DETALHADA DO BANCO
+
+### TABELAS EXISTENTES
+
+#### SCHEMA CORE
+```sql
+-- core.users (autenticação)
+-- core.employees (dados pessoais + profissionais)
+```
+
+#### SCHEMA HP_PORTFOLIO
+```sql
+-- hp_portfolio.projects (projetos e clientes)
+-- hp_portfolio.project_managers (1 gerente por projeto)
+-- hp_portfolio.current_allocations (alocações ativas)
+-- hp_portfolio.allocation_history (histórico completo)
+```
+
+#### VIEWS CONSOLIDADAS
+```sql
+-- hp_portfolio.employee_movements_consolidated (dados para API /api/movements)
+-- hp_portfolio.v_active_projects_with_managers  
+-- hp_portfolio.v_current_resource_utilization
+```

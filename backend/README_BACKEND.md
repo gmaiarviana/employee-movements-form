@@ -38,17 +38,33 @@ docker-compose exec db psql -U app_user -d employee_movements
 
 > **Database Schema**: Ver `DATABASE.md` para schema completo e queries detalhadas
 
+### Estrutura do Banco (Resumo)
+
+O banco utiliza PostgreSQL com 2 schemas principais:
+
+- **`core.*`**: Usuários e funcionários (`users`, `employees`)
+- **`hp_portfolio.*`**: Projetos, alocações e histórico (`projects`, `current_allocations`, `allocation_history`, `project_managers`)
+
+**Views Importantes:**
+- `hp_portfolio.employee_movements_consolidated` - Dados consolidados usados pela API
+- `hp_portfolio.v_active_projects_with_managers` - Projetos ativos com gerentes  
+- `hp_portfolio.v_current_resource_utilization` - Utilização de recursos
+
+**Campos Específicos HP:** `hp_employee_id`, `compliance_training`, `billable`, `machine_type`, etc.
+
 ## Verificando o Database
 
 Para verificar a estrutura do banco:
 
 ```bash
 # Conectar ao PostgreSQL
-docker-compose exec db psql -U app_user -d employee_movements
+docker exec employee-movements-form-db-1 psql -U app_user -d employee_movements
 
 # Verificação básica
-\dt                                    -- Listar tabelas
-SELECT COUNT(*) FROM employees;        -- Verificar dados
+\dt core.*                             -- Tabelas do schema core (users, employees)
+\dt hp_portfolio.*                     -- Tabelas do schema hp_portfolio (projects, allocations)
+\dv hp_portfolio.*                     -- Views do schema hp_portfolio
+SELECT COUNT(*) FROM core.employees;   -- Verificar dados
 \q                                     -- Sair do PostgreSQL
 ```
 
@@ -62,21 +78,20 @@ SELECT COUNT(*) FROM employees;        -- Verificar dados
 - `POST /api/login` - Login de usuários
 
 ### Funcionários (🔒 Protegidos por JWT)
+- `GET /api/employees` - Lista todos os funcionários
 - `GET /api/employees/:leaderId/team-members` - Membros da equipe
 - `GET /api/employees/:id/details` - Detalhes do funcionário
 
 ### Movimentações (🔒 Protegidos por JWT)
 - `GET /api/movements` - Histórico de movimentações
-- `POST /api/entries` - Criar nova entrada
+- `POST /api/entries` - Criar nova entrada 
 - `POST /api/exits` - Criar nova saída
 
 **Nota**: 
 - Endpoints marcados com 🔒 requerem autenticação JWT via header `Authorization: Bearer <token>`
 - Todos os endpoints utilizam PostgreSQL para consulta e manipulação de dados
 - O servidor valida automaticamente todas as variáveis de ambiente obrigatórias na inicialização
-- Rotas não encontradas retornam lista de endpoints disponíveis para facilitar o desenvolvimento
-
-> **Exemplos detalhados**: Ver `backend/routes/` para implementações completas
+- Rotas não encontradas retornam lista de endpoints disponíveis
 
 ## Configurações
 
