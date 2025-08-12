@@ -23,7 +23,7 @@ const getAllEmployees = async (req, res) => {
         // Get project assignments for each employee
         for (let employee of employees) {
             const projectResult = await dbClient.query(
-                'SELECT p.name FROM allocations.current_allocations ca JOIN projects.projects p ON ca.project_id = p.id WHERE ca.employee_id = $1 AND ca.is_active = true LIMIT 1',
+                'SELECT p.name FROM hp_portfolio.current_allocations ca JOIN hp_portfolio.projects p ON ca.project_id = p.id WHERE ca.employee_id = $1 AND ca.end_date IS NULL LIMIT 1',
                 [employee.id]
             );
             
@@ -53,7 +53,7 @@ const getTeamMembers = async (req, res) => {
     try {
         // Find projects led by the specified leader
         const projectsResult = await dbClient.query(
-            'SELECT p.* FROM projects.projects p JOIN projects.project_managers pm ON p.id = pm.project_id WHERE pm.employee_id = $1',
+            'SELECT p.* FROM hp_portfolio.projects p JOIN hp_portfolio.project_managers pm ON p.id = pm.project_id WHERE pm.employee_id = $1',
             [leaderId]
         );
         
@@ -62,7 +62,7 @@ const getTeamMembers = async (req, res) => {
         // For each project, find active assignments
         for (const project of projectsResult.rows) {
             const assignmentsResult = await dbClient.query(
-                'SELECT ca.*, e.name, e.role FROM allocations.current_allocations ca JOIN core.employees e ON ca.employee_id = e.id WHERE ca.project_id = $1 AND ca.is_active = true',
+                'SELECT ca.*, e.name, e.role FROM hp_portfolio.current_allocations ca JOIN core.employees e ON ca.employee_id = e.id WHERE ca.project_id = $1 AND ca.end_date IS NULL',
                 [project.id]
             );
             
@@ -114,7 +114,7 @@ const getEmployeeDetails = async (req, res) => {
         
         // Find the employee's active project
         const projectResult = await dbClient.query(
-            'SELECT p.* FROM allocations.current_allocations ca JOIN projects.projects p ON ca.project_id = p.id WHERE ca.employee_id = $1 AND ca.is_active = true LIMIT 1',
+            'SELECT p.* FROM hp_portfolio.current_allocations ca JOIN hp_portfolio.projects p ON ca.project_id = p.id WHERE ca.employee_id = $1 AND ca.end_date IS NULL LIMIT 1',
             [employeeId]
         );
         
@@ -133,8 +133,8 @@ const getEmployeeDetails = async (req, res) => {
             const project = projectResult.rows[0];
             response.project = {
                 name: project.name,
-                type: project.type,
-                sow: project.sow
+                type: project.description || "N/A", // Using description instead of type
+                sow: project.status || "N/A" // Using status instead of sow
             };
         } else {
             response.project = {

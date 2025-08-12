@@ -8,45 +8,52 @@ const { v4: uuidv4 } = require('uuid');
 // Get consolidated movements data
 const getMovements = async (req, res) => {
     try {
-        // Query allocation history with JOINs to employees and projects
+        // Query the consolidated view with all HP portfolio fields
         const query = `
-            SELECT ah.*, e.name as employee_name, p.name as project_name 
-            FROM allocations.allocation_history ah 
-            LEFT JOIN core.employees e ON ah.employee_id = e.id 
-            LEFT JOIN projects.projects p ON ah.project_id = p.id
-            ORDER BY ah.registration_date DESC
+            SELECT 
+                employee_name,
+                project_name,
+                movement_date,
+                allocation_role,
+                change_reason,
+                hp_employee_id,
+                project_type,
+                compliance_training,
+                billable
+            FROM hp_portfolio.employee_movements_consolidated
+            ORDER BY movement_date DESC
         `;
         const result = await dbClient.query(query);
         
         const movements = [];
         
-        // Process allocation history records
+        // Process consolidated view records - simplified logic
         result.rows.forEach(record => {
+            let type = 'entrada'; // Default type
             let details = '';
-            let type = '';
             
-            if (record.movement_type === 'entry') {
-                type = 'entrada';
-                if (record.project_id && record.project_name) {
-                    details = `Entrada como ${record.role || 'Funcionário'} no Projeto ${record.project_name}`;
-                } else {
-                    details = `Entrada como ${record.role || 'Funcionário'} - Não atribuído`;
-                }
-            } else if (record.movement_type === 'exit') {
+            // Simple determination based on change_reason
+            if (record.change_reason && 
+                (record.change_reason.toLowerCase().includes('saída') || 
+                 record.change_reason.toLowerCase().includes('desligamento') ||
+                 record.change_reason.toLowerCase().includes('transferência'))) {
                 type = 'saida';
-                if (record.project_id && record.project_name) {
-                    details = `Saída por ${record.reason || 'Motivo não especificado'} do Projeto ${record.project_name}`;
-                } else {
-                    details = `Saída por ${record.reason || 'Motivo não especificado'} - Não atribuído`;
-                }
+                details = `${record.change_reason} - Projeto: ${record.project_name}`;
+            } else {
+                details = `${record.allocation_role || 'Funcionário'} - Projeto: ${record.project_name}`;
             }
             
             movements.push({
                 type: type,
-                movementDate: record.movement_date, // Data do evento (apenas data)
-                registrationDate: record.registration_date, // Data/hora do registro
+                movementDate: record.movement_date,
+                registrationDate: record.movement_date, // Using movement_date for compatibility
                 employeeName: record.employee_name || 'Funcionário não encontrado',
                 details: details,
+                // New HP portfolio fields
+                hpEmployeeId: record.hp_employee_id,
+                projectType: record.project_type,
+                complianceTraining: record.compliance_training,
+                billable: record.billable,
                 // Manter compatibilidade com frontend atual
                 date: record.movement_date
             });
@@ -80,8 +87,7 @@ const createEntry = async (req, res) => {
             });
         }
         
-        // Generate UUIDs for the new records
-        const allocationId = uuidv4();
+        // Generate UUID for the history record (if needed)
         const historyId = uuidv4();
         
         // Start a transaction
@@ -90,36 +96,38 @@ const createEntry = async (req, res) => {
         try {
             // Insert into current_allocations
             const currentAllocationQuery = `
-                INSERT INTO allocations.current_allocations (
-                    id, employee_id, project_id, role, start_date, is_active
+                INSERT INTO hp_portfolio.current_allocations (
+                    employee_id, project_id, role, start_date, allocation_percentage, is_billable
                 )
-                VALUES ($1, $2, $3, $4, $5, true)
+                VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING *
             `;
             
-            await dbClient.query(currentAllocationQuery, [
-                allocationId,
+            const currentResult = await dbClient.query(currentAllocationQuery, [
                 employeeId,
                 projectId,
                 role,
-                startDate
+                startDate,
+                100, // Default allocation percentage
+                true  // Default is_billable
             ]);
             
             // Insert into allocation_history
             const historyQuery = `
-                INSERT INTO allocations.allocation_history (
-                    id, employee_id, project_id, movement_type, movement_date, role
+                INSERT INTO hp_portfolio.allocation_history (
+                    employee_id, project_id, start_date, change_reason, role, allocation_percentage
                 )
-                VALUES ($1, $2, $3, 'entry', $4, $5)
+                VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING *
             `;
             
             const historyResult = await dbClient.query(historyQuery, [
-                historyId,
                 employeeId,
                 projectId,
                 startDate,
-                role
+                'Entrada no projeto',
+                role,
+                100 // Default allocation percentage
             ]);
             
             // Commit the transaction
@@ -128,7 +136,7 @@ const createEntry = async (req, res) => {
             res.status(201).json({
                 success: true,
                 message: 'Entry created successfully',
-                data: historyResult.rows[0]
+                data: currentResult.rows[0]
             });
             
         } catch (error) {
@@ -186,11 +194,11 @@ const createExit = async (req, res) => {
         await dbClient.query('BEGIN');
         
         try {
-            // Update current_allocations to set is_active = false and set end_date
+            // Update current_allocations to set end_date
             const updateCurrentQuery = `
-                UPDATE allocations.current_allocations 
-                SET is_active = false, end_date = $1
-                WHERE employee_id = $2 AND project_id = $3 AND is_active = true
+                UPDATE hp_portfolio.current_allocations 
+                SET end_date = $1
+                WHERE employee_id = $2 AND project_id = $3 AND end_date IS NULL
                 RETURNING *
             `;
             
@@ -212,19 +220,20 @@ const createExit = async (req, res) => {
             
             // Insert into allocation_history
             const historyQuery = `
-                INSERT INTO allocations.allocation_history (
-                    id, employee_id, project_id, movement_type, movement_date, reason
+                INSERT INTO hp_portfolio.allocation_history (
+                    employee_id, project_id, end_date, change_reason, role, allocation_percentage
                 )
-                VALUES ($1, $2, $3, 'exit', $4, $5)
+                VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING *
             `;
             
             const historyResult = await dbClient.query(historyQuery, [
-                historyId,
                 employeeId,
                 projectId,
                 exitDate,
-                reason
+                reason,
+                updateResult.rows[0].role, // Use role from current allocation
+                updateResult.rows[0].allocation_percentage || 100 // Use existing percentage
             ]);
             
             // Commit the transaction
