@@ -84,8 +84,8 @@ SELECT COUNT(*) FROM core.employees;   -- Verificar dados
 
 ### Movimentações (🔒 Protegidos por JWT)
 - `GET /api/movements` - Histórico de movimentações
-- `POST /api/entries` - Criar nova entrada 
-- `POST /api/exits` - Criar nova saída
+- `POST /api/entries` - Nova entrada (salva em current_allocations)
+- `POST /api/exits` - Nova saída (finaliza current_allocations + histórico)
 
 **Nota**: 
 - Endpoints marcados com 🔒 requerem autenticação JWT via header `Authorization: Bearer <token>`

@@ -43,7 +43,12 @@ src/
 │   └── api.js                 # Service centralizado para APIs
 └── components/
     ├── pages/                 # Home, Login, Register, AdminDashboard
-    ├── forms/                 # EntryForm, ExitForm, SelectEmployee
+    ├── forms/
+    │   ├── EntryForm.jsx                    # Orquestrador + dropdown funcionários
+    │   ├── entry/                           # Componentes modulares (5.2)
+    │   │   ├── EmployeeSelector.jsx         # Dropdown + campos automáticos
+    │   │   ├── HPSpecificFields.jsx         # Campos HP editáveis
+    │   │   └── hooks/useEmployeeSelection.js
     ├── summary/               # SummaryEntry, SummaryExit
     └── common/                # ProtectedRoute, componentes reutilizáveis
 ```
