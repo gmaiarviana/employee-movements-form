@@ -185,6 +185,25 @@ const getEmployeeDetails = async (req, res) => {
             LIMIT 1
         `, [employeeId]);
         
+        // Buscar start_date do movimento ENTRY ativo antes de montar response
+        let realStartDate = null;
+        if (projectResult.rows.length > 0) {
+            const entryQuery = `
+                SELECT start_date FROM hp_portfolio.movements 
+                WHERE employee_id = $1 AND project_id = $2 AND movement_type = 'ENTRY'
+                AND NOT EXISTS (
+                    SELECT 1 FROM hp_portfolio.movements m2 
+                    WHERE m2.employee_id = $1 AND m2.project_id = $2 
+                    AND m2.movement_type = 'EXIT' AND m2.created_at > hp_portfolio.movements.created_at
+                )
+                ORDER BY created_at DESC LIMIT 1
+            `;
+            const entryResult = await dbClient.query(entryQuery, [employeeId, projectResult.rows[0].id]);
+            if (entryResult.rows.length > 0) {
+                realStartDate = entryResult.rows[0].start_date;
+            }
+        }
+        
         // Prepare response
         const response = {
             employee: {
@@ -202,14 +221,16 @@ const getEmployeeDetails = async (req, res) => {
                 id: project.id, // ✅ Adicionar project ID real
                 name: project.name,
                 type: project.description || "N/A", // Using description instead of type
-                sow: project.status || "N/A" // Using status instead of sow
+                sow: project.status || "N/A", // Using status instead of sow
+                startDate: realStartDate // ✅ ADICIONAR start_date do movimento ENTRY
             };
         } else {
             response.project = {
                 id: null, // ✅ Null quando não há projeto ativo
                 name: "Não atribuído",
                 type: "N/A",
-                sow: "N/A"
+                sow: "N/A",
+                startDate: null
             };
         }
         

@@ -14,20 +14,13 @@
 
 ---
 
-## � Épico 5: Fluxos Realistas MVP - Integração com Dados Corporativos - EM ANDAMENTO
+## 🟡 Épico 5: Fluxos Realistas MVP - Integração com Dados Corporativos - EM ANDAMENTO
 - Objetivo: Adaptar formulários para replicar fluxo real do MVP, integrando dados da base corporativa (Instituto Atlântico) com dados específicos do cliente HP, criando distinção clara entre dados canônicos e dados gerenciados pela ferramenta.
 - Funcionalidades:
    ✅ **5.1. CONCLUÍDO:** Reestruturação de banco hp_portfolio implementada
    ✅ **5.2. Fluxo de Entrada Realista CONCLUÍDO:** Dropdown funcionários existentes, campos HP específicos, salva em hp_portfolio
 
-  - **5.3. Fluxo de Saída Realista:**
-    - **Objetivo:** Carregar dados existentes automaticamente e coletar apenas informações específicas da saída.
-    - **Critérios de Aceite:**
-      - Seleção de funcionário deve carregar dados já cadastrados automaticamente
-      - Formulário deve exibir informações completas do funcionário e projeto atual
-      - Gestor deve preencher apenas: data de saída, motivo, informações sobre replacement e máquina
-      - Sistema deve registrar saída na estrutura reorganizada do banco
-      - Fluxo completo deve ser testado e funcional
+   ✅ **5.3. Fluxo de Saída Realista CONCLUÍDO**
 
   - **5.4. APIs e Integrações:**
     - **Objetivo:** Adaptar todas as APIs para nova estrutura e garantir funcionamento do dashboard administrativo.

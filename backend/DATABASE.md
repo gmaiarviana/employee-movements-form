@@ -171,5 +171,7 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 | `is_billable` | BOOLEAN | Versão booleana de billable |
 | `change_reason` | TEXT | Motivo da mudança (para EXIT) |
 | `allocation_percentage` | INTEGER | Percentual de alocação |
+| `has_replacement` | BOOLEAN | Se haverá replacement na saída |
+| `machine_type` | VARCHAR(50) | 'empresa' ou 'aws' |
 | `created_at` | TIMESTAMP | Data de criação |
 | `updated_at` | TIMESTAMP | Data de atualização |

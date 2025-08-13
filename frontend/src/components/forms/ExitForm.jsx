@@ -11,9 +11,17 @@ const ExitForm = () => {
   const [exitReason, setExitReason] = useState('')
   const [hasReplacement, setHasReplacement] = useState('')
   const [machineType, setMachineType] = useState('')
+  const [entryDate, setEntryDate] = useState('')
   const navigate = useNavigate()
 
   const employeeId = searchParams.get('employeeId')
+
+  // Função para formatar data
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Data não informada'
+    const date = new Date(dateString)
+    return date.toLocaleDateString('pt-BR')
+  }
 
   // Função para carregar informações do funcionário
   const loadEmployeeInfo = async () => {
@@ -30,6 +38,11 @@ const ExitForm = () => {
       // Verificar se resposta tem estrutura correta
       if (data.success && data.data) {
         setEmployeeInfo(data.data)
+        
+        // ✅ NOVO: Extrair data de entrada se existir
+        if (data.data.project && data.data.project.startDate) {
+          setEntryDate(data.data.project.startDate)
+        }
       } else {
         setEmployeeInfo(data)
       }
@@ -55,6 +68,12 @@ const ExitForm = () => {
     // Validar se todos os campos estão preenchidos
     if (!exitDate || !exitReason || !hasReplacement || !machineType) {
       alert('Por favor, preencha todos os campos obrigatórios.')
+      return
+    }
+    
+    // Validação de data antes de enviar
+    if (entryDate && exitDate && new Date(exitDate) <= new Date(entryDate)) {
+      alert(`Data de saída deve ser posterior à data de entrada (${formatDate(entryDate)}).`)
       return
     }
     
@@ -103,6 +122,15 @@ const ExitForm = () => {
                 <p><strong>SOW:</strong> {employeeInfo.project.sow}</p>
               </div>
             )}
+            
+            {/* Adicionar após as informações do funcionário */}
+            {!loading && !error && employeeInfo && entryDate && (
+              <div className="employee-display">
+                <h4>Informações da Alocação</h4>
+                <p><strong>Data de Entrada:</strong> {formatDate(entryDate)}</p>
+                <p><em>A data de saída deve ser posterior à data de entrada.</em></p>
+              </div>
+            )}
           </div>
           
           <form id="exit-form" className="form" onSubmit={handleSubmit}>
@@ -115,6 +143,7 @@ const ExitForm = () => {
                 required 
                 className="form-field"
                 value={exitDate}
+                min={entryDate} // ✅ Bloquear datas anteriores à entrada
                 onChange={(e) => setExitDate(e.target.value)}
               />
             </div>
