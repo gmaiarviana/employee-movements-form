@@ -13,6 +13,8 @@ const SummaryExit = () => {
   const employeeId = searchParams.get('employeeId')
   const exitDate = searchParams.get('exitDate')
   const reason = searchParams.get('reason')
+  const hasReplacement = searchParams.get('hasReplacement')
+  const machineType = searchParams.get('machineType')
 
   // Função para formatar data
   const formatDate = (dateString) => {
@@ -74,7 +76,9 @@ const SummaryExit = () => {
         projectId: summaryData.project.id, // ✅ Usar project_id real
         date: exitDate, // Data de saída informada no formulário
         reason: reason, // Motivo da saída (ex: "interno-externo")
-        exitDate: exitDate // Data de saída informada no formulário
+        exitDate: exitDate, // Data de saída informada no formulário
+        hasReplacement: hasReplacement === 'sim',
+        machineType: machineType === 'Máquina HP' ? 'empresa' : 'aws'
       }
       
       console.log('Salvando saída:', exitData)
@@ -159,6 +163,14 @@ const SummaryExit = () => {
                   <div className="data-row highlight">
                     <span className="data-label">Motivo da Saída:</span>
                     <span className="data-value">{reasonText}</span>
+                  </div>
+                  <div className="data-row">
+                    <span className="data-label">Haverá Replacement?</span>
+                    <span className="data-value">{hasReplacement === 'sim' ? 'Sim' : 'Não'}</span>
+                  </div>
+                  <div className="data-row">
+                    <span className="data-label">Tipo de Máquina:</span>
+                    <span className="data-value">{machineType}</span>
                   </div>
                 </div>
               </div>

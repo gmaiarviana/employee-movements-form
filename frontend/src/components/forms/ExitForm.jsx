@@ -9,6 +9,8 @@ const ExitForm = () => {
   const [error, setError] = useState(null)
   const [exitDate, setExitDate] = useState('')
   const [exitReason, setExitReason] = useState('')
+  const [hasReplacement, setHasReplacement] = useState('')
+  const [machineType, setMachineType] = useState('')
   const navigate = useNavigate()
 
   const employeeId = searchParams.get('employeeId')
@@ -51,13 +53,13 @@ const ExitForm = () => {
     event.preventDefault()
     
     // Validar se todos os campos estão preenchidos
-    if (!exitDate || !exitReason || !employeeId) {
+    if (!exitDate || !exitReason || !hasReplacement || !machineType) {
       alert('Por favor, preencha todos os campos obrigatórios.')
       return
     }
     
     // Construir URL para a página de summary com os parâmetros
-    const summaryUrl = `/summary?employeeId=${encodeURIComponent(employeeId)}&exitDate=${encodeURIComponent(exitDate)}&reason=${encodeURIComponent(exitReason)}`
+    const summaryUrl = `/summary?employeeId=${encodeURIComponent(employeeId)}&exitDate=${encodeURIComponent(exitDate)}&reason=${encodeURIComponent(exitReason)}&hasReplacement=${encodeURIComponent(hasReplacement)}&machineType=${encodeURIComponent(machineType)}`
     
     // Redirecionar para a página de summary
     navigate(summaryUrl)
@@ -134,6 +136,68 @@ const ExitForm = () => {
                 <option value="externo-externo">Externo → Externo</option>
                 <option value="saida-projeto">Saída do projeto</option>
               </select>
+            </div>
+
+            {/* Primeiro campo: Haverá Replacement? */}
+            <div className="form-group">
+              <label className="form-label">Haverá Replacement? *</label>
+              <div className="radio-group">
+                <div className="radio-item">
+                  <input 
+                    type="radio" 
+                    id="replacement-yes" 
+                    name="replacement" 
+                    value="sim" 
+                    required
+                    checked={hasReplacement === 'sim'}
+                    onChange={(e) => setHasReplacement(e.target.value)}
+                  />
+                  <label htmlFor="replacement-yes">Sim</label>
+                </div>
+                <div className="radio-item">
+                  <input 
+                    type="radio" 
+                    id="replacement-no" 
+                    name="replacement" 
+                    value="nao" 
+                    required
+                    checked={hasReplacement === 'nao'}
+                    onChange={(e) => setHasReplacement(e.target.value)}
+                  />
+                  <label htmlFor="replacement-no">Não</label>
+                </div>
+              </div>
+            </div>
+
+            {/* Segundo campo: Máquina HP ou AWS? */}
+            <div className="form-group">
+              <label className="form-label">Máquina HP ou AWS? *</label>
+              <div className="radio-group">
+                <div className="radio-item">
+                  <input 
+                    type="radio" 
+                    id="machine-hp" 
+                    name="machine-type" 
+                    value="Máquina HP" 
+                    required
+                    checked={machineType === 'Máquina HP'}
+                    onChange={(e) => setMachineType(e.target.value)}
+                  />
+                  <label htmlFor="machine-hp">Máquina HP</label>
+                </div>
+                <div className="radio-item">
+                  <input 
+                    type="radio" 
+                    id="machine-aws" 
+                    name="machine-type" 
+                    value="AWS" 
+                    required
+                    checked={machineType === 'AWS'}
+                    onChange={(e) => setMachineType(e.target.value)}
+                  />
+                  <label htmlFor="machine-aws">AWS</label>
+                </div>
+              </div>
             </div>
             
             <div className="nav-buttons">
