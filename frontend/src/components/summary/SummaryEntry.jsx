@@ -54,11 +54,11 @@ const SummaryEntry = () => {
     try {
       // Criar a entrada usando os dados do funcionário selecionado
       const entryData = {
-        employeeId: summaryData.selectedEmployeeId,
+        selectedEmployeeId: summaryData.selectedEmployeeId,
         employeeIdHP: summaryData.employeeIdHP,
         projectType: summaryData.projectType,
-        complianceTraining: summaryData.complianceTraining === 'sim',
-        billable: summaryData.billable === 'sim',
+        complianceTraining: summaryData.complianceTraining,
+        billable: summaryData.billable,
         role: summaryData.role,
         startDate: summaryData.startDate
       }
