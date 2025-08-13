@@ -43,7 +43,7 @@ docker-compose exec db psql -U app_user -d employee_movements
 O banco utiliza PostgreSQL com 2 schemas principais:
 
 - **`core.*`**: Usuários e funcionários (`users`, `employees`)
-- **`hp_portfolio.*`**: Projetos e movimentações (`projects`, `project_managers`, `movements`)
+- **`hp_portfolio.*`**: Projetos e movimentações - apenas 3 tabelas: (`projects`, `project_managers`, `movements`)
 
 **Tabela Principal:**
 - `hp_portfolio.movements` - Fonte única para todas as movimentações (entradas e saídas)
@@ -58,10 +58,12 @@ Para verificar a estrutura do banco:
 # Conectar ao PostgreSQL
 docker exec employee-movements-form-db-1 psql -U app_user -d employee_movements
 
-# Verificação básica
+# Verificação básica das 3 tabelas principais
 \dt core.*                             -- Tabelas do schema core (users, employees)
-\dt hp_portfolio.*                     -- Tabelas do schema hp_portfolio (projects, movements)
-SELECT COUNT(*) FROM hp_portfolio.movements;  -- Verificar dados da tabela principal
+\dt hp_portfolio.*                     -- 3 tabelas: projects, project_managers, movements
+SELECT COUNT(*) FROM hp_portfolio.movements;    -- Verificar dados da tabela principal
+SELECT COUNT(*) FROM hp_portfolio.projects;     -- Verificar projetos cadastrados
+SELECT COUNT(*) FROM hp_portfolio.project_managers;  -- Verificar gerentes atribuídos
 \q                                     -- Sair do PostgreSQL
 ```
 

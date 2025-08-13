@@ -9,7 +9,7 @@ Sistema de gestão de movimentações para consultoria, projetado para gerenciar
 ```
 employee_movements_db/
 ├── core/           # Usuários e funcionários (autenticação + dados pessoais)
-├── hp_portfolio/   # Projetos e movimentações (estrutura HP específica)
+├── hp_portfolio/   # Projetos e movimentações (apenas 3 tabelas: projects, project_managers, movements)
 └── public/         # Schema padrão PostgreSQL
 ```
 
@@ -147,7 +147,7 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 #### SCHEMA HP_PORTFOLIO
 ```sql
 -- hp_portfolio.projects (projetos e clientes)
--- hp_portfolio.project_managers (1 gerente por projeto)
+-- hp_portfolio.project_managers (1 gerente por projeto)  
 -- hp_portfolio.movements (tabela única para todas as movimentações - FONTE ÚNICA DE VERDADE)
 ```
 
