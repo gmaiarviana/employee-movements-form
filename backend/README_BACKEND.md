@@ -43,14 +43,12 @@ docker-compose exec db psql -U app_user -d employee_movements
 O banco utiliza PostgreSQL com 2 schemas principais:
 
 - **`core.*`**: Usuários e funcionários (`users`, `employees`)
-- **`hp_portfolio.*`**: Projetos, alocações e histórico (`projects`, `current_allocations`, `allocation_history`, `project_managers`)
+- **`hp_portfolio.*`**: Projetos e movimentações (`projects`, `project_managers`, `movements`)
 
-**Views Importantes:**
-- `hp_portfolio.employee_movements_consolidated` - Dados consolidados usados pela API
-- `hp_portfolio.v_active_projects_with_managers` - Projetos ativos com gerentes  
-- `hp_portfolio.v_current_resource_utilization` - Utilização de recursos
+**Tabela Principal:**
+- `hp_portfolio.movements` - Fonte única para todas as movimentações (entradas e saídas)
 
-**Campos Específicos HP:** `hp_employee_id`, `compliance_training`, `billable`, `machine_type`, etc.
+**Campos Específicos HP:** `hp_employee_id`, `compliance_training`, `billable`, `project_type`, etc.
 
 ## Verificando o Database
 
@@ -62,9 +60,8 @@ docker exec employee-movements-form-db-1 psql -U app_user -d employee_movements
 
 # Verificação básica
 \dt core.*                             -- Tabelas do schema core (users, employees)
-\dt hp_portfolio.*                     -- Tabelas do schema hp_portfolio (projects, allocations)
-\dv hp_portfolio.*                     -- Views do schema hp_portfolio
-SELECT COUNT(*) FROM core.employees;   -- Verificar dados
+\dt hp_portfolio.*                     -- Tabelas do schema hp_portfolio (projects, movements)
+SELECT COUNT(*) FROM hp_portfolio.movements;  -- Verificar dados da tabela principal
 \q                                     -- Sair do PostgreSQL
 ```
 
@@ -84,8 +81,8 @@ SELECT COUNT(*) FROM core.employees;   -- Verificar dados
 
 ### Movimentações (🔒 Protegidos por JWT)
 - `GET /api/movements` - Histórico de movimentações
-- `POST /api/entries` - Nova entrada (salva em current_allocations)
-- `POST /api/exits` - Nova saída (finaliza current_allocations + histórico)
+- `POST /api/entries` - Nova entrada
+- `POST /api/exits` - Nova saída
 
 **Nota**: 
 - Endpoints marcados com 🔒 requerem autenticação JWT via header `Authorization: Bearer <token>`

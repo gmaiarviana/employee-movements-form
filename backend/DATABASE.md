@@ -2,14 +2,14 @@
 
 ## VISÃO GERAL
 
-Sistema de gestão de movimentações para consultoria, projetado para gerenciar **até 30 projetos simultâneos** com **máximo 10 funcionários por projeto**. Arquitetura multi-schema para modularidade e controle granular.
+Sistema de gestão de movimentações para consultoria, projetado para gerenciar **até 30 projetos simultâneos** com **máximo 10 funcionários por projeto**. Arquitetura multi-schema com tabela centralizada para movimentações.
 
 ### Arquitetura de Schemas
 
 ```
 employee_movements_db/
 ├── core/           # Usuários e funcionários (autenticação + dados pessoais)
-├── hp_portfolio/   # Projetos, alocações, histórico e views (estrutura HP específica)
+├── hp_portfolio/   # Projetos e movimentações (estrutura HP específica)
 └── public/         # Schema padrão PostgreSQL
 ```
 
@@ -30,7 +30,7 @@ employee_movements_db/
 └─────────────────────┘       └─────────────────────┘
 ```
 
-### SCHEMA PROJECTS - Projetos e Gerência
+### SCHEMA HP_PORTFOLIO - Projetos e Movimentações
 ```
 ┌─────────────────────┐       ┌─────────────────────┐
 │hp_portfolio.projects│       │project_managers     │
@@ -45,66 +45,37 @@ employee_movements_db/
 │     budget          │                 ▼
 │     priority        │       ┌─────────────────────┐
 └─────────────────────┘       │   core.employees    │
-                               │ (referência cruzada)│
-                               └─────────────────────┘
-```
-```
-┌─────────────────────┐       ┌─────────────────────┐
-│  projects.projects  │       │project_managers     │
-├─────────────────────┤       ├─────────────────────┤
-│ PK: project_id      │ 1:1   │ PK: manager_id      │
-│     name            │ ◄───► │ FK: project_id      │
-│     description     │       │ FK: employee_id     │
-│     start_date      │       │     assigned_at     │
-│     end_date        │       └─────────────────────┘
-│     status          │                 │
-└─────────────────────┘                 │
-                                        │ 1:N
-                                        ▼
-                               ┌─────────────────────┐
-                               │   core.employees    │
-                               │ (referência cruzada)│
-                               └─────────────────────┘
-```
-
-### SCHEMA ALLOCATIONS - Alocações e Histórico
-```
-┌─────────────────────┐       ┌─────────────────────┐
-│current_allocations  │       │ allocation_history  │
-├─────────────────────┤       ├─────────────────────┤
-│ PK: allocation_id   │ 1:N   │ PK: history_id      │
-│ FK: employee_id     │ ────► │ FK: allocation_id   │
-│ FK: project_id      │       │     movement_type   │
-│     allocated_hours │       │     timestamp       │
-│     start_date      │       │     hours_changed   │
-│     is_active       │       │     notes           │
-└─────────────────────┘       │     hp_employee_id  │
-         │                    │     project_type    │
-         │ N:1                │     compliance_training │
-         ▼                    │     billable        │
-┌─────────────────────┐       │     has_replacement │
-│   core.employees    │       │     machine_type    │
-│ (referência cruzada)│       │     machine_reuse   │
-└─────────────────────┘       └─────────────────────┘
-                                       │ N:1
-                                       ▼
-                               ┌─────────────────────┐
-                               │hp_portfolio.projects│
-                               │ (referência cruzada)│
-                               └─────────────────────┘
+         │ N:1                │ (referência cruzada)│
+         ▼                    └─────────────────────┘
+┌─────────────────────┐                 │ 1:N
+│hp_portfolio.movements│                │
+├─────────────────────┤◄────────────────┘
+│ PK: id              │
+│ FK: employee_id     │
+│ FK: project_id      │
+│     movement_type   │
+│     start_date      │
+│     end_date        │
+│     role            │
+│     hp_employee_id  │
+│     project_type    │
+│     compliance_training │
+│     billable        │
+│     change_reason   │
+│     allocation_percentage │
+│     is_billable     │
+│     created_at      │
+│     updated_at      │
+└─────────────────────┘
 ```
 
 ### FLUXO LÓGICO PRINCIPAL
 ```
-User ──1:1──► Employee ──1:N──► HP_Portfolio.Current_Allocations ──N:1──► HP_Portfolio.Projects
+User ──1:1──► Employee ──1:N──► HP_Portfolio.Movements ──N:1──► HP_Portfolio.Projects
   │                                      │
-  │                                      │ 1:N
+  │                                      │
   │                                      ▼
-  └──► Authentication            HP_Portfolio.Allocation_History
-                                          │
-                                          │ (agregação)
-                                          ▼
-                            employee_movements_consolidated (VIEW)
+  └──► Authentication                API Endpoints
 ```
 
 ### LEGENDA
@@ -154,16 +125,10 @@ docker exec employee-movements-form-db-1 psql -U app_user -d employee_movements
 
 ### Notas de Desenvolvimento
 
-- **Schemas**: `core` (usuários/funcionários) e `hp_portfolio` (projetos/alocações)
+- **Schemas**: `core` (usuários/funcionários) e `hp_portfolio` (projetos/movimentações)
 - **Relacionamentos**: Foreign keys garantem integridade referencial
-- **Auditoria**: Histórico completo mantido em `hp_portfolio.allocation_history`
-- **Views**: `employee_movements_consolidated` centraliza dados para dashboards
-- **Campos HP**: `hp_employee_id`, `compliance_training`, `billable`, `machine_type`
-
-**Views Disponíveis:**
-- `employee_movements_consolidated` - Dados consolidados de movimentações
-- `v_active_projects_with_managers` - Projetos ativos com gerentes
-- `v_current_resource_utilization` - Utilização atual de recursos
+- **Campos HP**: `hp_employee_id`, `compliance_training`, `billable`, `project_type`
+- **Auditoria**: Histórico completo mantido na tabela `movements`
 
 Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos SQL descritivos como `\d schema.table`.
 
@@ -183,13 +148,28 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 ```sql
 -- hp_portfolio.projects (projetos e clientes)
 -- hp_portfolio.project_managers (1 gerente por projeto)
--- hp_portfolio.current_allocations (alocações ativas)
--- hp_portfolio.allocation_history (histórico completo)
+-- hp_portfolio.movements (tabela única para todas as movimentações - FONTE ÚNICA DE VERDADE)
 ```
 
-#### VIEWS CONSOLIDADAS
-```sql
--- hp_portfolio.employee_movements_consolidated (dados para API /api/movements)
--- hp_portfolio.v_active_projects_with_managers  
--- hp_portfolio.v_current_resource_utilization
-```
+#### TABELA PRINCIPAL: hp_portfolio.movements
+
+**Campos da tabela movements:**
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `id` | UUID | Chave primária única |
+| `employee_id` | INTEGER | FK para core.employees |
+| `project_id` | UUID | FK para hp_portfolio.projects |
+| `movement_type` | VARCHAR | 'ENTRY' ou 'EXIT' |
+| `start_date` | DATE | Data de início (para ENTRY) |
+| `end_date` | DATE | Data de fim (para EXIT) |
+| `role` | VARCHAR | Função do funcionário |
+| `hp_employee_id` | VARCHAR | ID específico HP |
+| `project_type` | VARCHAR | Tipo do projeto |
+| `compliance_training` | VARCHAR | 'sim' ou 'nao' |
+| `billable` | VARCHAR | 'sim' ou 'nao' |
+| `is_billable` | BOOLEAN | Versão booleana de billable |
+| `change_reason` | TEXT | Motivo da mudança (para EXIT) |
+| `allocation_percentage` | INTEGER | Percentual de alocação |
+| `created_at` | TIMESTAMP | Data de criação |
+| `updated_at` | TIMESTAMP | Data de atualização |
