@@ -11,8 +11,8 @@ const router = express.Router();
 // GET /api/employees - Get all employees for admin/manager
 router.get('/', auth, getAllEmployees);
 
-// GET /api/employees/:leaderId/team-members - Get team members for a leader
-router.get('/:leaderId/team-members', auth, getTeamMembers);
+// GET /api/employees/team-members - Get team members for the logged in manager
+router.get('/team-members', auth, getTeamMembers);
 
 // GET /api/employees/:id/details - Get employee details with project information
 router.get('/:id/details', auth, getEmployeeDetails);

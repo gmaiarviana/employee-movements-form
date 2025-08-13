@@ -48,34 +48,81 @@ const getAllEmployees = async (req, res) => {
 
 // Get team members for a leader
 const getTeamMembers = async (req, res) => {
-    const leaderId = req.params.leaderId;
-    
     try {
-        // Find projects led by the specified leader
-        const projectsResult = await dbClient.query(
-            'SELECT p.* FROM hp_portfolio.projects p JOIN hp_portfolio.project_managers pm ON p.id = pm.project_id WHERE pm.employee_id = $1',
-            [leaderId]
+        // Get user ID from JWT token
+        const userId = req.user.userId;
+        
+        // 1. Find employee_id of the logged in user
+        const managerResult = await dbClient.query(
+            'SELECT id FROM core.employees WHERE user_id = $1',
+            [userId]
         );
         
-        const teamMembers = [];
-        
-        // For each project, find active assignments
-        for (const project of projectsResult.rows) {
-            const assignmentsResult = await dbClient.query(
-                'SELECT ca.*, e.name, e.role FROM hp_portfolio.current_allocations ca JOIN core.employees e ON ca.employee_id = e.id WHERE ca.project_id = $1 AND ca.end_date IS NULL',
-                [project.id]
-            );
-            
-            // Add team members to the result array
-            assignmentsResult.rows.forEach(assignment => {
-                teamMembers.push({
-                    id: assignment.employee_id,
-                    name: assignment.name,
-                    project: project.name,
-                    role: assignment.role
-                });
+        if (managerResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Manager not found',
+                message: 'No employee record found for the logged in user'
             });
         }
+        
+        const managerId = managerResult.rows[0].id;
+        
+        // 2. Find projects managed by this employee
+        const projectsResult = await dbClient.query(
+            'SELECT project_id FROM hp_portfolio.project_managers WHERE employee_id = $1',
+            [managerId]
+        );
+        
+        if (projectsResult.rows.length === 0) {
+            return res.json({
+                success: true,
+                data: { teamMembers: [] }
+            });
+        }
+        
+        const projectIds = projectsResult.rows.map(row => row.project_id);
+        
+        // 3. Find active employees in these projects (ENTRY without EXIT)
+        const teamMembersQuery = `
+            SELECT DISTINCT 
+                e.id, 
+                e.name, 
+                e.role, 
+                e.company,
+                p.name as project_name,
+                m.role as current_role,
+                m.start_date
+            FROM core.employees e
+            JOIN hp_portfolio.movements m ON e.id = m.employee_id
+            JOIN hp_portfolio.projects p ON m.project_id = p.id
+            WHERE m.project_id = ANY($1)
+            AND m.movement_type = 'ENTRY'
+            AND e.id NOT IN (
+                -- Excluir gestores (que estão em project_managers)
+                SELECT employee_id FROM hp_portfolio.project_managers
+            )
+            AND NOT EXISTS (
+                SELECT 1 FROM hp_portfolio.movements m2 
+                WHERE m2.employee_id = m.employee_id 
+                AND m2.project_id = m.project_id 
+                AND m2.movement_type = 'EXIT' 
+                AND m2.created_at > m.created_at
+            )
+            ORDER BY e.name
+        `;
+        
+        const teamMembersResult = await dbClient.query(teamMembersQuery, [projectIds]);
+        
+        const teamMembers = teamMembersResult.rows.map(member => ({
+            id: member.id,
+            name: member.name,
+            role: member.role,
+            company: member.company,
+            project: member.project_name,
+            currentRole: member.current_role,
+            startDate: member.start_date
+        }));
         
         res.json({
             success: true,
