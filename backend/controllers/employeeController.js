@@ -199,12 +199,14 @@ const getEmployeeDetails = async (req, res) => {
         if (projectResult.rows.length > 0) {
             const project = projectResult.rows[0];
             response.project = {
+                id: project.id, // ✅ Adicionar project ID real
                 name: project.name,
                 type: project.description || "N/A", // Using description instead of type
                 sow: project.status || "N/A" // Using status instead of sow
             };
         } else {
             response.project = {
+                id: null, // ✅ Null quando não há projeto ativo
                 name: "Não atribuído",
                 type: "N/A",
                 sow: "N/A"

@@ -62,10 +62,16 @@ const SummaryExit = () => {
   // Função para lidar com a confirmação
   const handleConfirm = async () => {
     try {
+      // Verificar se temos project_id real disponível
+      if (!summaryData?.project?.id) {
+        alert('❌ Erro: Funcionário não possui projeto ativo para saída.')
+        return
+      }
+
       // Preparar dados para API seguindo formato do backend
       const exitData = {
         employeeId: employeeId,
-        projectId: 'PROJ001', // Projeto padrão por enquanto
+        projectId: summaryData.project.id, // ✅ Usar project_id real
         date: exitDate, // Data de saída informada no formulário
         reason: reason, // Motivo da saída (ex: "interno-externo")
         exitDate: exitDate // Data de saída informada no formulário

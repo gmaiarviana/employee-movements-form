@@ -210,17 +210,49 @@ const createExit = async (req, res) => {
             });
         }
         
+        // Buscar start_date do movimento ENTRY ativo do funcionário no projeto
+        const entryMovementQuery = `
+            SELECT start_date, role 
+            FROM hp_portfolio.movements 
+            WHERE employee_id = $1 
+              AND project_id = $2 
+              AND movement_type = 'ENTRY'
+              AND NOT EXISTS (
+                SELECT 1 FROM hp_portfolio.movements m2 
+                WHERE m2.employee_id = $1 
+                AND m2.project_id = $2 
+                AND m2.movement_type = 'EXIT' 
+                AND m2.created_at > hp_portfolio.movements.created_at
+              )
+            ORDER BY created_at DESC 
+            LIMIT 1
+        `;
+
+        const entryResult = await dbClient.query(entryMovementQuery, [employeeId, projectId]);
+
+        if (entryResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Active entry not found',
+                message: 'No active entry movement found for this employee in this project'
+            });
+        }
+
+        const { start_date: realStartDate, role: currentRole } = entryResult.rows[0];
+
         // Insert into movements table with movement_type 'EXIT'
         const movementQuery = `
             INSERT INTO hp_portfolio.movements (
                 employee_id, 
                 project_id, 
-                movement_type, 
+                movement_type,
+                start_date,
                 end_date, 
+                role,
                 change_reason,
                 allocation_percentage
             )
-            VALUES ($1, $2, $3, $4, $5, $6)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *
         `;
         
@@ -228,9 +260,11 @@ const createExit = async (req, res) => {
             employeeId,
             projectId,
             'EXIT',
-            exitDate,
+            realStartDate,    // start_date real do ENTRY
+            exitDate,         // end_date
+            currentRole,      // role do ENTRY
             reason,
-            100 // Default allocation percentage
+            100
         ]);
         
         res.status(201).json({
