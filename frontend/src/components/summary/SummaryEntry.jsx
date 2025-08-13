@@ -31,7 +31,7 @@ const SummaryEntry = () => {
       }
       
       // Verificar se dados existem e se têm campos obrigatórios
-      if (!data || Object.keys(data).length === 0 || !data.fullName) {
+      if (!data || Object.keys(data).length === 0 || !data.selectedEmployeeId) {
         setError('Dados do formulário não encontrados.')
         return
       }
@@ -52,29 +52,13 @@ const SummaryEntry = () => {
   // Função para lidar com a confirmação
   const handleConfirm = async () => {
     try {
-      // Gerar ID único para novo funcionário
-      const newEmployeeId = `EMP${Date.now().toString().slice(-3)}`
-      
-      // PRIMEIRO: Criar o funcionário
-      const employeeData = {
-        id: newEmployeeId,
-        name: summaryData.fullName,
-        email: summaryData.email,
-        role: summaryData.role,
-        company: summaryData.instituteName,
-        is_leader: false
-      }
-      
-      console.log('Criando funcionário:', employeeData)
-      
-      const employeeResult = await employees.create(employeeData)
-      console.log('Funcionário criado:', employeeResult)
-      
-      // SEGUNDO: Criar a entrada
+      // Criar a entrada usando os dados do funcionário selecionado
       const entryData = {
-        employeeId: newEmployeeId,
-        projectId: 'PROJ001', 
-        date: summaryData.startDate, // Data de início informada no formulário
+        employeeId: summaryData.selectedEmployeeId,
+        employeeIdHP: summaryData.employeeIdHP,
+        projectType: summaryData.projectType,
+        complianceTraining: summaryData.complianceTraining === 'sim',
+        billable: summaryData.billable === 'sim',
         role: summaryData.role,
         startDate: summaryData.startDate
       }
@@ -85,7 +69,7 @@ const SummaryEntry = () => {
       console.log('Resultado entrada:', entryResult)
       
       if (entryResult.success) {
-        alert(`✅ Funcionário ${summaryData.fullName} cadastrado e entrada registrada com sucesso!`)
+        alert(`✅ Entrada registrada com sucesso para ${summaryData.employeeName}!`)
         navigate('/')
       } else {
         throw new Error(entryResult.message || 'Erro ao criar entrada')
@@ -114,31 +98,47 @@ const SummaryEntry = () => {
               <p>Carregando informações...</p>
             ) : (
               <>
+                <h3>Dados Corporativos</h3>
                 <div className="data-group">
                   <div className="data-item">
-                    <span className="data-label">Nome Completo:</span>
-                    <span className="data-value">{summaryData.fullName || ''}</span>
+                    <span className="data-label">ID do Funcionário:</span>
+                    <span className="data-value">{summaryData.selectedEmployeeId || ''}</span>
                   </div>
                 </div>
                 
                 <div className="data-group">
                   <div className="data-item">
-                    <span className="data-label">CPF:</span>
-                    <span className="data-value">{summaryData.cpf || ''}</span>
+                    <span className="data-label">Nome:</span>
+                    <span className="data-value">{summaryData.employeeName || ''}</span>
                   </div>
                 </div>
                 
                 <div className="data-group">
                   <div className="data-item">
                     <span className="data-label">E-mail:</span>
-                    <span className="data-value">{summaryData.email || ''}</span>
+                    <span className="data-value">{summaryData.employeeEmail || ''}</span>
                   </div>
                 </div>
                 
                 <div className="data-group">
                   <div className="data-item">
-                    <span className="data-label">Nome do Instituto:</span>
-                    <span className="data-value">{summaryData.instituteName || ''}</span>
+                    <span className="data-label">Empresa:</span>
+                    <span className="data-value">{summaryData.employeeCompany || ''}</span>
+                  </div>
+                </div>
+
+                <h3>Dados HP Específicos</h3>
+                <div className="data-group">
+                  <div className="data-item">
+                    <span className="data-label">ID HP:</span>
+                    <span className="data-value">{summaryData.employeeIdHP || ''}</span>
+                  </div>
+                </div>
+                
+                <div className="data-group">
+                  <div className="data-item">
+                    <span className="data-label">Tipo de Projeto:</span>
+                    <span className="data-value">{summaryData.projectType || ''}</span>
                   </div>
                 </div>
                 
@@ -158,13 +158,6 @@ const SummaryEntry = () => {
                 
                 <div className="data-group">
                   <div className="data-item">
-                    <span className="data-label">Data de Início:</span>
-                    <span className="data-value">{formatDate(summaryData.startDate)}</span>
-                  </div>
-                </div>
-                
-                <div className="data-group">
-                  <div className="data-item">
                     <span className="data-label">Papel do profissional:</span>
                     <span className="data-value">{summaryData.role || ''}</span>
                   </div>
@@ -172,8 +165,8 @@ const SummaryEntry = () => {
                 
                 <div className="data-group">
                   <div className="data-item">
-                    <span className="data-label">Nome do projeto HP:</span>
-                    <span className="data-value">{summaryData.projectName || ''}</span>
+                    <span className="data-label">Data de Início:</span>
+                    <span className="data-value">{formatDate(summaryData.startDate)}</span>
                   </div>
                 </div>
               </>

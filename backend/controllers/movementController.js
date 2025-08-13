@@ -76,19 +76,48 @@ const getMovements = async (req, res) => {
 // Create new entry
 const createEntry = async (req, res) => {
     try {
-        const { employeeId, projectId, date, role, startDate } = req.body;
+        const { 
+            selectedEmployeeId, 
+            employeeIdHP, 
+            projectType, 
+            complianceTraining, 
+            billable, 
+            role, 
+            startDate 
+        } = req.body;
         
-        // Validate required fields
-        if (!employeeId || !projectId || !date || !role || !startDate) {
+        // Validate required fields for HP structure
+        if (!selectedEmployeeId || !employeeIdHP || !projectType || !complianceTraining || !billable || !role || !startDate) {
             return res.status(400).json({
                 success: false,
                 error: 'Missing required fields',
-                message: 'employeeId, projectId, date, role, and startDate are required'
+                message: 'selectedEmployeeId, employeeIdHP, projectType, complianceTraining, billable, role, and startDate are required'
             });
         }
         
-        // Generate UUID for the history record (if needed)
-        const historyId = uuidv4();
+        // Validate specific field values
+        if (!['sim', 'nao'].includes(complianceTraining)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid complianceTraining value',
+                message: 'complianceTraining must be "sim" or "nao"'
+            });
+        }
+        
+        if (!['sim', 'nao'].includes(billable)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid billable value',
+                message: 'billable must be "sim" or "nao"'
+            });
+        }
+        
+        // Use existing project: Sistema ERP
+        const projectId = '433debec-a09c-4de3-abfd-8eb1b9e50a70';
+        
+        // Convert string values to boolean for database
+        const isBillable = billable === 'sim';
+        const hasComplianceTraining = complianceTraining === 'sim';
         
         // Start a transaction
         await dbClient.query('BEGIN');
@@ -104,30 +133,32 @@ const createEntry = async (req, res) => {
             `;
             
             const currentResult = await dbClient.query(currentAllocationQuery, [
-                employeeId,
+                selectedEmployeeId,
                 projectId,
                 role,
                 startDate,
                 100, // Default allocation percentage
-                true  // Default is_billable
+                isBillable
             ]);
             
-            // Insert into allocation_history
+            // Insert into allocation_history with HP specific fields
             const historyQuery = `
                 INSERT INTO hp_portfolio.allocation_history (
-                    employee_id, project_id, start_date, change_reason, role, allocation_percentage
+                    employee_id, project_id, start_date, role, hp_employee_id, project_type, compliance_training, billable
                 )
-                VALUES ($1, $2, $3, $4, $5, $6)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                 RETURNING *
             `;
             
             const historyResult = await dbClient.query(historyQuery, [
-                employeeId,
+                selectedEmployeeId,
                 projectId,
                 startDate,
-                'Entrada no projeto',
                 role,
-                100 // Default allocation percentage
+                employeeIdHP,
+                projectType,
+                hasComplianceTraining,
+                isBillable
             ]);
             
             // Commit the transaction
@@ -136,7 +167,16 @@ const createEntry = async (req, res) => {
             res.status(201).json({
                 success: true,
                 message: 'Entry created successfully',
-                data: currentResult.rows[0]
+                data: {
+                    currentAllocation: currentResult.rows[0],
+                    historyRecord: historyResult.rows[0],
+                    hpFields: {
+                        employeeIdHP,
+                        projectType,
+                        complianceTraining: hasComplianceTraining,
+                        billable: isBillable
+                    }
+                }
             });
             
         } catch (error) {
