@@ -8,39 +8,46 @@ const { v4: uuidv4 } = require('uuid');
 // Get consolidated movements data
 const getMovements = async (req, res) => {
     try {
-        // Query the consolidated view with all HP portfolio fields
+        // UNION query to show both entries (current_allocations) and exits (allocation_history)
         const query = `
-            SELECT 
-                employee_name,
-                project_name,
-                movement_date,
-                allocation_role,
-                change_reason,
-                hp_employee_id,
-                project_type,
-                compliance_training,
-                billable
-            FROM hp_portfolio.employee_movements_consolidated
+            (SELECT 
+                ca.employee_id, 
+                e.name as employee_name, 
+                p.name as project_name, 
+                ca.start_date as movement_date, 
+                'entrada' as type, 
+                ca.role
+             FROM hp_portfolio.current_allocations ca 
+             JOIN core.employees e ON ca.employee_id = e.id
+             JOIN hp_portfolio.projects p ON ca.project_id = p.id)
+            UNION
+            (SELECT 
+                ah.employee_id, 
+                e.name as employee_name, 
+                p.name as project_name,
+                ah.end_date as movement_date, 
+                'saida' as type, 
+                ah.role  
+             FROM hp_portfolio.allocation_history ah
+             JOIN core.employees e ON ah.employee_id = e.id
+             JOIN hp_portfolio.projects p ON ah.project_id = p.id
+             WHERE ah.end_date IS NOT NULL)
             ORDER BY movement_date DESC
         `;
         const result = await dbClient.query(query);
         
         const movements = [];
         
-        // Process consolidated view records - simplified logic
+        // Process UNION query results
         result.rows.forEach(record => {
-            let type = 'entrada'; // Default type
+            const type = record.type; // Already defined in query as 'entrada' or 'saida'
             let details = '';
             
-            // Simple determination based on change_reason
-            if (record.change_reason && 
-                (record.change_reason.toLowerCase().includes('saída') || 
-                 record.change_reason.toLowerCase().includes('desligamento') ||
-                 record.change_reason.toLowerCase().includes('transferência'))) {
-                type = 'saida';
-                details = `${record.change_reason} - Projeto: ${record.project_name}`;
+            // Create details based on type
+            if (type === 'saida') {
+                details = `Saída - Projeto: ${record.project_name}`;
             } else {
-                details = `${record.allocation_role || 'Funcionário'} - Projeto: ${record.project_name}`;
+                details = `${record.role || 'Funcionário'} - Projeto: ${record.project_name}`;
             }
             
             movements.push({
@@ -49,11 +56,6 @@ const getMovements = async (req, res) => {
                 registrationDate: record.movement_date, // Using movement_date for compatibility
                 employeeName: record.employee_name || 'Funcionário não encontrado',
                 details: details,
-                // New HP portfolio fields
-                hpEmployeeId: record.hp_employee_id,
-                projectType: record.project_type,
-                complianceTraining: record.compliance_training,
-                billable: record.billable,
                 // Manter compatibilidade com frontend atual
                 date: record.movement_date
             });
@@ -115,15 +117,14 @@ const createEntry = async (req, res) => {
         // Use existing project: Sistema ERP
         const projectId = '433debec-a09c-4de3-abfd-8eb1b9e50a70';
         
-        // Convert string values to boolean for database
+        // Convert boolean values for database storage
         const isBillable = billable === 'sim';
-        const hasComplianceTraining = complianceTraining === 'sim';
-        
+
         // Start a transaction
         await dbClient.query('BEGIN');
-        
+
         try {
-            // Insert into current_allocations
+            // Insert into current_allocations only (entries are active allocations)
             const currentAllocationQuery = `
                 INSERT INTO hp_portfolio.current_allocations (
                     employee_id, project_id, role, start_date, allocation_percentage, is_billable
@@ -131,7 +132,7 @@ const createEntry = async (req, res) => {
                 VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING *
             `;
-            
+
             const currentResult = await dbClient.query(currentAllocationQuery, [
                 selectedEmployeeId,
                 projectId,
@@ -140,27 +141,7 @@ const createEntry = async (req, res) => {
                 100, // Default allocation percentage
                 isBillable
             ]);
-            
-            // Insert into allocation_history with HP specific fields
-            const historyQuery = `
-                INSERT INTO hp_portfolio.allocation_history (
-                    employee_id, project_id, start_date, role, hp_employee_id, project_type, compliance_training, billable
-                )
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-                RETURNING *
-            `;
-            
-            const historyResult = await dbClient.query(historyQuery, [
-                selectedEmployeeId,
-                projectId,
-                startDate,
-                role,
-                employeeIdHP,
-                projectType,
-                hasComplianceTraining,
-                isBillable
-            ]);
-            
+
             // Commit the transaction
             await dbClient.query('COMMIT');
             
@@ -169,12 +150,11 @@ const createEntry = async (req, res) => {
                 message: 'Entry created successfully',
                 data: {
                     currentAllocation: currentResult.rows[0],
-                    historyRecord: historyResult.rows[0],
                     hpFields: {
                         employeeIdHP,
                         projectType,
-                        complianceTraining: hasComplianceTraining,
-                        billable: isBillable
+                        complianceTraining,
+                        billable
                     }
                 }
             });
