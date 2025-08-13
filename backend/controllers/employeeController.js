@@ -20,12 +20,22 @@ const getAllEmployees = async (req, res) => {
             project: 'N/A' // Default, will be updated if they have active allocation
         }));
         
-        // Get project assignments for each employee
+        // Get project assignments for each employee using movements table
         for (let employee of employees) {
-            const projectResult = await dbClient.query(
-                'SELECT p.name FROM hp_portfolio.current_allocations ca JOIN hp_portfolio.projects p ON ca.project_id = p.id WHERE ca.employee_id = $1 AND ca.end_date IS NULL LIMIT 1',
-                [employee.id]
-            );
+            const projectResult = await dbClient.query(`
+                SELECT p.name FROM hp_portfolio.movements m 
+                JOIN hp_portfolio.projects p ON m.project_id = p.id 
+                WHERE m.employee_id = $1 
+                  AND m.movement_type = 'ENTRY' 
+                  AND NOT EXISTS (
+                    SELECT 1 FROM hp_portfolio.movements m2 
+                    WHERE m2.employee_id = m.employee_id 
+                    AND m2.project_id = m.project_id 
+                    AND m2.movement_type = 'EXIT' 
+                    AND m2.created_at > m.created_at
+                  ) 
+                LIMIT 1
+            `, [employee.id]);
             
             if (projectResult.rows.length > 0) {
                 employee.project = projectResult.rows[0].name;
@@ -159,11 +169,21 @@ const getEmployeeDetails = async (req, res) => {
         
         const employee = employeeResult.rows[0];
         
-        // Find the employee's active project
-        const projectResult = await dbClient.query(
-            'SELECT p.* FROM hp_portfolio.current_allocations ca JOIN hp_portfolio.projects p ON ca.project_id = p.id WHERE ca.employee_id = $1 AND ca.end_date IS NULL LIMIT 1',
-            [employeeId]
-        );
+        // Find the employee's active project using movements table
+        const projectResult = await dbClient.query(`
+            SELECT p.* FROM hp_portfolio.movements m 
+            JOIN hp_portfolio.projects p ON m.project_id = p.id 
+            WHERE m.employee_id = $1 
+              AND m.movement_type = 'ENTRY' 
+              AND NOT EXISTS (
+                SELECT 1 FROM hp_portfolio.movements m2 
+                WHERE m2.employee_id = m.employee_id 
+                AND m2.project_id = m.project_id 
+                AND m2.movement_type = 'EXIT' 
+                AND m2.created_at > m.created_at
+              ) 
+            LIMIT 1
+        `, [employeeId]);
         
         // Prepare response
         const response = {

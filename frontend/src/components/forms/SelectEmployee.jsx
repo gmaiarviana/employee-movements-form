@@ -13,21 +13,21 @@ const SelectEmployee = () => {
   const loadEmployees = async () => {
     try {
       setLoading(true)
-      console.log('🔄 Carregando todos os funcionários...')
+      console.log('🔄 Carregando funcionários da equipe...')
       
-      const data = await employeesApi.getAll()
+      const data = await employeesApi.getTeamMembers()
       console.log('📊 Data received:', data)
       
       if (data.success && data.data && data.data.teamMembers && data.data.teamMembers.length > 0) {
         setEmployees(data.data.teamMembers)
-        console.log('✅ Funcionários carregados:', data.data.teamMembers.length)
+        console.log('✅ Funcionários da equipe carregados:', data.data.teamMembers.length)
       } else {
         setEmployees([])
-        console.log('❌ Nenhum funcionário encontrado')
+        console.log('❌ Nenhum funcionário da equipe encontrado')
       }
       
     } catch (error) {
-      console.error('💥 Erro ao carregar funcionários:', error)
+      console.error('💥 Erro ao carregar funcionários da equipe:', error)
       
       // Se o erro é de autenticação, redirecionar para login
       if (error.message.includes('Session expired') || error.message.includes('Unauthorized')) {
@@ -36,7 +36,7 @@ const SelectEmployee = () => {
         return
       }
       
-      setError(error.message || 'Erro ao carregar funcionários. Tente novamente.')
+      setError(error.message || 'Erro ao carregar funcionários da equipe. Tente novamente.')
     } finally {
       setLoading(false)
     }
@@ -97,7 +97,7 @@ const SelectEmployee = () => {
               )}
               {!loading && !error && employees.map(employee => (
                 <option key={employee.id} value={employee.id}>
-                  {employee.name} - {employee.role}
+                  {employee.name} - {employee.role} ({employee.project})
                 </option>
               ))}
             </select>

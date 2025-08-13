@@ -192,12 +192,11 @@ const employees = {
   },
 
   /**
-   * Get team members for a leader
-   * @param {string} leaderId - Leader ID
+   * Get team members for the logged-in leader
    * @returns {Promise<Array>} Team members list
    */
-  getTeamMembers: async (leaderId) => {
-    return await apiCall(`/employees/${leaderId}/team-members`);
+  getTeamMembers: async () => {
+    return await apiCall('/employees/team-members');
   },
 
   /**
