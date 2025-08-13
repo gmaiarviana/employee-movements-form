@@ -15,6 +15,7 @@ const getMovements = async (req, res) => {
                 e.name as employee_name, 
                 p.name as project_name, 
                 ca.start_date as movement_date, 
+                ca.created_at as registration_date,
                 'entrada' as type, 
                 ca.role
              FROM hp_portfolio.current_allocations ca 
@@ -26,6 +27,7 @@ const getMovements = async (req, res) => {
                 e.name as employee_name, 
                 p.name as project_name,
                 ah.end_date as movement_date, 
+                ah.created_at as registration_date,
                 'saida' as type, 
                 ah.role  
              FROM hp_portfolio.allocation_history ah
@@ -53,7 +55,7 @@ const getMovements = async (req, res) => {
             movements.push({
                 type: type,
                 movementDate: record.movement_date,
-                registrationDate: record.movement_date, // Using movement_date for compatibility
+                registrationDate: record.registration_date, // Using registration_date from created_at
                 employeeName: record.employee_name || 'Funcionário não encontrado',
                 details: details,
                 // Manter compatibilidade com frontend atual
