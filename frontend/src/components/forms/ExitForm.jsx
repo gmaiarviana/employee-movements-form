@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { employees } from '../../services/api'
+import { useToast } from '../../context/ToastContext'
 
 const ExitForm = () => {
   const [searchParams] = useSearchParams()
@@ -13,6 +14,7 @@ const ExitForm = () => {
   const [machineType, setMachineType] = useState('')
   const [entryDate, setEntryDate] = useState('')
   const navigate = useNavigate()
+  const { showToast } = useToast()
 
   const employeeId = searchParams.get('employeeId')
 
@@ -67,13 +69,13 @@ const ExitForm = () => {
     
     // Validar se todos os campos estão preenchidos
     if (!exitDate || !exitReason || !hasReplacement || !machineType) {
-      alert('Por favor, preencha todos os campos obrigatórios.')
+      showToast('Por favor, preencha todos os campos obrigatórios.', 'warning')
       return
     }
     
     // Validação de data antes de enviar
     if (entryDate && exitDate && new Date(exitDate) <= new Date(entryDate)) {
-      alert(`Data de saída deve ser posterior à data de entrada (${formatDate(entryDate)}).`)
+      showToast(`Data de saída deve ser posterior à data de entrada (${formatDate(entryDate)}).`, 'warning')
       return
     }
     

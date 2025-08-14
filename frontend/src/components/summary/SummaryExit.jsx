@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { employees, movements } from '../../services/api'
+import { useToast } from '../../context/ToastContext'
 
 const SummaryExit = () => {
   const [searchParams] = useSearchParams()
@@ -8,6 +9,7 @@ const SummaryExit = () => {
   const [summaryData, setSummaryData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const { showToast } = useToast()
 
   // Extrair parâmetros da URL
   const employeeId = searchParams.get('employeeId')
@@ -66,7 +68,7 @@ const SummaryExit = () => {
     try {
       // Verificar se temos project_id real disponível
       if (!summaryData?.project?.id) {
-        alert('❌ Erro: Funcionário não possui projeto ativo para saída.')
+        showToast('Funcionário não possui projeto ativo para saída.', 'error')
         return
       }
 
@@ -87,7 +89,7 @@ const SummaryExit = () => {
       console.log('Resultado da saída:', result)
       
       if (result.success) {
-        alert(`✅ Saída de ${summaryData.employee.name} registrada com sucesso!`)
+        showToast(`Saída de ${summaryData.employee.name} registrada com sucesso!`, 'success')
         navigate('/')
       } else {
         throw new Error(result.message || 'Erro ao salvar saída')
@@ -95,7 +97,7 @@ const SummaryExit = () => {
       
     } catch (error) {
       console.error('Erro ao salvar saída:', error)
-      alert(`❌ Erro ao salvar saída: ${error.message}`)
+      showToast(`Erro ao salvar saída: ${error.message}`, 'error')
     }
   }
 

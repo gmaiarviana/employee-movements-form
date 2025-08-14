@@ -40,13 +40,6 @@
       - `AdminDashboard.jsx` deve ser dividido em `<DateFilters>`, `<MovementsTable>`, e `<SortControls>`
       - `ExitForm.jsx` deve ter lógica de validação extraída em hook customizado
       - Componentes devem manter funcionalidade idêntica após refatoração
-      
-  - **6.4. Sistema de Notificações Melhorado:**
-    - **Objetivo:** Substituir alerts básicos por sistema de notificações elegante
-    - **Critérios de Aceite:**
-      - Criar componente `<Toast>` reutilizável para notificações
-      - Substituir todos os `alert()` por notificações toast
-      - Implementar diferentes tipos: sucesso, erro, warning, info
 
 ## 🔮 Épico 7: Autenticação com Google Login
 - Objetivo: Melhorar a experiência de autenticação com integração OAuth.

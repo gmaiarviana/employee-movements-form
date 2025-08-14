@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import EmployeeSelector from './entry/EmployeeSelector'
 import HPSpecificFields from './entry/HPSpecificFields'
 import { useEmployeeSelection } from './entry/hooks/useEmployeeSelection'
+import { useToast } from '../../context/ToastContext'
 
 const headerStyle = {
   backgroundColor: '#374151',
@@ -20,6 +21,7 @@ const titleStyle = {
 
 const EntryForm = () => {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   
   // Employee selection logic using custom hook
   const {
@@ -58,7 +60,7 @@ const EntryForm = () => {
     
     if (!selectedEmployeeId || !employeeIdHP.trim() || !projectType.trim() || 
         !complianceTraining || !billable || !role.trim() || !startDate) {
-      alert('Por favor, preencha todos os campos obrigatórios.')
+      showToast('Por favor, preencha todos os campos obrigatórios.', 'warning')
       return
     }
     

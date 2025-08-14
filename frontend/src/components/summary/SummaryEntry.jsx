@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { employees, movements } from '../../services/api'
+import { useToast } from '../../context/ToastContext'
 
 const SummaryEntry = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const [summaryData, setSummaryData] = useState(null)
   const [error, setError] = useState(null)
+  const { showToast } = useToast()
 
   // Função para formatar data de YYYY-MM-DD para DD/MM/YYYY
   const formatDate = (dateString) => {
@@ -69,7 +71,7 @@ const SummaryEntry = () => {
       console.log('Resultado entrada:', entryResult)
       
       if (entryResult.success) {
-        alert(`✅ Entrada registrada com sucesso para ${summaryData.employeeName}!`)
+        showToast(`Entrada registrada com sucesso para ${summaryData.employeeName}!`, 'success')
         navigate('/')
       } else {
         throw new Error(entryResult.message || 'Erro ao criar entrada')
@@ -77,7 +79,7 @@ const SummaryEntry = () => {
       
     } catch (error) {
       console.error('Erro:', error)
-      alert(`❌ Erro: ${error.message}`)
+      showToast(`Erro: ${error.message}`, 'error')
     }
   }
 
