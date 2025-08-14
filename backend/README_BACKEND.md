@@ -71,6 +71,7 @@ SELECT COUNT(*) FROM hp_portfolio.project_managers;  -- Verificar gerentes atrib
 
 ### Sistema
 - `GET /api/health` - Status do serviço
+- `GET /api/projects` - Lista de projetos disponíveis
 
 ### Autenticação
 - `POST /api/register` - Registro de novos usuários
