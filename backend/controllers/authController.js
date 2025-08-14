@@ -189,7 +189,11 @@ const register = async (req, res) => {
         }
 
     } catch (error) {
-        console.error('Error during GP registration:', error);
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Error during GP registration:', error);
+        } else {
+            console.error('Error during GP registration - check logs for details');
+        }
 
         // Handle specific PostgreSQL errors
         if (error.code === '23505') { // Unique violation
@@ -272,7 +276,11 @@ const login = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error during login:', error);
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Error during login:', error);
+        } else {
+            console.error('Authentication error occurred');
+        }
 
         res.status(500).json({
             success: false,

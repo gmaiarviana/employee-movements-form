@@ -14,7 +14,9 @@ const REQUEST_TIMEOUT = 10000; // 10 seconds
  */
 const getAuthToken = () => {
   const token = localStorage.getItem('token');
-  console.log('🔑 Getting token from localStorage:', token ? `${token.substring(0, 50)}...` : 'null');
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔑 Getting token from localStorage:', token ? 'Token available' : 'null');
+  }
   return token;
 };
 
@@ -25,8 +27,10 @@ const apiCall = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   const token = getAuthToken();
   
-  console.log('🌐 Making API call to:', url);
-  console.log('🔐 Token available:', !!token);
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🌐 Making API call to:', url);
+    console.log('🔐 Token available:', !!token);
+  }
   
   // Default headers
   const defaultHeaders = {
@@ -36,9 +40,13 @@ const apiCall = async (endpoint, options = {}) => {
   // Add authorization header if token exists
   if (token) {
     defaultHeaders.Authorization = `Bearer ${token}`;
-    console.log('✅ Authorization header added');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ Authorization header added');
+    }
   } else {
-    console.log('❌ No token available - making unauthenticated request');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('❌ No token available - making unauthenticated request');
+    }
   }
   
   // Merge headers
@@ -138,14 +146,20 @@ const auth = {
       body: { email, password }
     });
     
-    console.log('🔓 Login response:', response);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔓 Login response received');
+    }
     
     // Store token if login successful
     if (response.success && response.data && response.data.token) {
-      console.log('💾 Storing token in localStorage');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('💾 Storing token in localStorage');
+      }
       localStorage.setItem('token', response.data.token);
     } else {
-      console.log('❌ No token received in login response');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('❌ No token received in login response');
+      }
     }
     
     return response;
@@ -268,13 +282,17 @@ const projects = {
    * Get all projects
    */
   getAll: async () => {
-    console.log('📋 Fetching projects...');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📋 Fetching projects...');
+    }
     try {
       const response = await apiCall('/projects');
-      console.log('✅ Projects fetched successfully:', response);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Projects fetched successfully');
+      }
       return response;
     } catch (error) {
-      console.error('❌ Error fetching projects:', error);
+      console.error('❌ Error fetching projects:', error.message);
       throw error;
     }
   }

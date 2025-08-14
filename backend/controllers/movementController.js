@@ -67,7 +67,11 @@ const getMovements = async (req, res) => {
             data: movements
         });
     } catch (error) {
-        console.error('Error fetching movements:', error);
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Error fetching movements:', error);
+        } else {
+            console.error('Error fetching movements - check logs for details');
+        }
         res.status(500).json({
             success: false,
             error: 'Internal server error',
@@ -169,7 +173,11 @@ const createEntry = async (req, res) => {
         });
         
     } catch (error) {
-        console.error('Error creating entry:', error);
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Error creating entry:', error);
+        } else {
+            console.error('Error creating entry - check logs for details');
+        }
         
         // Handle specific PostgreSQL errors
         if (error.code === '23503') { // Foreign key violation
@@ -274,7 +282,11 @@ const createExit = async (req, res) => {
         });
         
     } catch (error) {
-        console.error('Error creating exit:', error);
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Error creating exit:', error);
+        } else {
+            console.error('Error creating exit - check logs for details');
+        }
         
         // Handle specific PostgreSQL errors
         if (error.code === '23503') { // Foreign key violation

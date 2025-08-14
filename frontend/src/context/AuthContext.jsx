@@ -33,7 +33,9 @@ const isValidToken = (token) => {
     
     return true
   } catch (error) {
-    console.error('Error validating token:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error validating token:', error);
+    }
     return false
   }
 }
@@ -62,7 +64,9 @@ export const AuthContextProvider = ({ children }) => {
               email: payload.email || null
             })
           } catch (decodeError) {
-            console.error('Error decoding token payload:', decodeError)
+            if (process.env.NODE_ENV === 'development') {
+              console.error('Error decoding token payload:', decodeError);
+            }
             setCurrentUser(null)
           }
         } else {
@@ -72,7 +76,9 @@ export const AuthContextProvider = ({ children }) => {
           setCurrentUser(null)
         }
       } catch (error) {
-        console.error('Error initializing auth:', error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error initializing auth:', error);
+        }
         localStorage.removeItem('token')
         setIsAuthenticated(false)
         setCurrentUser(null)
@@ -114,13 +120,17 @@ export const AuthContextProvider = ({ children }) => {
           email: payload.email || null
         })
       } catch (decodeError) {
-        console.error('Error decoding token payload during login:', decodeError)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error decoding token payload during login:', decodeError);
+        }
         setCurrentUser(null)
       }
       
-      console.log('User logged in successfully')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('User logged in successfully');
+      }
     } catch (error) {
-      console.error('Login error:', error)
+      console.error('Login error:', error.message || error);
       throw error
     }
   }
@@ -132,9 +142,11 @@ export const AuthContextProvider = ({ children }) => {
       setIsAuthenticated(false)
       setCurrentUser(null)
       
-      console.log('User logged out successfully')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('User logged out successfully');
+      }
     } catch (error) {
-      console.error('Logout error:', error)
+      console.error('Logout error:', error.message || error);
     }
   }
 

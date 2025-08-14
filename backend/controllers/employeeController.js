@@ -47,7 +47,11 @@ const getAllEmployees = async (req, res) => {
             data: { teamMembers: employees }
         });
     } catch (error) {
-        console.error('Error fetching all employees:', error);
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Error fetching all employees:', error);
+        } else {
+            console.error('Error fetching all employees - check logs for details');
+        }
         res.status(500).json({
             success: false,
             error: 'Internal server error',
@@ -139,7 +143,11 @@ const getTeamMembers = async (req, res) => {
             data: { teamMembers }
         });
     } catch (error) {
-        console.error('Error fetching team members:', error);
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Error fetching team members:', error);
+        } else {
+            console.error('Error fetching team members - check logs for details');
+        }
         res.status(500).json({
             success: false,
             error: 'Internal server error',
@@ -239,7 +247,11 @@ const getEmployeeDetails = async (req, res) => {
             data: response
         });
     } catch (error) {
-        console.error('Error fetching employee details:', error);
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Error fetching employee details:', error);
+        } else {
+            console.error('Error fetching employee details - check logs for details');
+        }
         res.status(500).json({
             success: false,
             error: 'Internal server error',
@@ -312,7 +324,11 @@ const createEmployee = async (req, res) => {
         });
         
     } catch (error) {
-        console.error('Error creating employee:', error);
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Error creating employee:', error);
+        } else {
+            console.error('Error creating employee - check logs for details');
+        }
         
         // Handle specific PostgreSQL errors
         if (error.code === '23505') { // Unique violation
