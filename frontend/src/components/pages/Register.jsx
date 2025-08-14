@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { auth } from '../../services/api'
+import { auth, projects as projectsApi } from '../../services/api'
 
 const headerStyle = {
   backgroundColor: '#374151',
@@ -19,17 +19,42 @@ const titleStyle = {
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    username: '',
+    name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    projectId: ''
   })
+  const [projects, setProjects] = useState([])
+  const [projectsLoading, setProjectsLoading] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   
   const navigate = useNavigate()
   const { login } = useAuth()
+
+  // Load projects on component mount
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        setProjectsLoading(true)
+        const response = await projectsApi.getAll()
+        if (response.success) {
+          setProjects(response.data)
+        } else {
+          setError('Erro ao carregar projetos')
+        }
+      } catch (err) {
+        console.error('Error loading projects:', err)
+        setError('Erro ao carregar projetos. Verifique sua conexão.')
+      } finally {
+        setProjectsLoading(false)
+      }
+    }
+    
+    loadProjects()
+  }, [])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -48,8 +73,8 @@ const Register = () => {
     setSuccess('')
 
     // Basic validation
-    if (formData.password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres')
+    if (!formData.name.trim()) {
+      setError('O nome é obrigatório')
       setIsLoading(false)
       return
     }
@@ -60,24 +85,45 @@ const Register = () => {
       return
     }
 
+    if (formData.password.length < 6) {
+      setError('A senha deve ter pelo menos 6 caracteres')
+      setIsLoading(false)
+      return
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError('As senhas não coincidem.')
       setIsLoading(false)
       return
     }
 
+    if (!formData.projectId) {
+      setError('Por favor, selecione um projeto')
+      setIsLoading(false)
+      return
+    }
+
     try {
-      const data = await auth.register(formData)
+      // Send only the required fields to the backend
+      const registrationData = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        projectId: formData.projectId
+      }
+
+      const data = await auth.register(registrationData)
 
       if (data.success) {
         setSuccess('Conta criada com sucesso! Redirecionando para o login...')
         
         // Clear form
         setFormData({
-          username: '',
+          name: '',
           email: '',
           password: '',
-          confirmPassword: ''
+          confirmPassword: '',
+          projectId: ''
         })
         
         // If backend returns a token, automatically log the user in
@@ -140,20 +186,20 @@ const Register = () => {
           <div style={{ maxWidth: '400px', margin: '0 auto' }}>
             <form onSubmit={handleSubmit} className="form">
               <div className="form-group">
-                <label htmlFor="username" className="form-label">
-                  Username
+                <label htmlFor="name" className="form-label">
+                  Nome Completo
                 </label>
                 <input
                   type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
+                  id="name"
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
                   className="form-field"
                   required
                   disabled={isLoading}
-                  placeholder="Digite um username único"
-                  minLength="3"
+                  placeholder="Digite seu nome completo"
+                  minLength="2"
                 />
               </div>
 
@@ -172,6 +218,30 @@ const Register = () => {
                   disabled={isLoading}
                   placeholder="Digite seu email"
                 />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="projectId" className="form-label">
+                  Projeto
+                </label>
+                <select
+                  id="projectId"
+                  name="projectId"
+                  value={formData.projectId}
+                  onChange={handleChange}
+                  className="form-field"
+                  required
+                  disabled={isLoading || projectsLoading}
+                >
+                  <option value="">
+                    {projectsLoading ? 'Carregando projetos...' : 'Selecione um projeto'}
+                  </option>
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-group">

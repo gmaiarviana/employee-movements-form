@@ -260,6 +260,27 @@ const movements = {
 };
 
 // =============================================================================
+// PROJECTS API
+// =============================================================================
+
+const projects = {
+  /**
+   * Get all projects
+   */
+  getAll: async () => {
+    console.log('📋 Fetching projects...');
+    try {
+      const response = await apiCall('/projects');
+      console.log('✅ Projects fetched successfully:', response);
+      return response;
+    } catch (error) {
+      console.error('❌ Error fetching projects:', error);
+      throw error;
+    }
+  }
+};
+
+// =============================================================================
 // EXPORTS
 // =============================================================================
 
@@ -267,12 +288,14 @@ export {
   apiCall, 
   auth, 
   employees, 
-  movements 
+  movements,
+  projects
 };
 
 export default {
   apiCall,
   auth,
   employees,
-  movements
+  movements,
+  projects
 };

@@ -3,8 +3,8 @@ const router = express.Router();
 const { auth } = require('../middleware/auth');
 const { dbClient } = require('../config/database');
 
-// GET /api/projects - Retorna lista de projetos
-router.get('/', auth, async (req, res) => {
+// GET /api/projects - Retorna lista de projetos (acesso público)
+router.get('/', async (req, res) => {
   try {
     const query = `
       SELECT id, name, description 
