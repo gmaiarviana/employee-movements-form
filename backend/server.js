@@ -13,6 +13,7 @@ const authRoutes = require('./routes/auth');
 const employeeRoutes = require('./routes/employees');
 const movementRoutes = require('./routes/movements');
 const healthRoutes = require('./routes/health');
+const projectsRoutes = require('./routes/projects');
 
 // =============================================================================
 // ENVIRONMENT VARIABLES VALIDATION
@@ -57,6 +58,7 @@ app.use('/api', authRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/movements', movementRoutes);
 app.use('/api/health', healthRoutes);
+app.use('/api/projects', projectsRoutes);
 
 // =============================================================================
 // FALLBACK MIDDLEWARE
@@ -78,7 +80,8 @@ app.use('*', (req, res) => {
                 'GET /api/employees/:id/details',
                 'POST /api/entries',
                 'POST /api/exits',
-                'GET /api/movements'
+                'GET /api/movements',
+                'GET /api/projects'
             ]
         });
     }
