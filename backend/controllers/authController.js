@@ -6,7 +6,7 @@ const { dbClient } = require('../config/database');
 // AUTH CONTROLLER
 // =============================================================================
 
-// Register a new user (GP - General Practitioner)
+// Register a new user (GP - Gerente de Projetos)
 const register = async (req, res) => {
     try {
         const { name, email, password, projectId } = req.body;
@@ -128,7 +128,7 @@ const register = async (req, res) => {
                 employeeId,
                 name,
                 email.toLowerCase(),
-                'GP', // General Practitioner
+                'GP', // Gerente de Projetos
                 'Atlantico', // Default company for GPs
                 newUser.id
             ]);
@@ -146,7 +146,7 @@ const register = async (req, res) => {
                 projectId,
                 employeeId,
                 'Project Manager',
-                true // is_primary
+                false // is_primary - secondary manager
             ]);
 
             const projectManager = projectManagerResult.rows[0];
