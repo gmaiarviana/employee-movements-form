@@ -8,10 +8,12 @@ const AdminDashboard = () => {
   const [endDate, setEndDate] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [dateFilterType, setDateFilterType] = useState('movement') // 'movement' ou 'registration'
+  const [sortOrder, setSortOrder] = useState('recent') // 'recent' ou 'oldest'
   const navigate = useNavigate()
 
-  // Function to filter movements by date (identical to JS original)
-  const filterMovementsByDate = (movements, startDate, endDate) => {
+  // Function to filter movements by date with type selection and sorting
+  const filterMovementsByDate = (movements, startDate, endDate, dateType = 'movement', sortOrder = 'recent') => {
     return movements.filter(movement => {
       // Função para criar Date local correto a partir de string do PostgreSQL
       const createLocalDate = (dateString) => {
@@ -24,22 +26,28 @@ const AdminDashboard = () => {
         }
       }
       
-      const movementDate = createLocalDate(movement.date)
+      // Selecionar a data baseada no tipo de filtro
+      let targetDate
+      if (dateType === 'registration') {
+        targetDate = createLocalDate(movement.registrationDate)
+      } else {
+        targetDate = createLocalDate(movement.movementDate || movement.date)
+      }
       
-      // Se startDate estiver definida, verificar se a data da movimentação é >= startDate
+      // Se startDate estiver definida, verificar se a data selecionada é >= startDate
       if (startDate) {
         const start = new Date(startDate)
         start.setHours(0, 0, 0, 0) // Início do dia
-        if (movementDate < start) {
+        if (targetDate < start) {
           return false
         }
       }
       
-      // Se endDate estiver definida, verificar se a data da movimentação é <= endDate
+      // Se endDate estiver definida, verificar se a data selecionada é <= endDate
       if (endDate) {
         const end = new Date(endDate)
         end.setHours(23, 59, 59, 999) // Final do dia
-        if (movementDate > end) {
+        if (targetDate > end) {
           return false
         }
       }
@@ -56,7 +64,23 @@ const AdminDashboard = () => {
           return new Date(dateString)
         }
       }
-      return createLocalDate(b.date) - createLocalDate(a.date) // Manter ordenação cronológica (mais recente primeiro)
+      
+      // Selecionar a data para ordenação baseada no tipo de filtro
+      let dateA, dateB
+      if (dateType === 'registration') {
+        dateA = createLocalDate(a.registrationDate)
+        dateB = createLocalDate(b.registrationDate)
+      } else {
+        dateA = createLocalDate(a.movementDate || a.date)
+        dateB = createLocalDate(b.movementDate || b.date)
+      }
+      
+      // Aplicar ordenação conforme seleção do usuário
+      if (sortOrder === 'oldest') {
+        return dateA - dateB // Mais antiga primeiro
+      } else {
+        return dateB - dateA // Mais recente primeiro (padrão)
+      }
     })
   }
 
@@ -75,7 +99,10 @@ const AdminDashboard = () => {
       
       // Aplicar filtro por data no frontend
       if (filterStartDate || filterEndDate) {
-        movementsData = filterMovementsByDate(movementsData, filterStartDate, filterEndDate)
+        movementsData = filterMovementsByDate(movementsData, filterStartDate, filterEndDate, dateFilterType, sortOrder)
+      } else {
+        // Aplicar apenas ordenação quando não há filtros de data
+        movementsData = filterMovementsByDate(movementsData, null, null, dateFilterType, sortOrder)
       }
       
       setMovements(movementsData)
@@ -97,26 +124,6 @@ const AdminDashboard = () => {
     loadMovements(filterStartDate, filterEndDate)
   }
 
-  // Function to simulate data export (identical to JS original)
-  const exportData = () => {
-    const movementsCount = movements.length
-    
-    // Preparar informações sobre os filtros aplicados
-    let filterInfo = ''
-    if (startDate || endDate) {
-      const startDateFormatted = startDate ? new Date(startDate).toLocaleDateString('pt-BR') : 'não definida'
-      const endDateFormatted = endDate ? new Date(endDate).toLocaleDateString('pt-BR') : 'não definida'
-      filterInfo = `\n\nFiltros aplicados:\n- Data início: ${startDateFormatted}\n- Data fim: ${endDateFormatted}`
-    } else {
-      filterInfo = '\n\nSem filtros aplicados (todos os dados).'
-    }
-    
-    // Simular a exportação com uma mensagem detalhada
-    const message = `⚠️ FUNCIONALIDADE EM DESENVOLVIMENTO ⚠️\n\nA exportação de dados não está implementada neste protótipo.\n\nSe estivesse implementada, seria exportado:\n- ${movementsCount} movimentação(ões) atualmente visível(is) na tabela${filterInfo}\n\nFormatos que seriam suportados: CSV, Excel, PDF.`
-    
-    alert(message)
-  }
-
   // Function to navigate home
   const goHome = () => {
     navigate('/')
@@ -127,6 +134,16 @@ const AdminDashboard = () => {
     console.log('Admin Dashboard loaded successfully')
     loadMovements()
   }, [])
+
+  // useEffect to reload movements when filter type or sort order changes
+  useEffect(() => {
+    if (movements.length > 0) {
+      // Reaplica os filtros quando o tipo de data ou ordenação muda
+      const filterStartDate = startDate || null
+      const filterEndDate = endDate || null
+      loadMovements(filterStartDate, filterEndDate)
+    }
+  }, [dateFilterType, sortOrder])
 
   return (
     <div className="container">
@@ -142,6 +159,46 @@ const AdminDashboard = () => {
           
           {/* Filtros por Data */}
           <div className="date-filter-section">
+            {/* Toggle para tipo de data */}
+            <div className="filter-type-section">
+              <label>Filtrar por:</label>
+              <div className="radio-group">
+                <label>
+                  <input
+                    type="radio"
+                    name="dateFilterType"
+                    value="movement"
+                    checked={dateFilterType === 'movement'}
+                    onChange={(e) => setDateFilterType(e.target.value)}
+                  />
+                  Data da Movimentação
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="dateFilterType"
+                    value="registration"
+                    checked={dateFilterType === 'registration'}
+                    onChange={(e) => setDateFilterType(e.target.value)}
+                  />
+                  Data de Registro
+                </label>
+              </div>
+            </div>
+
+            {/* Dropdown de ordenação */}
+            <div className="sort-section">
+              <label htmlFor="sort-order">Ordenação:</label>
+              <select
+                id="sort-order"
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+              >
+                <option value="recent">Mais recente primeiro</option>
+                <option value="oldest">Mais antiga primeiro</option>
+              </select>
+            </div>
+
             <div className="date-filters">
               <div className="date-input-group">
                 <label htmlFor="start-date">Data Início:</label>
@@ -165,9 +222,6 @@ const AdminDashboard = () => {
               </div>
               <button className="btn-primary" id="filter-btn" onClick={filterMovements}>
                 Filtrar
-              </button>
-              <button className="btn-secondary" id="export-btn" onClick={exportData}>
-                Exportar Dados
               </button>
             </div>
           </div>
