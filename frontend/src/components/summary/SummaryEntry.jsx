@@ -2,19 +2,35 @@ import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { employees, movements } from '../../services/api'
 import { useToast } from '../../context/ToastContext'
+import { formatCPF, formatDate, formatRG } from '../../utils/formatters'
 
 const SummaryEntry = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const [summaryData, setSummaryData] = useState(null)
+  const [employeeDetails, setEmployeeDetails] = useState(null)
   const [error, setError] = useState(null)
   const { showToast } = useToast()
 
   // Função para formatar data de YYYY-MM-DD para DD/MM/YYYY
-  const formatDate = (dateString) => {
+  const formatDateLocal = (dateString) => {
     if (!dateString) return ''
     const [year, month, day] = dateString.split('-')
     return `${day}/${month}/${year}`
+  }
+
+  // Função para carregar detalhes do funcionário
+  const loadEmployeeDetails = async (employeeId) => {
+    try {
+      console.log('Carregando detalhes do funcionário:', employeeId)
+      const details = await employees.getDetails(employeeId)
+      console.log('Detalhes do funcionário carregados:', details)
+      setEmployeeDetails(details)
+    } catch (error) {
+      console.error('Erro ao carregar detalhes do funcionário:', error)
+      // Não definir como erro crítico, pois os dados principais ainda estão disponíveis
+      setEmployeeDetails(null)
+    }
   }
 
   // Função para mapear valores de radio button para texto legível
@@ -45,6 +61,13 @@ const SummaryEntry = () => {
       setError('Erro ao carregar os dados do formulário.')
     }
   }, [searchParams])
+
+  // useEffect para carregar detalhes do funcionário quando summaryData estiver disponível
+  useEffect(() => {
+    if (summaryData && summaryData.selectedEmployeeId) {
+      loadEmployeeDetails(summaryData.selectedEmployeeId)
+    }
+  }, [summaryData])
 
   // Função para lidar com o botão voltar
   const handleBack = () => {
@@ -129,6 +152,42 @@ const SummaryEntry = () => {
                   </div>
                 </div>
 
+                <h3>Dados Pessoais</h3>
+                <div className="data-group">
+                  <div className="data-item">
+                    <span className="data-label">CPF:</span>
+                    <span className="data-value">{employeeDetails ? formatCPF(employeeDetails.data.employee.cpf) : 'Carregando...'}</span>
+                  </div>
+                </div>
+                
+                <div className="data-group">
+                  <div className="data-item">
+                    <span className="data-label">RG:</span>
+                    <span className="data-value">{employeeDetails ? formatRG(employeeDetails.data.employee.rg) : 'Carregando...'}</span>
+                  </div>
+                </div>
+                
+                <div className="data-group">
+                  <div className="data-item">
+                    <span className="data-label">Data de Nascimento:</span>
+                    <span className="data-value">{employeeDetails ? formatDate(employeeDetails.data.employee.data_nascimento) : 'Carregando...'}</span>
+                  </div>
+                </div>
+                
+                <div className="data-group">
+                  <div className="data-item">
+                    <span className="data-label">Nível de Escolaridade:</span>
+                    <span className="data-value">{employeeDetails ? (employeeDetails.data.employee.nivel_escolaridade || 'Não informado') : 'Carregando...'}</span>
+                  </div>
+                </div>
+                
+                <div className="data-group">
+                  <div className="data-item">
+                    <span className="data-label">Formação:</span>
+                    <span className="data-value">{employeeDetails ? (employeeDetails.data.employee.formacao || 'Não informado') : 'Carregando...'}</span>
+                  </div>
+                </div>
+
                 <h3>Dados HP Específicos</h3>
                 <div className="data-group">
                   <div className="data-item">
@@ -168,7 +227,7 @@ const SummaryEntry = () => {
                 <div className="data-group">
                   <div className="data-item">
                     <span className="data-label">Data de Início:</span>
-                    <span className="data-value">{formatDate(summaryData.startDate)}</span>
+                    <span className="data-value">{formatDateLocal(summaryData.startDate)}</span>
                   </div>
                 </div>
               </>
