@@ -8,6 +8,8 @@ const { v4: uuidv4 } = require('uuid');
 // Get consolidated movements data from the new movements table
 const getMovements = async (req, res) => {
     try {
+        console.log('[MOVEMENTS] Fetching movements data...');
+        
         // Query with JOIN to hp_employee_profiles to include hp_employee_id when available
         const query = `
             SELECT 
@@ -64,11 +66,15 @@ const getMovements = async (req, res) => {
             });
         });
         
+        console.log(`[MOVEMENTS] Retrieved ${movements.length} movements successfully`);
+        
         res.json({
             success: true,
             data: movements
         });
     } catch (error) {
+        console.error(`[MOVEMENTS ERROR] Failed to fetch movements: ${error.message}`);
+        
         if (process.env.NODE_ENV === 'development') {
             console.error('Error fetching movements:', error);
         } else {
@@ -97,8 +103,12 @@ const createEntry = async (req, res) => {
             bundleAws
         } = req.body;
         
+        // Log simples do início da operação
+        console.log(`[ENTRY] Starting entry creation for employee ${selectedEmployeeId}, HP ID: ${employeeIdHP}`);
+        
         // Validate required fields for HP structure
         if (!selectedEmployeeId || !employeeIdHP || !projectType || !complianceTraining || !billable || !role || !startDate) {
+            console.error(`[ENTRY ERROR] Missing required fields for employee ${selectedEmployeeId}`);
             return res.status(400).json({
                 success: false,
                 error: 'Missing required fields',
@@ -108,6 +118,7 @@ const createEntry = async (req, res) => {
         
         // Validate specific field values
         if (!['sim', 'nao'].includes(complianceTraining)) {
+            console.error(`[ENTRY ERROR] Invalid complianceTraining: ${complianceTraining} for employee ${selectedEmployeeId}`);
             return res.status(400).json({
                 success: false,
                 error: 'Invalid complianceTraining value',
@@ -116,6 +127,7 @@ const createEntry = async (req, res) => {
         }
         
         if (!['sim', 'nao'].includes(billable)) {
+            console.error(`[ENTRY ERROR] Invalid billable: ${billable} for employee ${selectedEmployeeId}`);
             return res.status(400).json({
                 success: false,
                 error: 'Invalid billable value',
@@ -140,6 +152,7 @@ const createEntry = async (req, res) => {
             RETURNING *
         `;
         
+        console.log(`[ENTRY] Creating/updating HP profile for employee ${selectedEmployeeId}`);
         await dbClient.query(hpProfileQuery, [selectedEmployeeId, employeeIdHP]);
 
         // Insert into movements table with movement_type 'ENTRY' (without hp_employee_id)
@@ -177,6 +190,8 @@ const createEntry = async (req, res) => {
             bundleAws || null
         ]);
         
+        console.log(`[ENTRY SUCCESS] Created entry ID ${result.rows[0].id} for employee ${selectedEmployeeId}, role: ${role}`);
+        
         res.status(201).json({
             success: true,
             message: 'Entry created successfully',
@@ -194,6 +209,8 @@ const createEntry = async (req, res) => {
         });
         
     } catch (error) {
+        console.error(`[ENTRY ERROR] Failed to create entry for employee ${req.body.selectedEmployeeId}: ${error.message}`);
+        
         if (process.env.NODE_ENV === 'development') {
             console.error('Error creating entry:', error);
         } else {
@@ -230,8 +247,12 @@ const createExit = async (req, res) => {
     try {
         const { employeeId, projectId, date, reason, exitDate } = req.body;
         
+        // Log simples do início da operação de saída
+        console.log(`[EXIT] Starting exit creation for employee ${employeeId}, project ${projectId}`);
+        
         // Validate required fields
         if (!employeeId || !projectId || !date || !reason || !exitDate) {
+            console.error(`[EXIT ERROR] Missing required fields for employee ${employeeId}`);
             return res.status(400).json({
                 success: false,
                 error: 'Missing required fields',
@@ -262,6 +283,7 @@ const createExit = async (req, res) => {
         const entryResult = await dbClient.query(entryMovementQuery, [employeeId, projectId]);
 
         if (entryResult.rows.length === 0) {
+            console.error(`[EXIT ERROR] No active entry found for employee ${employeeId} in project ${projectId}`);
             return res.status(404).json({
                 success: false,
                 error: 'Active entry not found',
@@ -270,6 +292,9 @@ const createExit = async (req, res) => {
         }
 
         const { start_date: realStartDate, role: currentRole, hp_employee_id } = entryResult.rows[0];
+        
+        // Log da entrada ativa encontrada
+        console.log(`[EXIT] Found active entry for employee ${employeeId}, role: ${currentRole}, HP ID: ${hp_employee_id || 'N/A'}`);
 
         // Insert into movements table with movement_type 'EXIT'
         const movementQuery = `
@@ -298,6 +323,8 @@ const createExit = async (req, res) => {
             100
         ]);
         
+        console.log(`[EXIT SUCCESS] Created exit ID ${result.rows[0].id} for employee ${employeeId}, reason: ${reason}`);
+        
         res.status(201).json({
             success: true,
             message: 'Exit created successfully',
@@ -305,6 +332,8 @@ const createExit = async (req, res) => {
         });
         
     } catch (error) {
+        console.error(`[EXIT ERROR] Failed to create exit for employee ${req.body.employeeId}: ${error.message}`);
+        
         if (process.env.NODE_ENV === 'development') {
             console.error('Error creating exit:', error);
         } else {
