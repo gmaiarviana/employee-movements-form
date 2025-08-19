@@ -9,7 +9,7 @@ Sistema de gestão de movimentações para consultoria, projetado para gerenciar
 ```
 employee_movements_db/
 ├── core/           # Usuários e funcionários (autenticação + dados pessoais)
-├── hp_portfolio/   # Projetos e movimentações (apenas 3 tabelas: projects, project_managers, movements)
+├── hp_portfolio/   # Projetos e movimentações (4 tabelas: projects, project_managers, hp_employee_profiles, movements)
 └── public/         # Schema padrão PostgreSQL
 ```
 
@@ -24,10 +24,11 @@ employee_movements_db/
 ├─────────────────────┤       ├─────────────────────┤
 │ PK: user_id         │ 1:1   │ PK: employee_id     │
 │     email           │ ◄───► │ FK: user_id         │
-│     password_hash   │       │     name            │
-│     role            │       │     department      │
-│     created_at      │       │     status          │
-└─────────────────────┘       └─────────────────────┘
+│     password_hash   │       │     name, email     │
+│     role            │       │     cpf, rg         │
+│     created_at      │       │     data_nascimento │
+└─────────────────────┘       │     escolaridade    │
+                              └─────────────────────┘
 ```
 
 ### SCHEMA HP_PORTFOLIO - Projetos e Movimentações
@@ -37,41 +38,34 @@ employee_movements_db/
 ├─────────────────────┤       ├─────────────────────┤
 │ PK: project_id (uuid)│ 1:1   │ PK: manager_id      │
 │     name            │ ◄───► │ FK: project_id      │
-│     description     │       │ FK: employee_id     │
-│     start_date      │       │     assigned_at     │
-│     end_date        │       └─────────────────────┘
-│     status          │                 │
-│     client_name     │                 │ 1:N
-│     budget          │                 ▼
-│     priority        │       ┌─────────────────────┐
-└─────────────────────┘       │   core.employees    │
-         │ N:1                │ (referência cruzada)│
-         ▼                    └─────────────────────┘
-┌─────────────────────┐                 │ 1:N
-│hp_portfolio.movements│                │
-├─────────────────────┤◄────────────────┘
-│ PK: id              │
-│ FK: employee_id     │
-│ FK: project_id      │
-│     movement_type   │
-│     start_date      │
-│     end_date        │
-│     role            │
-│     hp_employee_id  │
-│     project_type    │
-│     compliance_training │
-│     billable        │
-│     change_reason   │
-│     allocation_percentage │
+│     sow_pt (UNIQUE) │       │ FK: employee_id     │
+│     gerente_hp      │       │     assigned_at     │
+│     description     │       └─────────────────────┘
+│     budget, status  │                 │
+└─────────────────────┘                 │ 1:N
+         │ N:1                          ▼
+         ▼                    ┌─────────────────────┐
+┌─────────────────────┐       │hp_employee_profiles │
+│hp_portfolio.movements│       ├─────────────────────┤
+├─────────────────────┤       │ PK: id              │
+│ PK: id              │ N:1   │ FK: employee_id     │
+│ FK: employee_id     │ ◄──── │     hp_employee_id  │
+│ FK: project_id      │       │     created_at      │
+│     movement_type   │       └─────────────────────┘
+│     start_date      │                 │ 1:1
+│     end_date        │                 ▼
+│     role            │       ┌─────────────────────┐
+│     bundle_aws      │       │   core.employees    │
+│     machine_type    │       │ (referência cruzada)│
+│     compliance_training │    └─────────────────────┘
 │     is_billable     │
 │     created_at      │
-│     updated_at      │
 └─────────────────────┘
 ```
 
 ### FLUXO LÓGICO PRINCIPAL
 ```
-User ──1:1──► Employee ──1:N──► HP_Portfolio.Movements ──N:1──► HP_Portfolio.Projects
+User ──1:1──► Employee ──1:1──► HP_Employee_Profile ──1:N──► HP_Portfolio.Movements ──N:1──► HP_Portfolio.Projects
   │                                      │
   │                                      │
   │                                      ▼
@@ -127,7 +121,9 @@ docker exec employee-movements-form-db-1 psql -U app_user -d employee_movements
 
 - **Schemas**: `core` (usuários/funcionários) e `hp_portfolio` (projetos/movimentações)
 - **Relacionamentos**: Foreign keys garantem integridade referencial
-- **Campos HP**: `hp_employee_id`, `compliance_training`, `billable`, `project_type`
+- **Campos HP**: `hp_employee_id`, `compliance_training`, `billable`, `project_type`, `bundle_aws`
+- **Dados Pessoais**: `cpf`, `rg`, `data_nascimento`, `nivel_escolaridade`, `formacao`
+- **Projetos**: `sow_pt` (Statement of Work/Purchase Order), `gerente_hp`
 - **Auditoria**: Histórico completo mantido na tabela `movements`
 
 Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos SQL descritivos como `\d schema.table`.
@@ -141,13 +137,14 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 #### SCHEMA CORE
 ```sql
 -- core.users (autenticação)
--- core.employees (dados pessoais + profissionais)
+-- core.employees (dados pessoais + profissionais + cpf/rg/nascimento/escolaridade)
 ```
 
 #### SCHEMA HP_PORTFOLIO
 ```sql
--- hp_portfolio.projects (projetos e clientes)
+-- hp_portfolio.projects (projetos, clientes + sow_pt + gerente_hp)
 -- hp_portfolio.project_managers (1 gerente por projeto)  
+-- hp_portfolio.hp_employee_profiles (dados HP específicos por funcionário)
 -- hp_portfolio.movements (tabela única para todas as movimentações - FONTE ÚNICA DE VERDADE)
 ```
 
@@ -158,13 +155,13 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `id` | UUID | Chave primária única |
-| `employee_id` | INTEGER | FK para core.employees |
+| `employee_id` | VARCHAR(10) | FK para core.employees |
 | `project_id` | UUID | FK para hp_portfolio.projects |
 | `movement_type` | VARCHAR | 'ENTRY' ou 'EXIT' |
 | `start_date` | DATE | Data de início (para ENTRY) |
 | `end_date` | DATE | Data de fim (para EXIT) |
 | `role` | VARCHAR | Função do funcionário |
-| `hp_employee_id` | VARCHAR | ID específico HP |
+| `hp_employee_id` | VARCHAR | ID específico HP (DEPRECATED - usar hp_employee_profiles) |
 | `project_type` | VARCHAR | Tipo do projeto |
 | `compliance_training` | VARCHAR | 'sim' ou 'nao' |
 | `billable` | VARCHAR | 'sim' ou 'nao' |
@@ -173,5 +170,39 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 | `allocation_percentage` | INTEGER | Percentual de alocação |
 | `has_replacement` | BOOLEAN | Se haverá replacement na saída |
 | `machine_type` | VARCHAR(50) | 'empresa' ou 'aws' |
+| `bundle_aws` | VARCHAR(20) | Bundle necessário (quando machine_type='aws') |
 | `created_at` | TIMESTAMP | Data de criação |
 | `updated_at` | TIMESTAMP | Data de atualização |
+
+#### NOVA TABELA: hp_portfolio.hp_employee_profiles
+
+**Centraliza dados HP específicos por funcionário:**
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `id` | UUID | Chave primária única |
+| `employee_id` | VARCHAR(10) | FK para core.employees (UNIQUE) |
+| `hp_employee_id` | VARCHAR(50) | ID específico do funcionário na HP |
+| `created_at` | TIMESTAMP | Data de criação |
+| `updated_at` | TIMESTAMP | Data de atualização |
+
+#### CAMPOS ADICIONADOS: core.employees
+
+**Novos campos de dados pessoais:**
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `cpf` | VARCHAR(14) | CPF no formato ###.###.###-## |
+| `rg` | VARCHAR(20) | RG (formato variável) |
+| `data_nascimento` | DATE | Data de nascimento |
+| `nivel_escolaridade` | TEXT | Nível de escolaridade (texto livre) |
+| `formacao` | TEXT | Formação acadêmica (texto livre) |
+
+#### CAMPOS ADICIONADOS: hp_portfolio.projects
+
+**Novos campos HP específicos:**
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `sow_pt` | VARCHAR(50) | Statement of Work/Purchase Order (UNIQUE) |
+| `gerente_hp` | VARCHAR(100) | Gerente HP stakeholder externo |
