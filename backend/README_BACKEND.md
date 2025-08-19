@@ -86,6 +86,9 @@ SELECT COUNT(*) FROM hp_portfolio.hp_employee_profiles;  -- Verificar perfis HP
 ### Movimentações (🔒 Protegidos por JWT)
 - `GET /api/movements` - Histórico de movimentações
 - `POST /api/entries` - Nova entrada
+  - **Campos obrigatórios**: selectedEmployeeId, employeeIdHP, projectType, complianceTraining, billable, role, startDate
+  - **machineType** (opcional): "empresa", "aws", "disponivel"
+  - **bundleAws** (condicional): obrigatório quando machineType="aws"
 - `POST /api/exits` - Nova saída
 
 **Nota**: 
