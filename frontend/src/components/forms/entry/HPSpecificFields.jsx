@@ -16,7 +16,9 @@ const HPSpecificFields = ({ selectedEmployee, formData, onChange }) => {
     complianceTraining,
     billable,
     role,
-    startDate
+    startDate,
+    machineType,
+    bundleAws
   } = formData
 
   return (
@@ -135,6 +137,64 @@ const HPSpecificFields = ({ selectedEmployee, formData, onChange }) => {
           onChange={(e) => onChange('startDate', e.target.value)}
         />
       </div>
+      
+      <div className="form-group">
+        <label className="form-label">Tipo de infraestrutura necessária *</label>
+        <div className="radio-group">
+          <div className="radio-item">
+            <input 
+              type="radio" 
+              id="machine-send" 
+              name="machine-type" 
+              value="empresa" 
+              required
+              checked={machineType === 'empresa'}
+              onChange={(e) => onChange('machineType', e.target.value)}
+            />
+            <label htmlFor="machine-send">Necessário o envio de máquina</label>
+          </div>
+          <div className="radio-item">
+            <input 
+              type="radio" 
+              id="machine-aws" 
+              name="machine-type" 
+              value="aws" 
+              required
+              checked={machineType === 'aws'}
+              onChange={(e) => onChange('machineType', e.target.value)}
+            />
+            <label htmlFor="machine-aws">Ambiente AWS</label>
+          </div>
+          <div className="radio-item">
+            <input 
+              type="radio" 
+              id="machine-available" 
+              name="machine-type" 
+              value="disponivel" 
+              required
+              checked={machineType === 'disponivel'}
+              onChange={(e) => onChange('machineType', e.target.value)}
+            />
+            <label htmlFor="machine-available">Máquina disponível</label>
+          </div>
+        </div>
+      </div>
+      
+      {machineType === 'aws' && (
+        <div className="form-group">
+          <label htmlFor="bundle-aws" className="form-label">Bundle necessário para o ambiente AWS *</label>
+          <input 
+            type="text" 
+            id="bundle-aws" 
+            name="bundle-aws" 
+            required 
+            className="form-field"
+            value={bundleAws || ''}
+            onChange={(e) => onChange('bundleAws', e.target.value)}
+            placeholder="Ex: bundle-dev-001, bundle-prod-002"
+          />
+        </div>
+      )}
     </>
   )
 }
