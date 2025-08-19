@@ -40,15 +40,26 @@ const EntryForm = () => {
     complianceTraining: '',
     billable: '',
     role: '',
-    startDate: ''
+    startDate: '',
+    machineType: '',
+    bundleAws: ''
   })
 
   // Handle form data changes
   const handleFormDataChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [field]: value
+      }
+      
+      // Clear bundleAws when machineType is not 'aws'
+      if (field === 'machineType' && value !== 'aws') {
+        newData.bundleAws = ''
+      }
+      
+      return newData
+    })
   }
 
   // Handle form submission
@@ -56,11 +67,17 @@ const EntryForm = () => {
     event.preventDefault()
     
     // Validation - check if all required fields are filled
-    const { employeeIdHP, projectType, complianceTraining, billable, role, startDate } = formData
+    const { employeeIdHP, projectType, complianceTraining, billable, role, startDate, machineType, bundleAws } = formData
     
     if (!selectedEmployeeId || !employeeIdHP.trim() || !projectType.trim() || 
         !complianceTraining || !billable || !role.trim() || !startDate) {
       showToast('Por favor, preencha todos os campos obrigatórios.', 'warning')
+      return
+    }
+    
+    // Validation for AWS bundle when machine type is AWS
+    if (machineType === 'aws' && !bundleAws.trim()) {
+      showToast('Por favor, selecione o bundle AWS quando o tipo de máquina for AWS.', 'warning')
       return
     }
     
