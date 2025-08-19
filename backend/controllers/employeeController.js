@@ -1,6 +1,19 @@
 const { dbClient } = require('../config/database');
 
 // =============================================================================
+// UTILITY FUNCTIONS
+// =============================================================================
+
+// Função para validar formato CPF (###.###.###-##)
+const validateCPFFormat = (cpf) => {
+    if (!cpf) return true; // CPF é opcional
+    
+    // Regex para formato ###.###.###-##
+    const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+    return cpfRegex.test(cpf);
+};
+
+// =============================================================================
 // EMPLOYEE CONTROLLER
 // =============================================================================
 
@@ -292,6 +305,15 @@ const createEmployee = async (req, res) => {
                 success: false,
                 error: 'Missing required fields',
                 message: 'id, name, email, role, and company are required'
+            });
+        }
+        
+        // Validar formato de CPF se fornecido
+        if (cpf && !validateCPFFormat(cpf)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid CPF format',
+                message: 'CPF deve estar no formato ###.###.###-##'
             });
         }
         
