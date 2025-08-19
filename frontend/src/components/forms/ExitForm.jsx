@@ -25,6 +25,14 @@ const ExitForm = () => {
     return date.toLocaleDateString('pt-BR')
   }
 
+  // Função para retornar valor seguro com fallback
+  const getFieldValue = (value, fallback = 'Não informado') => {
+    if (value === null || value === undefined || value === '') {
+      return fallback
+    }
+    return value
+  }
+
   // Função para carregar informações do funcionário
   const loadEmployeeInfo = async () => {
     if (!employeeId) {
@@ -41,8 +49,8 @@ const ExitForm = () => {
       if (data.success && data.data) {
         setEmployeeInfo(data.data)
         
-        // ✅ NOVO: Extrair data de entrada se existir
-        if (data.data.project && data.data.project.startDate) {
+        // Extrair data de entrada se existir com safe access
+        if (data.data?.project?.startDate) {
           setEntryDate(data.data.project.startDate)
         }
       } else {
@@ -114,14 +122,26 @@ const ExitForm = () => {
             {!loading && !error && employeeInfo && (
               <div className="employee-display">
                 <h3>Funcionário Selecionado</h3>
-                <p><strong>ID:</strong> {employeeInfo.employee.id}</p>
-                <p><strong>Nome:</strong> {employeeInfo.employee.name}</p>
-                <p><strong>Email:</strong> {employeeInfo.employee.email}</p>
-                <p><strong>Cargo:</strong> {employeeInfo.employee.role}</p>
-                <p><strong>Empresa:</strong> {employeeInfo.employee.company}</p>
-                <p><strong>Projeto Atual:</strong> {employeeInfo.project.name}</p>
-                <p><strong>Tipo do Projeto:</strong> {employeeInfo.project.type}</p>
-                <p><strong>SOW:</strong> {employeeInfo.project.sow}</p>
+                <p><strong>ID:</strong> {getFieldValue(employeeInfo.employee?.id)}</p>
+                <p><strong>Nome:</strong> {getFieldValue(employeeInfo.employee?.name)}</p>
+                <p><strong>Email:</strong> {getFieldValue(employeeInfo.employee?.email)}</p>
+                <p><strong>Cargo:</strong> {getFieldValue(employeeInfo.employee?.role)}</p>
+                <p><strong>Empresa:</strong> {getFieldValue(employeeInfo.employee?.company)}</p>
+                <p><strong>Projeto Atual:</strong> {getFieldValue(employeeInfo.project?.name)}</p>
+                <p><strong>Tipo do Projeto:</strong> {getFieldValue(employeeInfo.project?.type)}</p>
+                <p><strong>SOW:</strong> {getFieldValue(employeeInfo.project?.sow)}</p>
+              </div>
+            )}
+            
+            {/* Seção de Dados Pessoais com fallbacks seguros */}
+            {!loading && !error && employeeInfo && (
+              <div className="employee-display">
+                <h4>Dados Pessoais</h4>
+                <p><strong>CPF:</strong> {getFieldValue(employeeInfo.employee?.cpf)}</p>
+                <p><strong>RG:</strong> {getFieldValue(employeeInfo.employee?.rg)}</p>
+                <p><strong>Data de Nascimento:</strong> {getFieldValue(employeeInfo.employee?.data_nascimento ? formatDate(employeeInfo.employee.data_nascimento) : null)}</p>
+                <p><strong>Escolaridade:</strong> {getFieldValue(employeeInfo.employee?.nivel_escolaridade)}</p>
+                <p><strong>Formação:</strong> {getFieldValue(employeeInfo.employee?.formacao)}</p>
               </div>
             )}
             
