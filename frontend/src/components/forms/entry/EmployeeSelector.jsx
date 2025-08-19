@@ -13,6 +13,30 @@ const EmployeeSelector = ({
 }) => {
   const selectedEmployee = employees.find(emp => emp.id === selectedEmployeeId)
 
+  /**
+   * Generates display text for employee dropdown with fallbacks for missing data
+   * @param {Object} employee - Employee object
+   * @returns {string} Formatted display text
+   */
+  const getDisplayText = (employee) => {
+    if (!employee) return ''
+    
+    const name = employee.name || 'Nome não informado'
+    const company = employee.company || 'Empresa não informada'
+    const formacao = employee.formacao || null
+    
+    let displayText = `${name} - ${company}`
+    
+    // Add education info if available
+    if (formacao) {
+      displayText += ` (${formacao})`
+    } else {
+      displayText += ' (Formação não informada)'
+    }
+    
+    return displayText
+  }
+
   return (
     <>
       {/* Error message display */}
@@ -50,7 +74,7 @@ const EmployeeSelector = ({
             <option value="">Selecione um funcionário</option>
             {employees.map((employee) => (
               <option key={employee.id} value={employee.id}>
-                {employee.name} - {employee.company || 'N/A'}
+                {getDisplayText(employee)}
               </option>
             ))}
           </select>
@@ -67,9 +91,13 @@ const EmployeeSelector = ({
               id="employee-name" 
               name="employee-name" 
               className="form-field"
-              value={selectedEmployee.name || ''}
+              value={selectedEmployee.name || 'Nome não informado'}
               readOnly
-              style={{ backgroundColor: '#f9fafb', color: '#6b7280' }}
+              style={{ 
+                backgroundColor: '#f9fafb', 
+                color: selectedEmployee.name ? '#6b7280' : '#dc2626',
+                fontStyle: selectedEmployee.name ? 'normal' : 'italic'
+              }}
             />
           </div>
           
@@ -80,9 +108,13 @@ const EmployeeSelector = ({
               id="employee-email" 
               name="employee-email" 
               className="form-field"
-              value={selectedEmployee.email || 'N/A'}
+              value={selectedEmployee.email || 'E-mail não informado'}
               readOnly
-              style={{ backgroundColor: '#f9fafb', color: '#6b7280' }}
+              style={{ 
+                backgroundColor: '#f9fafb', 
+                color: selectedEmployee.email ? '#6b7280' : '#dc2626',
+                fontStyle: selectedEmployee.email ? 'normal' : 'italic'
+              }}
             />
           </div>
           
@@ -93,9 +125,30 @@ const EmployeeSelector = ({
               id="employee-company" 
               name="employee-company" 
               className="form-field"
-              value={selectedEmployee.company || 'N/A'}
+              value={selectedEmployee.company || 'Empresa não informada'}
               readOnly
-              style={{ backgroundColor: '#f9fafb', color: '#6b7280' }}
+              style={{ 
+                backgroundColor: '#f9fafb', 
+                color: selectedEmployee.company ? '#6b7280' : '#dc2626',
+                fontStyle: selectedEmployee.company ? 'normal' : 'italic'
+              }}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="employee-education" className="form-label">Formação</label>
+            <input 
+              type="text" 
+              id="employee-education" 
+              name="employee-education" 
+              className="form-field"
+              value={selectedEmployee.formacao || 'Formação não informada'}
+              readOnly
+              style={{ 
+                backgroundColor: '#f9fafb', 
+                color: selectedEmployee.formacao ? '#6b7280' : '#dc2626',
+                fontStyle: selectedEmployee.formacao ? 'normal' : 'italic'
+              }}
             />
           </div>
         </>
