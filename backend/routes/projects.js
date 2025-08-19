@@ -7,7 +7,7 @@ const { dbClient } = require('../config/database');
 router.get('/', async (req, res) => {
   try {
     const query = `
-      SELECT id, name, description 
+      SELECT id, name, description, sow_pt, gerente_hp
       FROM hp_portfolio.projects 
       ORDER BY name ASC
     `;
