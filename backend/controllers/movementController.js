@@ -90,7 +90,9 @@ const createEntry = async (req, res) => {
             complianceTraining, 
             billable, 
             role, 
-            startDate 
+            startDate,
+            machineType,
+            bundleAws
         } = req.body;
         
         // Validate required fields for HP structure
@@ -138,9 +140,11 @@ const createEntry = async (req, res) => {
                 hp_employee_id,
                 project_type,
                 compliance_training,
-                billable
+                billable,
+                machine_type,
+                bundle_aws
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
             RETURNING *
         `;
 
@@ -155,7 +159,9 @@ const createEntry = async (req, res) => {
             employeeIdHP,
             projectType,
             complianceTraining,
-            billable
+            billable,
+            machineType || null,
+            bundleAws || null
         ]);
         
         res.status(201).json({
@@ -167,7 +173,9 @@ const createEntry = async (req, res) => {
                     employeeIdHP,
                     projectType,
                     complianceTraining,
-                    billable
+                    billable,
+                    machineType,
+                    bundleAws
                 }
             }
         });
