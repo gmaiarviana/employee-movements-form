@@ -32,7 +32,7 @@ docker-compose exec db psql -U app_user -d employee_movements
 - **PostgreSQL 15** + **pg driver** para database
 - **Nodemon** para hot reload em desenvolvimento
 - **JWT (jsonwebtoken)** para autenticação
-- **bcryptjs** para hash de senhas
+- **bcrypt** para hash de senhas
 - **dotenv** para gerenciamento de variáveis de ambiente
 - **Arquitetura MVC parcial** com controllers separados
 
@@ -43,7 +43,7 @@ docker-compose exec db psql -U app_user -d employee_movements
 O banco utiliza PostgreSQL com 2 schemas principais:
 
 - **`core.*`**: Usuários e funcionários (`users`, `employees`)
-- **`hp_portfolio.*`**: Projetos e movimentações - apenas 3 tabelas: (`projects`, `project_managers`, `movements`)
+- **`hp_portfolio.*`**: Projetos e movimentações - 4 tabelas: (`projects`, `project_managers`, `hp_employee_profiles`, `movements`)
 
 **Tabela Principal:**
 - `hp_portfolio.movements` - Fonte única para todas as movimentações (entradas e saídas)
@@ -58,12 +58,13 @@ Para verificar a estrutura do banco:
 # Conectar ao PostgreSQL
 docker exec employee-movements-form-db-1 psql -U app_user -d employee_movements
 
-# Verificação básica das 3 tabelas principais
+# Verificação básica das 4 tabelas principais
 \dt core.*                             -- Tabelas do schema core (users, employees)
-\dt hp_portfolio.*                     -- 3 tabelas: projects, project_managers, movements
+\dt hp_portfolio.*                     -- 4 tabelas: projects, project_managers, hp_employee_profiles, movements
 SELECT COUNT(*) FROM hp_portfolio.movements;    -- Verificar dados da tabela principal
 SELECT COUNT(*) FROM hp_portfolio.projects;     -- Verificar projetos cadastrados
 SELECT COUNT(*) FROM hp_portfolio.project_managers;  -- Verificar gerentes atribuídos
+SELECT COUNT(*) FROM hp_portfolio.hp_employee_profiles;  -- Verificar perfis HP
 \q                                     -- Sair do PostgreSQL
 ```
 
