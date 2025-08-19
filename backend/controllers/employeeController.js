@@ -7,9 +7,9 @@ const { dbClient } = require('../config/database');
 // Get all employees for admin/manager
 const getAllEmployees = async (req, res) => {
     try {
-        // Get all active employees
+        // Get all active employees with basic personal data
         const employeesResult = await dbClient.query(
-            'SELECT id, name, role, company FROM core.employees ORDER BY name'
+            'SELECT id, name, role, company, cpf FROM core.employees ORDER BY name'
         );
         
         const employees = employeesResult.rows.map(emp => ({
@@ -17,6 +17,7 @@ const getAllEmployees = async (req, res) => {
             name: emp.name,
             role: emp.role,
             company: emp.company,
+            cpf: emp.cpf,
             project: 'N/A' // Default, will be updated if they have active allocation
         }));
         
@@ -104,6 +105,11 @@ const getTeamMembers = async (req, res) => {
                 e.name, 
                 e.role, 
                 e.company,
+                e.cpf,
+                e.rg,
+                e.data_nascimento,
+                e.nivel_escolaridade,
+                e.formacao,
                 p.name as project_name,
                 m.role as current_role,
                 m.start_date
@@ -133,6 +139,11 @@ const getTeamMembers = async (req, res) => {
             name: member.name,
             role: member.role,
             company: member.company,
+            cpf: member.cpf,
+            rg: member.rg,
+            data_nascimento: member.data_nascimento,
+            nivel_escolaridade: member.nivel_escolaridade,
+            formacao: member.formacao,
             project: member.project_name,
             currentRole: member.current_role,
             startDate: member.start_date
@@ -219,7 +230,12 @@ const getEmployeeDetails = async (req, res) => {
                 name: employee.name,
                 email: employee.email,
                 role: employee.role,
-                company: employee.company
+                company: employee.company,
+                cpf: employee.cpf,
+                rg: employee.rg,
+                data_nascimento: employee.data_nascimento,
+                nivel_escolaridade: employee.nivel_escolaridade,
+                formacao: employee.formacao
             }
         };
         
@@ -263,7 +279,7 @@ const getEmployeeDetails = async (req, res) => {
 // Create new employee
 const createEmployee = async (req, res) => {
     try {
-        const { id, name, email, role, company } = req.body;
+        const { id, name, email, role, company, cpf, rg, data_nascimento, nivel_escolaridade, formacao } = req.body;
         
         // Validate required fields
         if (!id || !name || !email || !role || !company) {
@@ -304,8 +320,8 @@ const createEmployee = async (req, res) => {
         
         // Insert new employee
         const insertQuery = `
-            INSERT INTO core.employees (id, name, email, role, company)
-            VALUES ($1, $2, $3, $4, $5)
+            INSERT INTO core.employees (id, name, email, role, company, cpf, rg, data_nascimento, nivel_escolaridade, formacao)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
             RETURNING *
         `;
         
@@ -314,7 +330,12 @@ const createEmployee = async (req, res) => {
             name,
             email,
             role,
-            company
+            company,
+            cpf,
+            rg,
+            data_nascimento,
+            nivel_escolaridade,
+            formacao
         ]);
         
         res.status(201).json({
