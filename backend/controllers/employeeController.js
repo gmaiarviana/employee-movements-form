@@ -172,9 +172,9 @@ const getEmployeeDetails = async (req, res) => {
     const employeeId = req.params.id;
     
     try {
-        // Find the employee
+        // Find the employee with HP data
         const employeeResult = await dbClient.query(
-            'SELECT * FROM core.employees WHERE id = $1',
+            'SELECT e.*, hep.hp_employee_id FROM core.employees e LEFT JOIN hp_portfolio.hp_employee_profiles hep ON e.id = hep.employee_id WHERE e.id = $1',
             [employeeId]
         );
         
@@ -238,6 +238,11 @@ const getEmployeeDetails = async (req, res) => {
                 formacao: employee.formacao
             }
         };
+
+        // Conditionally add hp_employee_id if it exists
+        if (employee.hp_employee_id) {
+            response.employee.hp_employee_id = employee.hp_employee_id;
+        }
         
         if (projectResult.rows.length > 0) {
             const project = projectResult.rows[0];
