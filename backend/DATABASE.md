@@ -48,14 +48,14 @@ employee_movements_db/
 ┌─────────────────────┐       │hp_employee_profiles │
 │hp_portfolio.movements│       ├─────────────────────┤
 ├─────────────────────┤       │ PK: id              │
-│ PK: id              │ N:1   │ FK: employee_id     │
-│ FK: employee_id     │ ◄──── │     hp_employee_id  │
-│ FK: project_id      │       │     created_at      │
+│ PK: id              │       │ FK: employee_id     │
+│ FK: employee_id     │ ──┐   │     hp_employee_id  │
+│ FK: project_id      │   │   │     created_at      │
 │     movement_type   │       └─────────────────────┘
-│     start_date      │                 │ 1:1
-│     end_date        │                 ▼
-│     role            │       ┌─────────────────────┐
-│     bundle_aws      │       │   core.employees    │
+│     start_date      │   │             │ 1:1
+│     end_date        │   │             ▼
+│     role            │   │   ┌─────────────────────┐
+│     bundle_aws      │   └──►│   core.employees    │
 │     machine_type    │       │ (referência cruzada)│
 │     compliance_training │    └─────────────────────┘
 │     is_billable     │
@@ -122,7 +122,7 @@ docker exec employee-movements-form-db-1 psql -U app_user -d employee_movements
 - **Schemas**: `core` (usuários/funcionários) e `hp_portfolio` (projetos/movimentações)
 - **Relacionamentos**: Foreign keys garantem integridade referencial
 - **Triggers**: 3 triggers automáticos para updated_at (`update_movements_updated_at`, `update_hp_profiles_updated_at`, `update_updated_at_column`)
-- **Campos HP**: `hp_employee_id`, `compliance_training`, `billable`, `project_type`, `bundle_aws`
+- **Campos HP**: `compliance_training`, `billable`, `project_type`, `bundle_aws` (em movements); `hp_employee_id` (em hp_employee_profiles)
 - **Novos Campos**: `machine_reuse`, `changed_by`, `notes` para auditoria
 - **Dados Pessoais**: `cpf`, `rg`, `data_nascimento`, `nivel_escolaridade`, `formacao`
 - **Projetos**: `sow_pt` (Statement of Work/Purchase Order), `gerente_hp`
@@ -163,7 +163,6 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 | `start_date` | DATE | Data de início (para ENTRY) |
 | `end_date` | DATE | Data de fim (para EXIT) |
 | `role` | VARCHAR | Função do funcionário |
-| `hp_employee_id` | VARCHAR | ID específico HP do funcionário |
 | `project_type` | VARCHAR | Tipo do projeto |
 | `compliance_training` | VARCHAR | 'sim' ou 'nao' |
 | `billable` | VARCHAR | 'sim' ou 'nao' |

@@ -48,7 +48,7 @@ O banco utiliza PostgreSQL com 2 schemas principais:
 **Tabela Principal:**
 - `hp_portfolio.movements` - Fonte única para todas as movimentações (entradas e saídas)
 
-**Campos Específicos HP:** `hp_employee_id`, `compliance_training`, `billable`, `project_type`, etc.
+**Campos Específicos HP:** `compliance_training`, `billable`, `project_type`, etc. (em movements); `hp_employee_id` (em hp_employee_profiles)
 
 ## Verificando o Database
 
