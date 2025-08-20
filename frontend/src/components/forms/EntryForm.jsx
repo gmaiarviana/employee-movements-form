@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import EmployeeSelector from './entry/EmployeeSelector'
 import ProjectSelector from './entry/ProjectSelector'
+import HPExperienceFields from './entry/HPExperienceFields'
 import HPSpecificFields from './entry/HPSpecificFields'
 import { useEmployeeSelection } from './entry/hooks/useEmployeeSelection'
 import { useProjectSelection } from './entry/hooks/useProjectSelection'
@@ -47,6 +48,10 @@ const EntryForm = () => {
 
   // HP-specific form data state
   const [formData, setFormData] = useState({
+    has_previous_hp_experience: '',
+    previous_hp_account_id: '',
+    previous_hp_period_start: '',
+    previous_hp_period_end: '',
     employeeIdHP: '',
     complianceTraining: '',
     billable: '',
@@ -78,11 +83,28 @@ const EntryForm = () => {
     event.preventDefault()
     
     // Validation - check if all required fields are filled
-    const { employeeIdHP, complianceTraining, billable, role, startDate, machineType, bundleAws } = formData
+    const { 
+      has_previous_hp_experience, 
+      previous_hp_account_id, 
+      employeeIdHP, 
+      complianceTraining, 
+      billable, 
+      role, 
+      startDate, 
+      machineType, 
+      bundleAws 
+    } = formData
     
-    if (!selectedEmployeeId || !selectedProjectId || !employeeIdHP.trim() || 
-        !complianceTraining || !billable || !role.trim() || !startDate || !machineType) {
+    if (!selectedEmployeeId || !selectedProjectId || !has_previous_hp_experience || 
+        !employeeIdHP.trim() || !complianceTraining || !billable || !role.trim() || 
+        !startDate || !machineType) {
       showToast('Por favor, preencha todos os campos obrigatórios.', 'warning')
+      return
+    }
+    
+    // Validation for HP previous experience - if yes, account ID is required
+    if (has_previous_hp_experience === 'sim' && !previous_hp_account_id.trim()) {
+      showToast('Por favor, informe o ID da conta HP anterior quando o profissional já atuou em projetos HP.', 'warning')
       return
     }
     
@@ -150,6 +172,13 @@ const EntryForm = () => {
               projects={projects}
               loading={projectsLoading}
               error={projectsError}
+            />
+
+            {/* HP Experience Fields Component */}
+            <HPExperienceFields
+              selectedEmployee={selectedEmployee}
+              formData={formData}
+              onChange={handleFormDataChange}
             />
 
             {/* HP Specific Fields Component */}
