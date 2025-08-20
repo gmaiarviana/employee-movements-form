@@ -93,8 +93,8 @@ const createEntry = async (req, res) => {
     try {
         const { 
             selectedEmployeeId, 
+            selectedProjectId,
             employeeIdHP, 
-            projectType, 
             complianceTraining, 
             billable, 
             role, 
@@ -112,12 +112,12 @@ const createEntry = async (req, res) => {
         console.log(`[ENTRY] Starting entry creation for employee ${selectedEmployeeId}, HP ID: ${employeeIdHP}`);
         
         // Validate required fields for HP structure
-        if (!selectedEmployeeId || !employeeIdHP || !projectType || !complianceTraining || !billable || !role || !startDate) {
+        if (!selectedEmployeeId || !selectedProjectId || !employeeIdHP || !complianceTraining || !billable || !role || !startDate) {
             console.error(`[ENTRY ERROR] Missing required fields for employee ${selectedEmployeeId}`);
             return res.status(400).json({
                 success: false,
                 error: 'Missing required fields',
-                message: 'selectedEmployeeId, employeeIdHP, projectType, complianceTraining, billable, role, and startDate are required'
+                message: 'selectedEmployeeId, selectedProjectId, employeeIdHP, complianceTraining, billable, role, and startDate are required'
             });
         }
 
@@ -150,8 +150,8 @@ const createEntry = async (req, res) => {
             });
         }
         
-        // Use existing project: Sistema ERP
-        const projectId = '433debec-a09c-4de3-abfd-8eb1b9e50a70';
+        // Use the selected project from frontend
+        const projectId = selectedProjectId;
         
         // Convert boolean values for database storage
         const isBillable = billable === 'sim';
@@ -200,25 +200,23 @@ const createEntry = async (req, res) => {
                 start_date, 
                 allocation_percentage, 
                 is_billable,
-                project_type,
                 compliance_training,
                 billable,
                 machine_type,
                 bundle_aws
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
             RETURNING *
         `;
 
         const result = await dbClient.query(movementQuery, [
             selectedEmployeeId,
-            projectId,
+            selectedProjectId,
             'ENTRY',
             role,
             startDate,
             100, // Default allocation percentage
             isBillable,
-            projectType,
             complianceTraining,
             billable,
             machineType || null,
@@ -234,7 +232,6 @@ const createEntry = async (req, res) => {
                 movement: result.rows[0],
                 hpFields: {
                     employeeIdHP,
-                    projectType,
                     complianceTraining,
                     billable,
                     machineType,
