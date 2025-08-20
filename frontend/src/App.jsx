@@ -14,7 +14,7 @@ import Register from './components/pages/Register'
 import AdminDashboard from './components/pages/AdminDashboard'
 
 // Import form components
-import SelectEmployee from './components/forms/SelectEmployee'
+import SelectForExit from './components/forms/SelectForExit'
 import EntryForm from './components/forms/EntryForm'
 import ExitForm from './components/forms/ExitForm'
 
@@ -54,7 +54,7 @@ const AppContent = () => {
             path="/select-employee" 
             element={
               <ProtectedRoute>
-                <SelectEmployee />
+                <SelectForExit />
               </ProtectedRoute>
             } 
           />
