@@ -9,7 +9,7 @@ Sistema de gestão de movimentações para consultoria, projetado para gerenciar
 ```
 employee_movements_db/
 ├── core/           # Usuários e funcionários (autenticação + dados pessoais)
-├── hp_portfolio/   # Projetos e movimentações (4 tabelas: projects, project_managers, hp_employee_profiles, movements)
+├── hp_portfolio/   # Projetos e movimentações (5 tabelas: projects, project_managers, hp_employee_profiles, movements, roles)
 └── public/         # Schema padrão PostgreSQL
 ```
 
@@ -147,10 +147,11 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 -- hp_portfolio.projects (projetos, clientes + sow_pt + gerente_hp)
 -- hp_portfolio.project_managers (1 gerente por projeto)  
 -- hp_portfolio.hp_employee_profiles (dados HP específicos por funcionário)
--- hp_portfolio.movements (tabela única para todas as movimentações - FONTE ÚNICA DE VERDADE)
+-- hp_portfolio.movements (todas as movimentações)
+-- hp_portfolio.roles (papéis/funções disponíveis)
 ```
 
-#### TABELA PRINCIPAL: hp_portfolio.movements
+#### TABELA: hp_portfolio.movements
 
 **Campos da tabela movements:**
 
@@ -187,8 +188,24 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 | `id` | UUID | Chave primária única |
 | `employee_id` | VARCHAR(10) | FK para core.employees (UNIQUE) |
 | `hp_employee_id` | VARCHAR(50) | ID específico do funcionário na HP |
+| `has_previous_hp_experience` | BOOLEAN | Se funcionário já atuou em projetos HP antes |
+| `previous_hp_account_id` | VARCHAR(50) | ID HP anterior (se já atuou) |
+| `previous_hp_period_start` | VARCHAR(20) | Início período anterior (MM/AAAA) |
+| `previous_hp_period_end` | VARCHAR(20) | Fim período anterior (MM/AAAA) |
 | `created_at` | TIMESTAMP | Data de criação |
 | `updated_at` | TIMESTAMP | Data de atualização |
+
+#### TABELA: hp_portfolio.roles
+
+**Papéis/funções disponíveis:**
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `id` | UUID | Chave primária única |
+| `name` | VARCHAR(100) | Nome do papel/função (UNIQUE) |
+| `category` | VARCHAR(50) | Categoria (Management, Engineering, etc.) |
+| `sort_order` | INTEGER | Ordem de exibição |
+| `created_at` | TIMESTAMP | Data de criação |
 
 #### CAMPOS ADICIONADOS: core.employees
 

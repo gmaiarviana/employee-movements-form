@@ -45,10 +45,14 @@ src/
     ├── pages/                 # Home, Login, Register, AdminDashboard
     ├── forms/
     │   ├── EntryForm.jsx                    # Orquestrador + dropdown funcionários
-    │   ├── entry/                           # Componentes modulares (5.2)
+    │   ├── entry/                           # Componentes modulares
     │   │   ├── EmployeeSelector.jsx         # Dropdown + campos automáticos
-    │   │   ├── HPSpecificFields.jsx         # Campos HP editáveis
-    │   │   └── hooks/useEmployeeSelection.js
+    │   │   ├── ProjectSelector.jsx          # Dropdown projetos + auto-fill
+    │   │   ├── HPExperienceFields.jsx       # Campos condicionais experiência HP
+    │   │   ├── HPSpecificFields.jsx         # Campos HP editáveis + roles
+    │   │   └── hooks/
+    │   │       ├── useEmployeeSelection.js
+    │   │       └── useProjectSelection.js
     ├── summary/               # SummaryEntry, SummaryExit
     └── common/                # ProtectedRoute, componentes reutilizáveis
 ```
@@ -88,6 +92,9 @@ Home → SelectEmployee → ExitForm → Summary → Home
 - Tratamento centralizado de erros
 
 **Base URL**: `http://localhost:3000/api`
+
+**Endpoints utilizados:**
+- `/api/movements/roles` - Lista de papéis/funções disponíveis
 
 ## Gerenciamento de Estado
 
