@@ -12,7 +12,6 @@ const HPSpecificFields = ({ selectedEmployee, formData, onChange }) => {
 
   const {
     employeeIdHP,
-    projectType,
     complianceTraining,
     billable,
     role,
@@ -34,20 +33,6 @@ const HPSpecificFields = ({ selectedEmployee, formData, onChange }) => {
           value={employeeIdHP}
           onChange={(e) => onChange('employeeIdHP', e.target.value)}
           placeholder="Ex: HP123456"
-        />
-      </div>
-      
-      <div className="form-group">
-        <label htmlFor="project-type" className="form-label">Tipo de projeto *</label>
-        <input 
-          type="text" 
-          id="project-type" 
-          name="project-type" 
-          required 
-          className="form-field"
-          value={projectType}
-          onChange={(e) => onChange('projectType', e.target.value)}
-          placeholder="Ex: Desenvolvimento, Suporte, Consultoria"
         />
       </div>
       

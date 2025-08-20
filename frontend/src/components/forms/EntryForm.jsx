@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import EmployeeSelector from './entry/EmployeeSelector'
+import ProjectSelector from './entry/ProjectSelector'
 import HPSpecificFields from './entry/HPSpecificFields'
 import { useEmployeeSelection } from './entry/hooks/useEmployeeSelection'
+import { useProjectSelection } from './entry/hooks/useProjectSelection'
 import { useToast } from '../../context/ToastContext'
 
 const headerStyle = {
@@ -33,10 +35,19 @@ const EntryForm = () => {
     handleEmployeeSelect
   } = useEmployeeSelection()
 
+  // Project selection logic using custom hook
+  const {
+    projects,
+    selectedProjectId,
+    selectedProject,
+    loading: projectsLoading,
+    error: projectsError,
+    handleProjectSelect
+  } = useProjectSelection()
+
   // HP-specific form data state
   const [formData, setFormData] = useState({
     employeeIdHP: '',
-    projectType: '',
     complianceTraining: '',
     billable: '',
     role: '',
@@ -67,10 +78,10 @@ const EntryForm = () => {
     event.preventDefault()
     
     // Validation - check if all required fields are filled
-    const { employeeIdHP, projectType, complianceTraining, billable, role, startDate, machineType, bundleAws } = formData
+    const { employeeIdHP, complianceTraining, billable, role, startDate, machineType, bundleAws } = formData
     
-    if (!selectedEmployeeId || !employeeIdHP.trim() || !projectType.trim() || 
-        !complianceTraining || !billable || !role.trim() || !startDate) {
+    if (!selectedEmployeeId || !selectedProjectId || !employeeIdHP.trim() || 
+        !complianceTraining || !billable || !role.trim() || !startDate || !machineType) {
       showToast('Por favor, preencha todos os campos obrigatórios.', 'warning')
       return
     }
@@ -87,6 +98,11 @@ const EntryForm = () => {
       employeeName: selectedEmployee?.name || '',
       employeeEmail: selectedEmployee?.email || 'N/A',
       employeeCompany: selectedEmployee?.company || 'N/A',
+      selectedProjectId: selectedProjectId,
+      projectName: selectedProject?.name || '',
+      projectSowPt: selectedProject?.sow_pt || 'N/A',
+      projectManager: selectedProject?.gerente_hp || 'N/A',
+      projectDescription: selectedProject?.description || 'N/A',
       ...formData
     }
     
@@ -127,6 +143,15 @@ const EntryForm = () => {
               error={error}
             />
 
+            {/* Project Selection Component */}
+            <ProjectSelector
+              selectedProjectId={selectedProjectId}
+              onProjectSelect={handleProjectSelect}
+              projects={projects}
+              loading={projectsLoading}
+              error={projectsError}
+            />
+
             {/* HP Specific Fields Component */}
             <HPSpecificFields
               selectedEmployee={selectedEmployee}
@@ -148,8 +173,8 @@ const EntryForm = () => {
                 type="submit" 
                 id="continue-button" 
                 className="btn btn--primary"
-                disabled={!selectedEmployee}
-                style={!selectedEmployee ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
+                disabled={!selectedEmployee || !selectedProject}
+                style={(!selectedEmployee || !selectedProject) ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
               >
                 Continuar
               </button>
