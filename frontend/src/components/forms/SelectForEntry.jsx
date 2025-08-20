@@ -46,6 +46,7 @@ const SelectForEntry = () => {
       employeeName: selectedEmployee.name || '',
       employeeEmail: selectedEmployee.email || '',
       employeeCompany: selectedEmployee.company || '',
+      employeeRole: selectedEmployee.role || '',
       employeeFormacao: selectedEmployee.formacao || '',
       projectName: selectedProject.name || '',
       projectSowPt: selectedProject.sow_pt || '',

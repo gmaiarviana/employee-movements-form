@@ -1,11 +1,7 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import EmployeeSelector from './entry/EmployeeSelector'
-import ProjectSelector from './entry/ProjectSelector'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import HPExperienceFields from './entry/HPExperienceFields'
 import HPSpecificFields from './entry/HPSpecificFields'
-import { useEmployeeSelection } from './entry/hooks/useEmployeeSelection'
-import { useProjectSelection } from './entry/hooks/useProjectSelection'
 import { useToast } from '../../context/ToastContext'
 
 const headerStyle = {
@@ -25,26 +21,46 @@ const titleStyle = {
 const EntryForm = () => {
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const [searchParams] = useSearchParams()
   
-  // Employee selection logic using custom hook
-  const {
-    employees,
-    selectedEmployeeId,
-    selectedEmployee,
-    loading,
-    error,
-    handleEmployeeSelect
-  } = useEmployeeSelection()
+  // Extract data from URL parameters
+  const selectedEmployeeId = searchParams.get('selectedEmployeeId')
+  const selectedProjectId = searchParams.get('selectedProjectId')
+  const employeeName = searchParams.get('employeeName')
+  const employeeEmail = searchParams.get('employeeEmail')
+  const employeeCompany = searchParams.get('employeeCompany')
+  const employeeRole = searchParams.get('employeeRole')
+  const employeeFormacao = searchParams.get('employeeFormacao')
+  const projectName = searchParams.get('projectName')
+  const projectSowPt = searchParams.get('projectSowPt')
+  const projectManager = searchParams.get('projectManager')
+  const projectDescription = searchParams.get('projectDescription')
+  
+  // Create selectedEmployee and selectedProject objects from URL parameters
+  const selectedEmployee = selectedEmployeeId ? {
+    id: selectedEmployeeId,
+    name: employeeName,
+    email: employeeEmail,
+    company: employeeCompany,
+    role: employeeRole,
+    formacao: employeeFormacao
+  } : null
+  
+  const selectedProject = selectedProjectId ? {
+    id: selectedProjectId,
+    name: projectName,
+    sow_pt: projectSowPt,
+    gerente_hp: projectManager,
+    description: projectDescription
+  } : null
 
-  // Project selection logic using custom hook
-  const {
-    projects,
-    selectedProjectId,
-    selectedProject,
-    loading: projectsLoading,
-    error: projectsError,
-    handleProjectSelect
-  } = useProjectSelection()
+  // Função para retornar valor seguro com fallback
+  const getFieldValue = (value, fallback = 'Não informado') => {
+    if (value === null || value === undefined || value === '') {
+      return fallback
+    }
+    return value
+  }
 
   // HP-specific form data state
   const [formData, setFormData] = useState({
@@ -82,6 +98,13 @@ const EntryForm = () => {
   const handleSubmit = (event) => {
     event.preventDefault()
     
+    // Validation for URL parameters - if no data, show error
+    if (!selectedEmployeeId || !selectedProjectId) {
+      showToast('Dados de funcionário e projeto não encontrados. Redirecionando para seleção.', 'error')
+      navigate('/select-for-entry')
+      return
+    }
+    
     // Validation - check if all required fields are filled
     const { 
       has_previous_hp_experience, 
@@ -94,9 +117,8 @@ const EntryForm = () => {
       bundleAws 
     } = formData
     
-    if (!selectedEmployeeId || !selectedProjectId || !has_previous_hp_experience || 
-        !complianceTraining || !billable || !role.trim() || 
-        !startDate || !machineType) {
+    if (!has_previous_hp_experience || !complianceTraining || !billable || 
+        !role.trim() || !startDate || !machineType) {
       showToast('Por favor, preencha todos os campos obrigatórios.', 'warning')
       return
     }
@@ -113,17 +135,19 @@ const EntryForm = () => {
       return
     }
     
-    // Create form data object for submission
+    // Create form data object for submission using URL parameters
     const submissionData = {
       selectedEmployeeId: selectedEmployeeId,
-      employeeName: selectedEmployee?.name || '',
-      employeeEmail: selectedEmployee?.email || 'N/A',
-      employeeCompany: selectedEmployee?.company || 'N/A',
+      employeeName: employeeName || '',
+      employeeEmail: employeeEmail || 'N/A',
+      employeeCompany: employeeCompany || 'N/A',
+      employeeRole: employeeRole || 'N/A',
+      employeeFormacao: employeeFormacao || 'N/A',
       selectedProjectId: selectedProjectId,
-      projectName: selectedProject?.name || '',
-      projectSowPt: selectedProject?.sow_pt || 'N/A',
-      projectManager: selectedProject?.gerente_hp || 'N/A',
-      projectDescription: selectedProject?.description || 'N/A',
+      projectName: projectName || '',
+      projectSowPt: projectSowPt || 'N/A',
+      projectManager: projectManager || 'N/A',
+      projectDescription: projectDescription || 'N/A',
       ...formData,
       // Set employeeIdHP based on previous HP experience
       employeeIdHP: has_previous_hp_experience === 'sim' ? previous_hp_account_id : ''
@@ -141,7 +165,7 @@ const EntryForm = () => {
 
   // Handle back button click
   const handleBack = () => {
-    navigate('/')
+    navigate('/select-for-entry')
   }
 
   return (
@@ -156,60 +180,86 @@ const EntryForm = () => {
         <div className="container">
           <h2>Formulário de Entrada de Funcionários</h2>
           
-          <form id="entry-form" onSubmit={handleSubmit} className="form">
-            {/* Employee Selection Component */}
-            <EmployeeSelector
-              selectedEmployeeId={selectedEmployeeId}
-              onEmployeeSelect={handleEmployeeSelect}
-              employees={employees}
-              loading={loading}
-              error={error}
-            />
-
-            {/* Project Selection Component */}
-            <ProjectSelector
-              selectedProjectId={selectedProjectId}
-              onProjectSelect={handleProjectSelect}
-              projects={projects}
-              loading={projectsLoading}
-              error={projectsError}
-            />
-
-            {/* HP Experience Fields Component */}
-            <HPExperienceFields
-              selectedEmployee={selectedEmployee}
-              formData={formData}
-              onChange={handleFormDataChange}
-            />
-
-            {/* HP Specific Fields Component */}
-            <HPSpecificFields
-              selectedEmployee={selectedEmployee}
-              formData={formData}
-              onChange={handleFormDataChange}
-            />
-            
-            {/* Navigation Buttons */}
-            <div className="nav-buttons">
+          {/* Validation for missing URL parameters */}
+          {(!selectedEmployeeId || !selectedProjectId) && (
+            <div style={{ 
+              backgroundColor: '#fef2f2', 
+              border: '1px solid #fecaca', 
+              borderRadius: '0.375rem', 
+              padding: '1rem', 
+              marginBottom: '1rem' 
+            }}>
+              <p style={{ color: '#dc2626', margin: '0 0 0.5rem 0' }}>
+                Dados de funcionário e projeto não encontrados.
+              </p>
               <button 
                 type="button" 
-                id="back-button" 
-                className="btn btn--secondary"
-                onClick={handleBack}
-              >
-                Voltar
-              </button>
-              <button 
-                type="submit" 
-                id="continue-button" 
                 className="btn btn--primary"
-                disabled={!selectedEmployee || !selectedProject}
-                style={(!selectedEmployee || !selectedProject) ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
+                onClick={() => navigate('/select-for-entry')}
               >
-                Continuar
+                Voltar para Seleção
               </button>
             </div>
-          </form>
+          )}
+          
+          {/* Show form only if we have the required data */}
+          {selectedEmployeeId && selectedProjectId && (
+            <form id="entry-form" onSubmit={handleSubmit} className="form">
+              {/* Display selected employee and project info */}
+              <div className="employee-info-display">
+                <div className="employee-display">
+                  <h3>Dados do Funcionário</h3>
+                  <p><strong>ID:</strong> {getFieldValue(selectedEmployee?.id)}</p>
+                  <p><strong>Nome:</strong> {getFieldValue(selectedEmployee?.name)}</p>
+                  <p><strong>Email:</strong> {getFieldValue(selectedEmployee?.email)}</p>
+                  <p><strong>Cargo:</strong> {getFieldValue(selectedEmployee?.role)}</p>
+                  <p><strong>Empresa:</strong> {getFieldValue(selectedEmployee?.company)}</p>
+                  <p><strong>Formação:</strong> {getFieldValue(selectedEmployee?.formacao)}</p>
+                </div>
+
+                <div className="employee-display">
+                  <h3>Dados do Projeto</h3>
+                  <p><strong>Nome:</strong> {getFieldValue(selectedProject?.name)}</p>
+                  <p><strong>SOW/PT:</strong> {getFieldValue(selectedProject?.sow_pt)}</p>
+                  <p><strong>Gerente HP:</strong> {getFieldValue(selectedProject?.gerente_hp)}</p>
+                  <p><strong>Descrição:</strong> {getFieldValue(selectedProject?.description)}</p>
+                </div>
+              </div>
+
+              {/* HP Experience Fields Component */}
+              <HPExperienceFields
+                selectedEmployee={selectedEmployee}
+                formData={formData}
+                onChange={handleFormDataChange}
+              />
+
+              {/* HP Specific Fields Component */}
+              <HPSpecificFields
+                selectedEmployee={selectedEmployee}
+                formData={formData}
+                onChange={handleFormDataChange}
+              />
+              
+              {/* Navigation Buttons */}
+              <div className="nav-buttons">
+                <button 
+                  type="button" 
+                  id="back-button" 
+                  className="btn btn--secondary"
+                  onClick={handleBack}
+                >
+                  Voltar
+                </button>
+                <button 
+                  type="submit" 
+                  id="continue-button" 
+                  className="btn btn--primary"
+                >
+                  Continuar
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </main>
     </>
