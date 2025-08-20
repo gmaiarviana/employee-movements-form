@@ -100,7 +100,12 @@ const createEntry = async (req, res) => {
             role, 
             startDate,
             machineType,
-            bundleAws
+            bundleAws,
+            // HP Experience fields
+            has_previous_hp_experience,
+            previous_hp_account_id,
+            previous_hp_period_start,
+            previous_hp_period_end
         } = req.body;
         
         // Log simples do início da operação
@@ -113,6 +118,16 @@ const createEntry = async (req, res) => {
                 success: false,
                 error: 'Missing required fields',
                 message: 'selectedEmployeeId, employeeIdHP, projectType, complianceTraining, billable, role, and startDate are required'
+            });
+        }
+
+        // Validate HP experience fields
+        if (has_previous_hp_experience === true && !previous_hp_account_id) {
+            console.error(`[ENTRY ERROR] Missing previous_hp_account_id for employee ${selectedEmployeeId} with HP experience`);
+            return res.status(400).json({
+                success: false,
+                error: 'Missing required HP experience field',
+                message: 'previous_hp_account_id is required when has_previous_hp_experience is true'
             });
         }
         
@@ -141,19 +156,39 @@ const createEntry = async (req, res) => {
         // Convert boolean values for database storage
         const isBillable = billable === 'sim';
 
-        // First, ensure the HP employee profile exists
+        // First, create/update HP employee profile with experience fields
         const hpProfileQuery = `
-            INSERT INTO hp_portfolio.hp_employee_profiles (employee_id, hp_employee_id, created_at, updated_at)
-            VALUES ($1, $2, NOW(), NOW())
+            INSERT INTO hp_portfolio.hp_employee_profiles (
+                employee_id, 
+                hp_employee_id, 
+                has_previous_hp_experience,
+                previous_hp_account_id,
+                previous_hp_period_start,
+                previous_hp_period_end,
+                created_at, 
+                updated_at
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
             ON CONFLICT (employee_id) 
             DO UPDATE SET 
                 hp_employee_id = EXCLUDED.hp_employee_id,
+                has_previous_hp_experience = EXCLUDED.has_previous_hp_experience,
+                previous_hp_account_id = EXCLUDED.previous_hp_account_id,
+                previous_hp_period_start = EXCLUDED.previous_hp_period_start,
+                previous_hp_period_end = EXCLUDED.previous_hp_period_end,
                 updated_at = NOW()
             RETURNING *
         `;
         
         console.log(`[ENTRY] Creating/updating HP profile for employee ${selectedEmployeeId}`);
-        await dbClient.query(hpProfileQuery, [selectedEmployeeId, employeeIdHP]);
+        await dbClient.query(hpProfileQuery, [
+            selectedEmployeeId, 
+            employeeIdHP,
+            has_previous_hp_experience || false,
+            previous_hp_account_id || null,
+            previous_hp_period_start || null,
+            previous_hp_period_end || null
+        ]);
 
         // Insert into movements table with movement_type 'ENTRY' (without hp_employee_id)
         const movementQuery = `

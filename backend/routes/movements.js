@@ -1,6 +1,7 @@
 const express = require('express');
 const { authenticateToken } = require('../middleware/auth');
 const { getMovements, createEntry, createExit } = require('../controllers/movementController');
+const rolesController = require('../controllers/rolesController');
 
 const router = express.Router();
 
@@ -10,6 +11,9 @@ const router = express.Router();
 
 // GET /api/movements - Get consolidated movements data
 router.get('/', authenticateToken, getMovements);
+
+// GET /api/movements/roles - Get all available roles
+router.get('/roles', rolesController.getRoles);
 
 // POST /api/entries - Create new entry
 router.post('/entries', authenticateToken, createEntry);
