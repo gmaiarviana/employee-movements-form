@@ -54,7 +54,7 @@ const HPExperienceFields = ({ selectedEmployee, formData, onChange }) => {
         <>
           <div className="form-group">
             <label htmlFor="previous-hp-account-id" className="form-label">
-              Favor Informar o ID da conta HP associado previamente a este profissional *
+              Employee ID HP *
             </label>
             <input 
               type="text" 

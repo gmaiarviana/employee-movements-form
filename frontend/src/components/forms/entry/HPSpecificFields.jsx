@@ -3,7 +3,7 @@ import { roles } from '../../../services/api'
 
 /**
  * HP Specific Fields Component
- * Handles all HP-specific form fields (employeeIdHP, projectType, etc.)
+ * Handles all HP-specific form fields (complianceTraining, billable, role, etc.)
  */
 const HPSpecificFields = ({ selectedEmployee, formData, onChange }) => {
   const [rolesData, setRolesData] = useState([])
@@ -44,7 +44,6 @@ const HPSpecificFields = ({ selectedEmployee, formData, onChange }) => {
   }
 
   const {
-    employeeIdHP,
     complianceTraining,
     billable,
     role,
@@ -55,21 +54,6 @@ const HPSpecificFields = ({ selectedEmployee, formData, onChange }) => {
 
   return (
     <>
-      {/* Employee ID HP */}
-      <div className="form-group">
-        <label htmlFor="employee-id-hp" className="form-label">Employee ID HP *</label>
-        <input 
-          type="text" 
-          id="employee-id-hp" 
-          name="employee-id-hp" 
-          required 
-          className="form-field"
-          value={employeeIdHP}
-          onChange={(e) => onChange('employeeIdHP', e.target.value)}
-          placeholder="Ex: HP123456"
-        />
-      </div>
-      
       {/* Compliance Training */}
       <div className="form-group">
         <label className="form-label">Realizou o treinamento de compliance da HP? *</label>

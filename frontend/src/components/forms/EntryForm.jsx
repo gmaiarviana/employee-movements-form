@@ -86,7 +86,6 @@ const EntryForm = () => {
     const { 
       has_previous_hp_experience, 
       previous_hp_account_id, 
-      employeeIdHP, 
       complianceTraining, 
       billable, 
       role, 
@@ -96,7 +95,7 @@ const EntryForm = () => {
     } = formData
     
     if (!selectedEmployeeId || !selectedProjectId || !has_previous_hp_experience || 
-        !employeeIdHP.trim() || !complianceTraining || !billable || !role.trim() || 
+        !complianceTraining || !billable || !role.trim() || 
         !startDate || !machineType) {
       showToast('Por favor, preencha todos os campos obrigatórios.', 'warning')
       return
@@ -125,7 +124,9 @@ const EntryForm = () => {
       projectSowPt: selectedProject?.sow_pt || 'N/A',
       projectManager: selectedProject?.gerente_hp || 'N/A',
       projectDescription: selectedProject?.description || 'N/A',
-      ...formData
+      ...formData,
+      // Set employeeIdHP based on previous HP experience
+      employeeIdHP: has_previous_hp_experience === 'sim' ? previous_hp_account_id : ''
     }
     
     // Build URL with query parameters
