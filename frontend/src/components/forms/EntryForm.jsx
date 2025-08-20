@@ -220,10 +220,10 @@ const EntryForm = () => {
                 <div className="employee-display">
                   <h3>Dados Corporativos</h3>
                   <p><strong>ID:</strong> {getFieldValue(selectedEmployee?.id)}</p>
-                  <p><strong>Nome:</strong> {getFieldValue(selectedEmployee?.name)}</p>
-                  <p><strong>Email:</strong> {getFieldValue(selectedEmployee?.email)}</p>
+                  <p><strong>Nome Completo:</strong> {getFieldValue(selectedEmployee?.name)}</p>
+                  <p><strong>E-mail:</strong> {getFieldValue(selectedEmployee?.email)}</p>
+                  <p><strong>Nome do Instituto:</strong> {getFieldValue(selectedEmployee?.company)}</p>
                   <p><strong>Cargo:</strong> {getFieldValue(selectedEmployee?.role)}</p>
-                  <p><strong>Empresa:</strong> {getFieldValue(selectedEmployee?.company)}</p>
                 </div>
 
                 <div className="employee-display">
@@ -244,8 +244,8 @@ const EntryForm = () => {
 
                 <div className="employee-display">
                   <h3>Dados do Projeto</h3>
-                  <p><strong>Nome:</strong> {getFieldValue(selectedProject?.name)}</p>
-                  <p><strong>SOW/PT:</strong> {getFieldValue(selectedProject?.sow_pt)}</p>
+                  <p><strong>Nome do projeto:</strong> {getFieldValue(selectedProject?.name)}</p>
+                  <p><strong>SOW ou PT do projeto:</strong> {getFieldValue(selectedProject?.sow_pt)}</p>
                   <p><strong>Gerente HP:</strong> {getFieldValue(selectedProject?.gerente_hp)}</p>
                   <p><strong>Descrição:</strong> {getFieldValue(selectedProject?.description)}</p>
                 </div>

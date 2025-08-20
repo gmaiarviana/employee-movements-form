@@ -104,14 +104,14 @@ const SummaryEntry = () => {
                 <h3>Dados Corporativos</h3>
                 <div className="data-group">
                   <div className="data-item">
-                    <span className="data-label">ID do Funcionário:</span>
+                    <span className="data-label">ID:</span>
                     <span className="data-value">{summaryData.selectedEmployeeId || ''}</span>
                   </div>
                 </div>
                 
                 <div className="data-group">
                   <div className="data-item">
-                    <span className="data-label">Nome:</span>
+                    <span className="data-label">Nome Completo:</span>
                     <span className="data-value">{summaryData.employeeName || ''}</span>
                   </div>
                 </div>
@@ -125,8 +125,15 @@ const SummaryEntry = () => {
                 
                 <div className="data-group">
                   <div className="data-item">
-                    <span className="data-label">Empresa:</span>
+                    <span className="data-label">Nome do Instituto:</span>
                     <span className="data-value">{summaryData.employeeCompany || ''}</span>
+                  </div>
+                </div>
+                
+                <div className="data-group">
+                  <div className="data-item">
+                    <span className="data-label">Cargo:</span>
+                    <span className="data-value">{summaryData.employeeRole || ''}</span>
                   </div>
                 </div>
 
@@ -154,7 +161,7 @@ const SummaryEntry = () => {
                 
                 <div className="data-group">
                   <div className="data-item">
-                    <span className="data-label">Nível de Escolaridade:</span>
+                    <span className="data-label">Escolaridade:</span>
                     <span className="data-value">{summaryData.employeeNivelEscolaridade || 'Não informado'}</span>
                   </div>
                 </div>
