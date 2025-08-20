@@ -122,7 +122,7 @@ docker exec employee-movements-form-db-1 psql -U app_user -d employee_movements
 - **Schemas**: `core` (usuários/funcionários) e `hp_portfolio` (projetos/movimentações)
 - **Relacionamentos**: Foreign keys garantem integridade referencial
 - **Triggers**: 3 triggers automáticos para updated_at (`update_movements_updated_at`, `update_hp_profiles_updated_at`, `update_updated_at_column`)
-- **Campos HP**: `compliance_training`, `billable`, `project_type`, `bundle_aws` (em movements); `hp_employee_id` (em hp_employee_profiles)
+- **Campos HP**: `compliance_training`, `billable`, `project_type`, `bundle_aws` (em movements); `hp_employee_id`, `has_previous_hp_experience` (em hp_employee_profiles)
 - **Novos Campos**: `machine_reuse`, `changed_by`, `notes` para auditoria
 - **Dados Pessoais**: `cpf`, `rg`, `data_nascimento`, `nivel_escolaridade`, `formacao`
 - **Projetos**: `sow_pt` (Statement of Work/Purchase Order), `gerente_hp`
@@ -171,7 +171,7 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 | `change_reason` | TEXT | Motivo da mudança (para EXIT) |
 | `allocation_percentage` | INTEGER | Percentual de alocação |
 | `has_replacement` | BOOLEAN | Se haverá replacement na saída |
-| `machine_type` | VARCHAR(50) | 'empresa' ou 'aws' |
+| `machine_type` | VARCHAR(50) | 'empresa', 'aws' ou 'disponivel' |
 | `machine_reuse` | BOOLEAN | Se a máquina será reutilizada |
 | `bundle_aws` | VARCHAR(20) | Bundle necessário (quando machine_type='aws') |
 | `changed_by` | VARCHAR(10) | FK para core.employees (quem fez a alteração) |
