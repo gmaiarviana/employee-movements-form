@@ -8,11 +8,14 @@ const EmployeeSelector = ({
   selectedEmployeeId, 
   onEmployeeSelect, 
   employees, 
+  selectedEmployeeDetails, // Detailed data from API
   loading, 
+  loadingDetails,
   error,
   showReadonlyFields = true
 }) => {
   const selectedEmployee = employees.find(emp => emp.id === selectedEmployeeId)
+  const detailsToShow = selectedEmployeeDetails || selectedEmployee // Use detailed data when available
 
   /**
    * Generates display text for employee dropdown with fallbacks for missing data
@@ -82,9 +85,20 @@ const EmployeeSelector = ({
         )}
       </div>
 
-      {/* Readonly fields - only show when employee is selected */}
+      {/* Readonly fields - only show when employee is selected AND showReadonlyFields is true */}
       {selectedEmployee && showReadonlyFields && (
         <>
+          {loadingDetails && (
+            <div style={{ 
+              padding: '0.75rem', 
+              textAlign: 'center', 
+              color: '#6b7280',
+              fontStyle: 'italic' 
+            }}>
+              Carregando dados detalhados...
+            </div>
+          )}
+          
           <div className="form-group">
             <label htmlFor="employee-name" className="form-label">Nome Completo</label>
             <input 
@@ -92,12 +106,12 @@ const EmployeeSelector = ({
               id="employee-name" 
               name="employee-name" 
               className="form-field"
-              value={selectedEmployee.name || 'Nome não informado'}
+              value={detailsToShow?.name || 'Nome não informado'}
               readOnly
               style={{ 
                 backgroundColor: '#f9fafb', 
-                color: selectedEmployee.name ? '#6b7280' : '#dc2626',
-                fontStyle: selectedEmployee.name ? 'normal' : 'italic'
+                color: detailsToShow?.name ? '#6b7280' : '#dc2626',
+                fontStyle: detailsToShow?.name ? 'normal' : 'italic'
               }}
             />
           </div>
@@ -109,12 +123,12 @@ const EmployeeSelector = ({
               id="employee-email" 
               name="employee-email" 
               className="form-field"
-              value={selectedEmployee.email || 'E-mail não informado'}
+              value={detailsToShow?.email || 'E-mail não informado'}
               readOnly
               style={{ 
                 backgroundColor: '#f9fafb', 
-                color: selectedEmployee.email ? '#6b7280' : '#dc2626',
-                fontStyle: selectedEmployee.email ? 'normal' : 'italic'
+                color: detailsToShow?.email ? '#6b7280' : '#dc2626',
+                fontStyle: detailsToShow?.email ? 'normal' : 'italic'
               }}
             />
           </div>
@@ -126,12 +140,12 @@ const EmployeeSelector = ({
               id="employee-company" 
               name="employee-company" 
               className="form-field"
-              value={selectedEmployee.company || 'Empresa não informada'}
+              value={detailsToShow?.company || 'Empresa não informada'}
               readOnly
               style={{ 
                 backgroundColor: '#f9fafb', 
-                color: selectedEmployee.company ? '#6b7280' : '#dc2626',
-                fontStyle: selectedEmployee.company ? 'normal' : 'italic'
+                color: detailsToShow?.company ? '#6b7280' : '#dc2626',
+                fontStyle: detailsToShow?.company ? 'normal' : 'italic'
               }}
             />
           </div>
@@ -143,16 +157,121 @@ const EmployeeSelector = ({
               id="employee-education" 
               name="employee-education" 
               className="form-field"
-              value={selectedEmployee.formacao || 'Formação não informada'}
+              value={detailsToShow?.formacao || 'Formação não informada'}
               readOnly
               style={{ 
                 backgroundColor: '#f9fafb', 
-                color: selectedEmployee.formacao ? '#6b7280' : '#dc2626',
-                fontStyle: selectedEmployee.formacao ? 'normal' : 'italic'
+                color: detailsToShow?.formacao ? '#6b7280' : '#dc2626',
+                fontStyle: detailsToShow?.formacao ? 'normal' : 'italic'
               }}
             />
           </div>
+
+          {/* Dados Pessoais - só mostrar se temos dados detalhados */}
+          {selectedEmployeeDetails && (
+            <>
+              <div className="form-group">
+                <label htmlFor="employee-cpf" className="form-label">CPF</label>
+                <input 
+                  type="text" 
+                  id="employee-cpf" 
+                  name="employee-cpf" 
+                  className="form-field"
+                  value={selectedEmployeeDetails.cpf || 'CPF não informado'}
+                  readOnly
+                  style={{ 
+                    backgroundColor: '#f9fafb', 
+                    color: selectedEmployeeDetails.cpf ? '#6b7280' : '#dc2626',
+                    fontStyle: selectedEmployeeDetails.cpf ? 'normal' : 'italic'
+                  }}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="employee-rg" className="form-label">RG</label>
+                <input 
+                  type="text" 
+                  id="employee-rg" 
+                  name="employee-rg" 
+                  className="form-field"
+                  value={selectedEmployeeDetails.rg || 'RG não informado'}
+                  readOnly
+                  style={{ 
+                    backgroundColor: '#f9fafb', 
+                    color: selectedEmployeeDetails.rg ? '#6b7280' : '#dc2626',
+                    fontStyle: selectedEmployeeDetails.rg ? 'normal' : 'italic'
+                  }}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="employee-birth-date" className="form-label">Data de Nascimento</label>
+                <input 
+                  type="text" 
+                  id="employee-birth-date" 
+                  name="employee-birth-date" 
+                  className="form-field"
+                  value={selectedEmployeeDetails.data_nascimento ? new Date(selectedEmployeeDetails.data_nascimento).toLocaleDateString('pt-BR') : 'Data não informada'}
+                  readOnly
+                  style={{ 
+                    backgroundColor: '#f9fafb', 
+                    color: selectedEmployeeDetails.data_nascimento ? '#6b7280' : '#dc2626',
+                    fontStyle: selectedEmployeeDetails.data_nascimento ? 'normal' : 'italic'
+                  }}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="employee-education-level" className="form-label">Escolaridade</label>
+                <input 
+                  type="text" 
+                  id="employee-education-level" 
+                  name="employee-education-level" 
+                  className="form-field"
+                  value={selectedEmployeeDetails.nivel_escolaridade || 'Escolaridade não informada'}
+                  readOnly
+                  style={{ 
+                    backgroundColor: '#f9fafb', 
+                    color: selectedEmployeeDetails.nivel_escolaridade ? '#6b7280' : '#dc2626',
+                    fontStyle: selectedEmployeeDetails.nivel_escolaridade ? 'normal' : 'italic'
+                  }}
+                />
+              </div>
+
+              {/* HP Employee ID se disponível */}
+              {selectedEmployeeDetails.hp_employee_id && (
+                <div className="form-group">
+                  <label htmlFor="employee-hp-id" className="form-label">Employee ID HP</label>
+                  <input 
+                    type="text" 
+                    id="employee-hp-id" 
+                    name="employee-hp-id" 
+                    className="form-field"
+                    value={selectedEmployeeDetails.hp_employee_id}
+                    readOnly
+                    style={{ 
+                      backgroundColor: '#f9fafb', 
+                      color: '#6b7280'
+                    }}
+                  />
+                </div>
+              )}
+            </>
+          )}
         </>
+      )}
+
+      {/* Indicador discreto quando dados estão sendo carregados em background */}
+      {selectedEmployee && !showReadonlyFields && loadingDetails && (
+        <div style={{ 
+          padding: '0.5rem', 
+          fontSize: '0.875rem',
+          color: '#6b7280',
+          fontStyle: 'italic',
+          textAlign: 'center'
+        }}>
+          Carregando dados do funcionário em segundo plano...
+        </div>
       )}
     </>
   )

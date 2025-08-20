@@ -8,7 +8,6 @@ const SummaryEntry = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const [summaryData, setSummaryData] = useState(null)
-  const [employeeDetails, setEmployeeDetails] = useState(null)
   const [error, setError] = useState(null)
   const { showToast } = useToast()
 
@@ -17,20 +16,6 @@ const SummaryEntry = () => {
     if (!dateString) return ''
     const [year, month, day] = dateString.split('-')
     return `${day}/${month}/${year}`
-  }
-
-  // Função para carregar detalhes do funcionário
-  const loadEmployeeDetails = async (employeeId) => {
-    try {
-      console.log('Carregando detalhes do funcionário:', employeeId)
-      const details = await employees.getDetails(employeeId)
-      console.log('Detalhes do funcionário carregados:', details)
-      setEmployeeDetails(details)
-    } catch (error) {
-      console.error('Erro ao carregar detalhes do funcionário:', error)
-      // Não definir como erro crítico, pois os dados principais ainda estão disponíveis
-      setEmployeeDetails(null)
-    }
   }
 
   // Função para mapear valores de radio button para texto legível
@@ -61,13 +46,6 @@ const SummaryEntry = () => {
       setError('Erro ao carregar os dados do formulário.')
     }
   }, [searchParams])
-
-  // useEffect para carregar detalhes do funcionário quando summaryData estiver disponível
-  useEffect(() => {
-    if (summaryData && summaryData.selectedEmployeeId) {
-      loadEmployeeDetails(summaryData.selectedEmployeeId)
-    }
-  }, [summaryData])
 
   // Função para lidar com o botão voltar
   const handleBack = () => {
@@ -156,35 +134,35 @@ const SummaryEntry = () => {
                 <div className="data-group">
                   <div className="data-item">
                     <span className="data-label">CPF:</span>
-                    <span className="data-value">{employeeDetails ? formatCPF(employeeDetails.data.employee.cpf) : 'Carregando...'}</span>
+                    <span className="data-value">{summaryData.employeeCpf ? formatCPF(summaryData.employeeCpf) : 'Não informado'}</span>
                   </div>
                 </div>
                 
                 <div className="data-group">
                   <div className="data-item">
                     <span className="data-label">RG:</span>
-                    <span className="data-value">{employeeDetails ? formatRG(employeeDetails.data.employee.rg) : 'Carregando...'}</span>
+                    <span className="data-value">{summaryData.employeeRg ? formatRG(summaryData.employeeRg) : 'Não informado'}</span>
                   </div>
                 </div>
                 
                 <div className="data-group">
                   <div className="data-item">
                     <span className="data-label">Data de Nascimento:</span>
-                    <span className="data-value">{employeeDetails ? formatDate(employeeDetails.data.employee.data_nascimento) : 'Carregando...'}</span>
+                    <span className="data-value">{summaryData.employeeDataNascimento ? formatDate(summaryData.employeeDataNascimento) : 'Não informado'}</span>
                   </div>
                 </div>
                 
                 <div className="data-group">
                   <div className="data-item">
                     <span className="data-label">Nível de Escolaridade:</span>
-                    <span className="data-value">{employeeDetails ? (employeeDetails.data.employee.nivel_escolaridade || 'Não informado') : 'Carregando...'}</span>
+                    <span className="data-value">{summaryData.employeeNivelEscolaridade || 'Não informado'}</span>
                   </div>
                 </div>
                 
                 <div className="data-group">
                   <div className="data-item">
                     <span className="data-label">Formação:</span>
-                    <span className="data-value">{employeeDetails ? (employeeDetails.data.employee.formacao || 'Não informado') : 'Carregando...'}</span>
+                    <span className="data-value">{summaryData.employeeFormacao || 'Não informado'}</span>
                   </div>
                 </div>
 
@@ -192,7 +170,7 @@ const SummaryEntry = () => {
                 <div className="data-group">
                   <div className="data-item">
                     <span className="data-label">ID HP:</span>
-                    <span className="data-value">{summaryData.employeeIdHP || ''}</span>
+                    <span className="data-value">{summaryData.employeeHpId || summaryData.employeeIdHP || 'Não informado'}</span>
                   </div>
                 </div>
                 

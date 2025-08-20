@@ -17,12 +17,12 @@ const validateCPFFormat = (cpf) => {
 // EMPLOYEE CONTROLLER
 // =============================================================================
 
-// Get all employees for admin/manager
+// Get all employees for admin/manager (minimal data for dropdowns and lists)
 const getAllEmployees = async (req, res) => {
     try {
-        // Get all active employees with basic personal data
+        // Get basic employee data for selection dropdowns (lightweight query)
         const employeesResult = await dbClient.query(
-            'SELECT id, name, role, company, cpf FROM core.employees ORDER BY name'
+            'SELECT id, name, role, company, formacao FROM core.employees ORDER BY name'
         );
         
         const employees = employeesResult.rows.map(emp => ({
@@ -30,7 +30,7 @@ const getAllEmployees = async (req, res) => {
             name: emp.name,
             role: emp.role,
             company: emp.company,
-            cpf: emp.cpf,
+            formacao: emp.formacao,
             project: 'N/A' // Default, will be updated if they have active allocation
         }));
         

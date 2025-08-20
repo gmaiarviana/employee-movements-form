@@ -15,7 +15,9 @@ const SelectForEntry = () => {
     employees,
     selectedEmployeeId, 
     selectedEmployee, 
+    selectedEmployeeDetails,
     loading,
+    loadingDetails,
     error,
     handleEmployeeSelect 
   } = useEmployeeSelection()
@@ -34,20 +36,25 @@ const SelectForEntry = () => {
     e.preventDefault()
 
     // Validação
-    if (!selectedEmployee || !selectedProject) {
+    if (!selectedEmployee || !selectedProject || !selectedEmployeeDetails) {
       showToast('Por favor, selecione um funcionário e um projeto antes de continuar.', 'error')
       return
     }
 
-    // Construir URLSearchParams com os dados necessários
+    // Construir URLSearchParams com os dados necessários (usando dados detalhados da API)
     const params = new URLSearchParams({
       selectedEmployeeId: selectedEmployeeId,
       selectedProjectId: selectedProjectId,
-      employeeName: selectedEmployee.name || '',
-      employeeEmail: selectedEmployee.email || '',
-      employeeCompany: selectedEmployee.company || '',
-      employeeRole: selectedEmployee.role || '',
-      employeeFormacao: selectedEmployee.formacao || '',
+      employeeName: selectedEmployeeDetails.name || '',
+      employeeEmail: selectedEmployeeDetails.email || '',
+      employeeCompany: selectedEmployeeDetails.company || '',
+      employeeRole: selectedEmployeeDetails.role || '',
+      employeeFormacao: selectedEmployeeDetails.formacao || '',
+      employeeCpf: selectedEmployeeDetails.cpf || '',
+      employeeRg: selectedEmployeeDetails.rg || '',
+      employeeDataNascimento: selectedEmployeeDetails.data_nascimento || '',
+      employeeNivelEscolaridade: selectedEmployeeDetails.nivel_escolaridade || '',
+      employeeHpId: selectedEmployeeDetails.hp_employee_id || '',
       projectName: selectedProject.name || '',
       projectSowPt: selectedProject.sow_pt || '',
       projectManager: selectedProject.gerente_hp || '',
@@ -82,7 +89,9 @@ const SelectForEntry = () => {
               selectedEmployeeId={selectedEmployeeId}
               onEmployeeSelect={handleEmployeeSelect}
               employees={employees}
+              selectedEmployeeDetails={selectedEmployeeDetails}
               loading={loading}
+              loadingDetails={loadingDetails}
               error={error}
               showReadonlyFields={false}
             />

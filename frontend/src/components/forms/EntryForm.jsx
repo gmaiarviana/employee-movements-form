@@ -23,7 +23,7 @@ const EntryForm = () => {
   const { showToast } = useToast()
   const [searchParams] = useSearchParams()
   
-  // Extract data from URL parameters
+  // Extract data from URL parameters (including all personal data)
   const selectedEmployeeId = searchParams.get('selectedEmployeeId')
   const selectedProjectId = searchParams.get('selectedProjectId')
   const employeeName = searchParams.get('employeeName')
@@ -31,6 +31,11 @@ const EntryForm = () => {
   const employeeCompany = searchParams.get('employeeCompany')
   const employeeRole = searchParams.get('employeeRole')
   const employeeFormacao = searchParams.get('employeeFormacao')
+  const employeeCpf = searchParams.get('employeeCpf')
+  const employeeRg = searchParams.get('employeeRg')
+  const employeeDataNascimento = searchParams.get('employeeDataNascimento')
+  const employeeNivelEscolaridade = searchParams.get('employeeNivelEscolaridade')
+  const employeeHpId = searchParams.get('employeeHpId')
   const projectName = searchParams.get('projectName')
   const projectSowPt = searchParams.get('projectSowPt')
   const projectManager = searchParams.get('projectManager')
@@ -43,7 +48,12 @@ const EntryForm = () => {
     email: employeeEmail,
     company: employeeCompany,
     role: employeeRole,
-    formacao: employeeFormacao
+    formacao: employeeFormacao,
+    cpf: employeeCpf,
+    rg: employeeRg,
+    data_nascimento: employeeDataNascimento,
+    nivel_escolaridade: employeeNivelEscolaridade,
+    hp_employee_id: employeeHpId
   } : null
   
   const selectedProject = selectedProjectId ? {
@@ -208,14 +218,29 @@ const EntryForm = () => {
               {/* Display selected employee and project info */}
               <div className="employee-info-display">
                 <div className="employee-display">
-                  <h3>Dados do Funcionário</h3>
+                  <h3>Dados Corporativos</h3>
                   <p><strong>ID:</strong> {getFieldValue(selectedEmployee?.id)}</p>
                   <p><strong>Nome:</strong> {getFieldValue(selectedEmployee?.name)}</p>
                   <p><strong>Email:</strong> {getFieldValue(selectedEmployee?.email)}</p>
                   <p><strong>Cargo:</strong> {getFieldValue(selectedEmployee?.role)}</p>
                   <p><strong>Empresa:</strong> {getFieldValue(selectedEmployee?.company)}</p>
+                </div>
+
+                <div className="employee-display">
+                  <h3>Dados Pessoais</h3>
+                  <p><strong>CPF:</strong> {getFieldValue(selectedEmployee?.cpf)}</p>
+                  <p><strong>RG:</strong> {getFieldValue(selectedEmployee?.rg)}</p>
+                  <p><strong>Data de Nascimento:</strong> {selectedEmployee?.data_nascimento ? new Date(selectedEmployee.data_nascimento).toLocaleDateString('pt-BR') : 'Não informado'}</p>
+                  <p><strong>Escolaridade:</strong> {getFieldValue(selectedEmployee?.nivel_escolaridade)}</p>
                   <p><strong>Formação:</strong> {getFieldValue(selectedEmployee?.formacao)}</p>
                 </div>
+
+                {selectedEmployee?.hp_employee_id && (
+                  <div className="employee-display">
+                    <h3>Dados HP</h3>
+                    <p><strong>Employee ID HP:</strong> {selectedEmployee.hp_employee_id}</p>
+                  </div>
+                )}
 
                 <div className="employee-display">
                   <h3>Dados do Projeto</h3>
