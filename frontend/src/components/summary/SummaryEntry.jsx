@@ -55,15 +55,26 @@ const SummaryEntry = () => {
   // Função para lidar com a confirmação
   const handleConfirm = async () => {
     try {
+      // Debug: verificar os dados disponíveis
+      console.log('Dados disponíveis no summary:', summaryData)
+      
       // Criar a entrada usando os dados do funcionário selecionado
       const entryData = {
         selectedEmployeeId: summaryData.selectedEmployeeId,
-        employeeIdHP: summaryData.employeeIdHP,
-        projectType: summaryData.projectType,
+        selectedProjectId: summaryData.selectedProjectId, // Campo obrigatório para o backend
+        employeeIdHP: summaryData.employeeIdHP || summaryData.employeeHpId || '',
         complianceTraining: summaryData.complianceTraining,
         billable: summaryData.billable,
         role: summaryData.role,
-        startDate: summaryData.startDate
+        startDate: summaryData.startDate,
+        // Campos opcionais
+        machineType: summaryData.machineType || null,
+        bundleAws: summaryData.bundleAws || null,
+        // Campos de experiência HP
+        has_previous_hp_experience: summaryData.has_previous_hp_experience || false,
+        previous_hp_account_id: summaryData.previous_hp_account_id || null,
+        previous_hp_period_start: summaryData.previous_hp_period_start || null,
+        previous_hp_period_end: summaryData.previous_hp_period_end || null
       }
       
       console.log('Criando entrada:', entryData)

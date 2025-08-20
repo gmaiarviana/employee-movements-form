@@ -62,7 +62,7 @@ const ProjectSelector = ({
             onChange={(e) => onProjectSelect(e.target.value)}
             disabled={loading || projects.length === 0}
           >
-            <option value="">Selecione um projeto</option>
+            <option key="empty-project" value="">Selecione um projeto</option>
             {projects.map((project) => (
               <option key={project.id} value={project.id}>
                 {getDisplayText(project)}

@@ -78,7 +78,6 @@ const EntryForm = () => {
     previous_hp_account_id: '',
     previous_hp_period_start: '',
     previous_hp_period_end: '',
-    employeeIdHP: '',
     complianceTraining: '',
     billable: '',
     role: '',
@@ -153,13 +152,19 @@ const EntryForm = () => {
       employeeCompany: employeeCompany || 'N/A',
       employeeRole: employeeRole || 'N/A',
       employeeFormacao: employeeFormacao || 'N/A',
+      // Include personal data for summary
+      employeeCpf: employeeCpf || '',
+      employeeRg: employeeRg || '',
+      employeeDataNascimento: employeeDataNascimento || '',
+      employeeNivelEscolaridade: employeeNivelEscolaridade || '',
+      employeeHpId: employeeHpId || '',
       selectedProjectId: selectedProjectId,
       projectName: projectName || '',
       projectSowPt: projectSowPt || 'N/A',
       projectManager: projectManager || 'N/A',
       projectDescription: projectDescription || 'N/A',
       ...formData,
-      // Set employeeIdHP based on previous HP experience
+      // employeeIdHP: only if has previous HP experience, use the previous account ID
       employeeIdHP: has_previous_hp_experience === 'sim' ? previous_hp_account_id : ''
     }
     

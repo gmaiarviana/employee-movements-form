@@ -132,7 +132,7 @@ const HPSpecificFields = ({ selectedEmployee, formData, onChange }) => {
             value={role}
             onChange={(e) => onChange('role', e.target.value)}
           >
-            <option value="">Selecione um papel/função</option>
+            <option key="empty-role" value="">Selecione um papel/função</option>
             {rolesData.map((roleItem) => (
               <option key={roleItem.id} value={roleItem.name}>
                 {roleItem.name}

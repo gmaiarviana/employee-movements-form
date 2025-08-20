@@ -109,17 +109,30 @@ const createEntry = async (req, res) => {
         } = req.body;
         
         // Log simples do início da operação
-        console.log(`[ENTRY] Starting entry creation for employee ${selectedEmployeeId}, HP ID: ${employeeIdHP}`);
+        console.log(`[ENTRY] Starting entry creation for employee ${selectedEmployeeId}, HP ID: ${employeeIdHP || 'Not applicable (no previous HP experience)'}`);
         
         // Validate required fields for HP structure
-        if (!selectedEmployeeId || !selectedProjectId || !employeeIdHP || !complianceTraining || !billable || !role || !startDate) {
+        if (!selectedEmployeeId || !selectedProjectId || !complianceTraining || !billable || !role || !startDate) {
             console.error(`[ENTRY ERROR] Missing required fields for employee ${selectedEmployeeId}`);
             return res.status(400).json({
                 success: false,
                 error: 'Missing required fields',
-                message: 'selectedEmployeeId, selectedProjectId, employeeIdHP, complianceTraining, billable, role, and startDate are required'
+                message: 'selectedEmployeeId, selectedProjectId, complianceTraining, billable, role, and startDate are required'
             });
         }
+        
+        // employeeIdHP is only required if has_previous_hp_experience is 'sim'
+        if (has_previous_hp_experience === 'sim' && (!employeeIdHP || employeeIdHP.trim() === '')) {
+            console.error(`[ENTRY ERROR] Missing employeeIdHP for employee ${selectedEmployeeId} with previous HP experience`);
+            return res.status(400).json({
+                success: false,
+                error: 'Missing Employee ID HP',
+                message: 'Employee ID HP is required when the professional has previous HP experience'
+            });
+        }
+        
+        // Use provided employeeIdHP only if has previous experience, otherwise null
+        const finalEmployeeIdHP = has_previous_hp_experience === 'sim' ? (employeeIdHP || null) : null;
 
         // Validate HP experience fields
         if (has_previous_hp_experience === true && !previous_hp_account_id) {
@@ -183,8 +196,8 @@ const createEntry = async (req, res) => {
         console.log(`[ENTRY] Creating/updating HP profile for employee ${selectedEmployeeId}`);
         await dbClient.query(hpProfileQuery, [
             selectedEmployeeId, 
-            employeeIdHP,
-            has_previous_hp_experience || false,
+            finalEmployeeIdHP,
+            has_previous_hp_experience === 'sim',  // Convert string to boolean
             previous_hp_account_id || null,
             previous_hp_period_start || null,
             previous_hp_period_end || null
@@ -216,9 +229,9 @@ const createEntry = async (req, res) => {
             role,
             startDate,
             100, // Default allocation percentage
-            isBillable,
-            complianceTraining,
-            billable,
+            isBillable,        // boolean para is_billable
+            complianceTraining, // string 'sim'/'nao' para compliance_training
+            billable,          // string 'sim'/'nao' para billable
             machineType || null,
             bundleAws || null
         ]);
