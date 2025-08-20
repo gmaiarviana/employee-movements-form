@@ -1,10 +1,43 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { roles } from '../../../services/api'
 
 /**
  * HP Specific Fields Component
  * Handles all HP-specific form fields (employeeIdHP, projectType, etc.)
  */
 const HPSpecificFields = ({ selectedEmployee, formData, onChange }) => {
+  const [rolesData, setRolesData] = useState([])
+  const [rolesLoading, setRolesLoading] = useState(false)
+  const [rolesError, setRolesError] = useState(null)
+
+  // Fetch roles when component mounts
+  useEffect(() => {
+    const fetchRoles = async () => {
+      setRolesLoading(true)
+      setRolesError(null)
+      
+      try {
+        const response = await roles.getAll()
+        // Sort roles by category and sort_order
+        const sortedRoles = response.data?.sort((a, b) => {
+          if (a.category !== b.category) {
+            return a.category.localeCompare(b.category)
+          }
+          return (a.sort_order || 0) - (b.sort_order || 0)
+        }) || []
+        
+        setRolesData(sortedRoles)
+      } catch (error) {
+        setRolesError(error.message || 'Erro ao carregar papéis/funções')
+        console.error('Error fetching roles:', error)
+      } finally {
+        setRolesLoading(false)
+      }
+    }
+
+    fetchRoles()
+  }, [])
+
   // Don't render if no employee is selected
   if (!selectedEmployee) {
     return null
@@ -22,6 +55,7 @@ const HPSpecificFields = ({ selectedEmployee, formData, onChange }) => {
 
   return (
     <>
+      {/* Employee ID HP */}
       <div className="form-group">
         <label htmlFor="employee-id-hp" className="form-label">Employee ID HP *</label>
         <input 
@@ -36,6 +70,7 @@ const HPSpecificFields = ({ selectedEmployee, formData, onChange }) => {
         />
       </div>
       
+      {/* Compliance Training */}
       <div className="form-group">
         <label className="form-label">Realizou o treinamento de compliance da HP? *</label>
         <div className="radio-group">
@@ -66,6 +101,7 @@ const HPSpecificFields = ({ selectedEmployee, formData, onChange }) => {
         </div>
       </div>
       
+      {/* É faturável? */}
       <div className="form-group">
         <label className="form-label">É faturável? *</label>
         <div className="radio-group">
@@ -96,20 +132,34 @@ const HPSpecificFields = ({ selectedEmployee, formData, onChange }) => {
         </div>
       </div>
       
+      {/* Papel/Função - Dropdown */}
       <div className="form-group">
         <label htmlFor="role" className="form-label">Papel/Função *</label>
-        <input 
-          type="text" 
-          id="role" 
-          name="role" 
-          required 
-          className="form-field"
-          value={role}
-          onChange={(e) => onChange('role', e.target.value)}
-          placeholder="Ex: Desenvolvedor Senior, Analista, Arquiteto"
-        />
+        {rolesLoading ? (
+          <div className="loading-message">Carregando papéis/funções...</div>
+        ) : rolesError ? (
+          <div className="error-message">{rolesError}</div>
+        ) : (
+          <select 
+            id="role" 
+            name="role" 
+            required 
+            className="form-field"
+            value={role}
+            onChange={(e) => onChange('role', e.target.value)}
+          >
+            <option value="">Selecione um papel/função</option>
+            {rolesData.map((roleItem) => (
+              <option key={roleItem.id} value={roleItem.name}>
+                {roleItem.name}
+                {roleItem.category && ` (${roleItem.category})`}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
       
+      {/* Data de Início */}
       <div className="form-group">
         <label htmlFor="start-date" className="form-label">Data de Início *</label>
         <input 
@@ -123,6 +173,7 @@ const HPSpecificFields = ({ selectedEmployee, formData, onChange }) => {
         />
       </div>
       
+      {/* Tipo de infraestrutura */}
       <div className="form-group">
         <label className="form-label">Tipo de infraestrutura necessária *</label>
         <div className="radio-group">
@@ -165,6 +216,7 @@ const HPSpecificFields = ({ selectedEmployee, formData, onChange }) => {
         </div>
       </div>
       
+      {/* Bundle AWS - Condicional */}
       {machineType === 'aws' && (
         <div className="form-group">
           <label htmlFor="bundle-aws" className="form-label">Bundle necessário para o ambiente AWS *</label>

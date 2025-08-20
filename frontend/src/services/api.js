@@ -299,6 +299,20 @@ const projects = {
 };
 
 // =============================================================================
+// ROLES API
+// =============================================================================
+
+const roles = {
+  /**
+   * Get all roles
+   * @returns {Promise<Array>} Roles list
+   */
+  getAll: async () => {
+    return await apiCall('/movements/roles');
+  }
+};
+
+// =============================================================================
 // EXPORTS
 // =============================================================================
 
@@ -307,7 +321,8 @@ export {
   auth, 
   employees, 
   movements,
-  projects
+  projects,
+  roles
 };
 
 export default {
@@ -315,5 +330,6 @@ export default {
   auth,
   employees,
   movements,
-  projects
+  projects,
+  roles
 };
