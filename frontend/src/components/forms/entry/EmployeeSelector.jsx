@@ -9,7 +9,8 @@ const EmployeeSelector = ({
   onEmployeeSelect, 
   employees, 
   loading, 
-  error 
+  error,
+  showReadonlyFields = true
 }) => {
   const selectedEmployee = employees.find(emp => emp.id === selectedEmployeeId)
 
@@ -82,7 +83,7 @@ const EmployeeSelector = ({
       </div>
 
       {/* Readonly fields - only show when employee is selected */}
-      {selectedEmployee && (
+      {selectedEmployee && showReadonlyFields && (
         <>
           <div className="form-group">
             <label htmlFor="employee-name" className="form-label">Nome Completo</label>

@@ -9,7 +9,8 @@ const ProjectSelector = ({
   onProjectSelect, 
   projects, 
   loading, 
-  error 
+  error,
+  showReadonlyFields = true
 }) => {
   const selectedProject = projects.find(project => project.id === selectedProjectId)
 
@@ -72,7 +73,7 @@ const ProjectSelector = ({
       </div>
 
       {/* Readonly fields - only show when project is selected */}
-      {selectedProject && (
+      {selectedProject && showReadonlyFields && (
         <>
           <div className="form-group">
             <label htmlFor="project-name" className="form-label">Nome do Projeto</label>

@@ -84,6 +84,7 @@ const SelectForEntry = () => {
               employees={employees}
               loading={loading}
               error={error}
+              showReadonlyFields={false}
             />
 
             {/* Seletor de Projeto */}
@@ -93,6 +94,7 @@ const SelectForEntry = () => {
               projects={projects}
               loading={projectsLoading}
               error={projectsError}
+              showReadonlyFields={false}
             />
 
             {/* Botões de navegação */}
