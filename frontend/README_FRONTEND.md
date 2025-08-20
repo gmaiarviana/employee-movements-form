@@ -45,9 +45,12 @@ src/
     ├── pages/                 # Home, Login, Register, AdminDashboard
     ├── forms/
     │   ├── EntryForm.jsx                    # Orquestrador + dropdown funcionários
+    │   ├── ExitForm.jsx                     # Formulário de saída
+    │   ├── SelectForEntry.jsx               # Seleção para entrada
+    │   ├── SelectForExit.jsx                # Seleção para saída
     │   ├── entry/                           # Componentes modulares
-    │   │   ├── EmployeeSelector.jsx         # Dropdown + campos automáticos
-    │   │   ├── ProjectSelector.jsx          # Dropdown projetos + auto-fill
+    │   │   ├── EmployeeSelector.jsx         # Dropdown + campos automáticos (com prop showReadonlyFields)
+    │   │   ├── ProjectSelector.jsx          # Dropdown projetos + auto-fill (com prop showReadonlyFields)
     │   │   ├── HPExperienceFields.jsx       # Campos condicionais experiência HP
     │   │   ├── HPSpecificFields.jsx         # Campos HP editáveis + roles
     │   │   └── hooks/
@@ -60,14 +63,10 @@ src/
 ## Fluxos de Navegação
 
 **Fluxo de Entrada:**
-```
-Home → EntryForm → SummaryEntry → Home
-```
+Home → SelectForEntry → EntryForm → SummaryEntry → Home
 
 **Fluxo de Saída:**
-```
-Home → SelectEmployee → ExitForm → Summary → Home
-```
+Home → SelectForExit → ExitForm → SummaryExit → Home
 
 ## Design System
 
