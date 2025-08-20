@@ -80,7 +80,7 @@ const Home = () => {
           </div>
           
           <div className="home-buttons">
-            <Link to="/entry-form" className="btn btn--primary btn--large">
+            <Link to="/select-for-entry" className="btn btn--primary btn--large">
               <span>📋</span>
               Entrada de Funcionário
             </Link>
