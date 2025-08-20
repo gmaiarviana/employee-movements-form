@@ -180,7 +180,7 @@ const getTeamMembers = async (req, res) => {
     }
 };
 
-// Get employee details with project information
+// Get employee details with project information - ENHANCED for EXIT FORM
 const getEmployeeDetails = async (req, res) => {
     const employeeId = req.params.id;
     
@@ -201,9 +201,14 @@ const getEmployeeDetails = async (req, res) => {
         
         const employee = employeeResult.rows[0];
         
-        // Find the employee's active project using movements table
+        // Find the employee's active project using movements table WITH DETAILED PROJECT AND MOVEMENT INFO
         const projectResult = await dbClient.query(`
-            SELECT p.* FROM hp_portfolio.movements m 
+            SELECT 
+                p.*,
+                m.role as movement_role,
+                m.project_type as movement_project_type,
+                m.start_date as movement_start_date
+            FROM hp_portfolio.movements m 
             JOIN hp_portfolio.projects p ON m.project_id = p.id 
             WHERE m.employee_id = $1 
               AND m.movement_type = 'ENTRY' 
@@ -216,25 +221,6 @@ const getEmployeeDetails = async (req, res) => {
               ) 
             LIMIT 1
         `, [employeeId]);
-        
-        // Buscar start_date do movimento ENTRY ativo antes de montar response
-        let realStartDate = null;
-        if (projectResult.rows.length > 0) {
-            const entryQuery = `
-                SELECT start_date FROM hp_portfolio.movements 
-                WHERE employee_id = $1 AND project_id = $2 AND movement_type = 'ENTRY'
-                AND NOT EXISTS (
-                    SELECT 1 FROM hp_portfolio.movements m2 
-                    WHERE m2.employee_id = $1 AND m2.project_id = $2 
-                    AND m2.movement_type = 'EXIT' AND m2.created_at > hp_portfolio.movements.created_at
-                )
-                ORDER BY created_at DESC LIMIT 1
-            `;
-            const entryResult = await dbClient.query(entryQuery, [employeeId, projectResult.rows[0].id]);
-            if (entryResult.rows.length > 0) {
-                realStartDate = entryResult.rows[0].start_date;
-            }
-        }
         
         // Prepare response
         const response = {
@@ -260,20 +246,25 @@ const getEmployeeDetails = async (req, res) => {
         if (projectResult.rows.length > 0) {
             const project = projectResult.rows[0];
             response.project = {
-                id: project.id, // ✅ Adicionar project ID real
+                id: project.id,
                 name: project.name,
-                type: project.description || "N/A", // Using description instead of type
-                sow: project.status || "N/A", // Using status instead of sow
-                startDate: realStartDate // ✅ ADICIONAR start_date do movimento ENTRY
+                type: project.movement_project_type || project.description || "N/A", // Tipo do projeto do movement ou description
+                sow: project.sow_pt || project.status || "N/A", // SOW/PT do projeto
+                startDate: project.movement_start_date // Data de início do movimento ENTRY
             };
+            
+            // Add current role from the movement (papel do profissional)
+            response.employee.currentRole = project.movement_role;
         } else {
             response.project = {
-                id: null, // ✅ Null quando não há projeto ativo
+                id: null,
                 name: "Não atribuído",
                 type: "N/A",
                 sow: "N/A",
                 startDate: null
             };
+            
+            response.employee.currentRole = null;
         }
         
         res.json({

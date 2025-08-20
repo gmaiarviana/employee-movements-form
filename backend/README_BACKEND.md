@@ -90,6 +90,8 @@ SELECT COUNT(*) FROM hp_portfolio.hp_employee_profiles;  -- Verificar perfis HP
   - **machineType** (opcional): "empresa", "aws", "disponivel"
   - **bundleAws** (condicional): obrigatório quando machineType="aws"
 - `POST /api/exits` - Nova saída
+  - **Campos obrigatórios**: employeeId, projectId, date, reason, exitDate, hasReplacement, machineType
+  - **machineReuse** (condicional): obrigatório quando machineType="Máquina da empresa"
 
 **Nota**: 
 - Endpoints marcados com 🔒 requerem autenticação JWT via header `Authorization: Bearer <token>`

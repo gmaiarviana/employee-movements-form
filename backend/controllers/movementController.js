@@ -277,7 +277,16 @@ const createEntry = async (req, res) => {
 // Create new exit - Insert into movements table with type 'EXIT'
 const createExit = async (req, res) => {
     try {
-        const { employeeId, projectId, date, reason, exitDate } = req.body;
+        const { 
+            employeeId, 
+            projectId, 
+            date, 
+            reason, 
+            exitDate, 
+            hasReplacement, 
+            machineType, 
+            machineReuse
+        } = req.body;
         
         // Log simples do início da operação de saída
         console.log(`[EXIT] Starting exit creation for employee ${employeeId}, project ${projectId}`);
@@ -295,7 +304,7 @@ const createExit = async (req, res) => {
         // Buscar start_date do movimento ENTRY ativo do funcionário no projeto
         // Including JOIN with hp_employee_profiles to maintain consistency
         const entryMovementQuery = `
-            SELECT m.start_date, m.role, hp.hp_employee_id
+            SELECT m.start_date, m.role, m.machine_type as entry_machine_type, hp.hp_employee_id
             FROM hp_portfolio.movements m
             LEFT JOIN hp_portfolio.hp_employee_profiles hp ON m.employee_id = hp.employee_id
             WHERE m.employee_id = $1 
@@ -323,10 +332,29 @@ const createExit = async (req, res) => {
             });
         }
 
-        const { start_date: realStartDate, role: currentRole, hp_employee_id } = entryResult.rows[0];
+        const { 
+            start_date: realStartDate, 
+            role: currentRole, 
+            entry_machine_type,
+            hp_employee_id 
+        } = entryResult.rows[0];
         
         // Log da entrada ativa encontrada
         console.log(`[EXIT] Found active entry for employee ${employeeId}, role: ${currentRole}, HP ID: ${hp_employee_id || 'N/A'}`);
+
+        // Processar machine_type e machine_reuse
+        let finalMachineType = null;
+        let finalMachineReuse = null;
+
+        // Mapear os valores do frontend para o formato do banco
+        if (machineType === 'Máquina da empresa') {
+            finalMachineType = 'empresa';
+            // machine_reuse só é relevante para máquina da empresa
+            finalMachineReuse = machineReuse === 'sim' ? true : (machineReuse === 'nao' ? false : null);
+        } else if (machineType === 'Ambiente AWS') {
+            finalMachineType = 'aws';
+            finalMachineReuse = null; // AWS não tem conceito de reutilização
+        }
 
         // Insert into movements table with movement_type 'EXIT'
         const movementQuery = `
@@ -338,9 +366,12 @@ const createExit = async (req, res) => {
                 end_date, 
                 role,
                 change_reason,
-                allocation_percentage
+                allocation_percentage,
+                has_replacement,
+                machine_type,
+                machine_reuse
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
             RETURNING *
         `;
         
@@ -352,7 +383,10 @@ const createExit = async (req, res) => {
             exitDate,         // end_date
             currentRole,      // role do ENTRY
             reason,
-            100
+            100,              // allocation_percentage
+            hasReplacement === 'sim' ? true : false, // has_replacement
+            finalMachineType, // machine_type
+            finalMachineReuse // machine_reuse
         ]);
         
         console.log(`[EXIT SUCCESS] Created exit ID ${result.rows[0].id} for employee ${employeeId}, reason: ${reason}`);

@@ -17,6 +17,7 @@ const SummaryExit = () => {
   const reason = searchParams.get('reason')
   const hasReplacement = searchParams.get('hasReplacement')
   const machineType = searchParams.get('machineType')
+  const machineReuse = searchParams.get('machineReuse') // Novo campo
 
   // Função para formatar data
   const formatDate = (dateString) => {
@@ -79,8 +80,9 @@ const SummaryExit = () => {
         date: exitDate, // Data de saída informada no formulário
         reason: reason, // Motivo da saída (ex: "interno-externo")
         exitDate: exitDate, // Data de saída informada no formulário
-        hasReplacement: hasReplacement === 'sim',
-        machineType: machineType === 'Máquina HP' ? 'empresa' : 'aws'
+        hasReplacement: hasReplacement, // 'sim' ou 'nao'
+        machineType: machineType, // 'Máquina da empresa' ou 'Ambiente AWS'
+        machineReuse: machineReuse // 'sim', 'nao' ou null
       }
       
       console.log('Salvando saída:', exitData)
@@ -125,54 +127,81 @@ const SummaryExit = () => {
             
             {summaryData && (
               <div className="integrated-summary-card">
+                <h3>Dados Corporativos</h3>
                 <div className="summary-grid">
-                  <div className="data-row">
-                    <span className="data-label">Funcionário:</span>
-                    <span className="data-value">{summaryData.employee.name}</span>
-                  </div>
                   <div className="data-row">
                     <span className="data-label">ID:</span>
                     <span className="data-value">{summaryData.employee.id}</span>
                   </div>
                   <div className="data-row">
-                    <span className="data-label">Email:</span>
+                    <span className="data-label">Nome Completo:</span>
+                    <span className="data-value">{summaryData.employee.name}</span>
+                  </div>
+                  <div className="data-row">
+                    <span className="data-label">E-mail:</span>
                     <span className="data-value">{summaryData.employee.email}</span>
+                  </div>
+                  <div className="data-row">
+                    <span className="data-label">Nome do Instituto:</span>
+                    <span className="data-value">{summaryData.employee.company}</span>
                   </div>
                   <div className="data-row">
                     <span className="data-label">Cargo:</span>
                     <span className="data-value">{summaryData.employee.role}</span>
                   </div>
+                </div>
+
+                <h3>Dados do Projeto</h3>
+                <div className="summary-grid">
                   <div className="data-row">
-                    <span className="data-label">Empresa:</span>
-                    <span className="data-value">{summaryData.employee.company}</span>
-                  </div>
-                  <div className="data-row">
-                    <span className="data-label">Projeto:</span>
+                    <span className="data-label">Nome do projeto:</span>
                     <span className="data-value">{summaryData.project.name}</span>
                   </div>
                   <div className="data-row">
-                    <span className="data-label">Tipo de Projeto:</span>
+                    <span className="data-label">Tipo de projeto:</span>
                     <span className="data-value">{summaryData.project.type}</span>
                   </div>
                   <div className="data-row">
-                    <span className="data-label">SOW:</span>
+                    <span className="data-label">SOW ou PT do projeto:</span>
                     <span className="data-value">{summaryData.project.sow}</span>
                   </div>
                   <div className="data-row">
+                    <span className="data-label">Papel do profissional:</span>
+                    <span className="data-value">{summaryData.employee.currentRole || 'Não informado'}</span>
+                  </div>
+                </div>
+
+                <h3>Dados HP</h3>
+                <div className="summary-grid">
+                  <div className="data-row">
+                    <span className="data-label">Employee ID HP:</span>
+                    <span className="data-value">{summaryData.employee.hp_employee_id || 'Não informado'}</span>
+                  </div>
+                </div>
+
+                <h3>Dados da Saída</h3>
+                <div className="summary-grid">
+                  <div className="data-row">
                     <span className="data-label">Data de Saída:</span>
                     <span className="data-value">{formatDate(exitDate)}</span>
-                  </div>
-                  <div className="data-row highlight">
-                    <span className="data-label">Motivo da Saída:</span>
-                    <span className="data-value">{reasonText}</span>
                   </div>
                   <div className="data-row">
                     <span className="data-label">Haverá Replacement?</span>
                     <span className="data-value">{hasReplacement === 'sim' ? 'Sim' : 'Não'}</span>
                   </div>
                   <div className="data-row">
-                    <span className="data-label">Tipo de Máquina:</span>
+                    <span className="data-label">Tipo de Infraestrutura:</span>
                     <span className="data-value">{machineType}</span>
+                  </div>
+                  {machineType === 'Máquina da empresa' && machineReuse && (
+                    <div className="data-row">
+                      <span className="data-label">Máquina será reutilizada?</span>
+                      <span className="data-value">{machineReuse === 'sim' ? 'Sim' : 'Não'}</span>
+                    </div>
+                  )}
+                  <div className="data-row highlight">
+                    <span className="data-label">Motivo da Saída:</span>
+                    <span className="data-value">{reasonText}</span>
                   </div>
                 </div>
               </div>

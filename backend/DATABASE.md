@@ -175,7 +175,6 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 | `machine_reuse` | BOOLEAN | Se a máquina será reutilizada |
 | `bundle_aws` | VARCHAR(20) | Bundle necessário (quando machine_type='aws') |
 | `changed_by` | VARCHAR(10) | FK para core.employees (quem fez a alteração) |
-| `notes` | TEXT | Notas adicionais sobre a movimentação |
 | `created_at` | TIMESTAMP | Data de criação |
 | `updated_at` | TIMESTAMP | Data de atualização |
 

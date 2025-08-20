@@ -68,6 +68,8 @@ Home → SelectForEntry → EntryForm → SummaryEntry → Home
 **Fluxo de Saída:**
 Home → SelectForExit → ExitForm → SummaryExit → Home
 
+**ExitForm campos:** Data de saída, Haverá Replacement, Tipo de infraestrutura, Máquina será reutilizada (condicional), Motivo da saída
+
 ## Design System
 
 ### Arquivo único: design-system.css
