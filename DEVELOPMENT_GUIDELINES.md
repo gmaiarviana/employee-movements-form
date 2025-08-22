@@ -33,25 +33,15 @@ Este documento define **como trabalhar** no projeto Contract Movements. O **que 
 
 ## Processo de Refinamento
 
-### **1. ÉPICOS → FEATURES**
-- **Com o auxílio do Gemini, quebrar o épico em 2-5 features específicas no Jira.**
-- Cada feature deve entregar valor demonstrável para o usuário.
-- Definir critérios de aceite comportamentais para a feature completa.
+### **1. ESCOLHA DA FEATURE**
+- **Features já estão definidas no Jira** - colaborador escolhe uma disponível
+- **Épicos são organizacionais** - features dentro deles já estão prontas para implementação
 
 ### **2. FEATURES → SUB-TASKS**
-- Para cada feature, **o Gemini irá propor a quebra em sub-tasks de 5-15 minutos.**
-- Cada sub-task deve ser uma unidade de trabalho específica e validável, podendo abranger modificações relacionadas em poucos arquivos.
-- Manter no máximo 3-6 sub-tasks por sessão de implementação em uma feature.
-- Cada sub-task deve ser testável individualmente.
-- **Features e sub-tasks no Jira não precisam de "Summary"**.
-- **Numeração:** Features usam formato '4.2' e sub-tasks usam '4.2.1, 4.2.2, 4.2.3...'
+- Para cada feature escolhida, **o Gemini quebra em sub-tasks de 5-15 minutos durante a sessão**
+- **Sub-tasks são passos de trabalho** - não precisam estar no Jira
+- **Foco na implementação** - cada sub-task deve ser validável individualmente
 
-**Template para descrição de sub-tasks no Jira:**
-```
-**Expectativas Técnicas:**
-**Validação:**  
-**Critérios de Aceite:**
-```
 
 **Nota:** Prompts do Copilot ficam na sessão de implementação, não no Jira.
 
@@ -63,7 +53,7 @@ Para cada Feature, o trabalho será dividido e executado em sub-tasks sequenciai
     * O Gemini indicará claramente qual Feature do Épico atual está em foco.
 
 2.  **Lista de Sub-tasks da Feature:**
-    * As sub-tasks serão fornecidas pelo usuário no início da sessão de implementação, já planejadas e numeradas (4.2.1, 4.2.2, etc.).
+    * O Gemini quebrará a feature em sub-tasks durante a sessão de implementação.
     * Cada Sub-task será concisa e com um objetivo claro e **único**.
 
 3.  **Execução da Sub-task N:**
@@ -71,9 +61,19 @@ Para cada Feature, o trabalho será dividido e executado em sub-tasks sequenciai
     * **Prompt para o Copilot:** O Gemini fornecerá o prompt específico para o GitHub Copilot para a sub-task atual.
     * **Expectativa:** O Gemini descreverá o resultado esperado da execução da sub-task (ex: "O Copilot deve gerar o arquivo X.html com Y campos. Após isso, você deverá verificar e criar/atualizar o arquivo.").
     * **Validação:** O desenvolvedor (você) confirmará a conclusão da sub-task e sua validação (ex: "Sub-task N concluída. Código revisado/aplicado.").
-    * **Commit:** Realizar um `git add <arquivos>` e `git commit -m "feat: [descrição da sub-task] - Feature X.Y"` para **cada sub-task validada**.
 
-4.  **Próxima Sub-task:**
+4.  **Validação Final da Sub-task:**
+    * **Comando de Validação:** Após implementação de cada sub-task, o Gemini DEVE fornecer comandos PowerShell específicos para validar se a funcionalidade está funcionando corretamente
+    * **Exemplo:** `docker-compose up -d`, `Invoke-WebRequest -Uri "http://localhost:3000/api/health"`, teste no browser
+    * **Critério:** Sub-task só é considerada concluída após validação bem-sucedida
+
+5.  **Commit da Sub-task:**
+    * **Obrigatório:** Realizar commit específico após validação bem-sucedida de cada sub-task
+    * **Comando:** `git add <arquivos-modificados>` e `git commit -m "feat: [descrição da sub-task] - Feature X.Y"`
+    * **Nunca usar:** `git add .` ou `git commit -am` - sempre especificar arquivos
+    * **Timing:** Só após confirmação de que a validação passou
+
+6.  **Próxima Sub-task:**
     * Após a validação da Sub-task N, o Gemini passará para a Sub-task N+1, repetindo o ciclo.
 
 **Critério de Conclusão da Feature:**

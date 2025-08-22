@@ -22,9 +22,9 @@ Invoke-WebRequest -Uri "http://localhost:3000/api/health"
 ## 📋 Como Escolher o que Implementar
 
 1. Abra o backlog do Jira: https://institutoatlantico.atlassian.net/jira/software/c/projects/WAT/list
-2. Escolha uma feature/épico disponível para implementar
-3. Copie todo o contexto (Épico + Feature + Critérios de Aceite)
-4. Siga o processo abaixo
+2. Escolha uma feature disponível para implementar
+3. Copie o contexto completo: Épico (para contextualizar) + Feature + Critérios de Aceite
+4. O Gemini irá quebrar a feature em sub-tasks durante a sessão de implementação
 
 ## 🤖 Implementando com AI (Processo Recomendado)
 
