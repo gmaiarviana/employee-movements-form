@@ -21,9 +21,10 @@ Invoke-WebRequest -Uri "http://localhost:3000/api/health"
 
 ## 📋 Como Escolher o que Implementar
 
-1. Abra `ROADMAP.md`
-2. Escolha uma feature disponível (ex: Feature 7.3, 8.1, etc.)
-3. Siga o processo abaixo
+1. Abra o backlog do Jira: https://institutoatlantico.atlassian.net/jira/software/c/projects/WAT/boards/1238/backlog
+2. Escolha uma feature/épico disponível para implementar
+3. Copie todo o contexto (Épico + Feature + Critérios de Aceite)
+4. Siga o processo abaixo
 
 ## 🤖 Implementando com AI (Processo Recomendado)
 
@@ -43,7 +44,9 @@ git checkout -b feature-X.Y
 ```
 "Consulte o arquivo DEVELOPMENT_GUIDELINES.md para entender o processo completo.
 
-Analise a Feature X.Y do ROADMAP.md e quebre em sub-tasks específicas seguindo as diretrizes do DEVELOPMENT_GUIDELINES.md.
+[COLAR AQUI O ÉPICO + FEATURE COPIADOS DO JIRA]
+
+Quebre esta feature em sub-tasks específicas seguindo as diretrizes do DEVELOPMENT_GUIDELINES.md.
 
 Gere o PRIMEIRO prompt estruturado para o GitHub Copilot, seguindo o template definido no documento. Aguarde minha confirmação antes de prosseguir para a próxima sub-task."
 ```
@@ -104,4 +107,4 @@ git restore arquivo.js          # Desfaz mudanças não commitadas
 
 ---
 
-**Resumo:** Escolha feature → Gemini quebra → Copilot implementa → Valida → Gemini aprova → Commit → Repete → PR
+**Resumo:** Jira backlog → Copiar contexto → Gemini quebra → Copilot implementa → Valida → Gemini aprova → Commit → Repete → PR
