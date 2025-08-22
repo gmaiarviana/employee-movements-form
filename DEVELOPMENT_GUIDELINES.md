@@ -80,7 +80,11 @@ Para cada Feature, o trabalho será dividido e executado em sub-tasks sequenciai
 * Uma Feature é considerada completa quando todas as suas Sub-tasks foram executadas, validadas e commitadas individualmente.
 * Ao final da Feature, será realizada uma validação abrangente para confirmar o comportamento esperado.
 * Um commit final será feito para a conclusão da feature, referenciando-a.
-* Atualizar a documentação relevante (ex: README.md, ROADMAP.md, DEVELOPMENT_GUIDELINES.md) para refletir as mudanças ou o status da feature concluída, se necessário.
+* **Atualização de Documentação (Obrigatória):**
+  - **frontend/README_FRONTEND.md**: Se alterou componentes, rotas, ou bibliotecas
+  - **backend/README_BACKEND.md**: Se alterou APIs, autenticação, ou endpoints  
+  - **backend/DATABASE.md**: Se alterou schema, tabelas, ou relacionamentos
+  - O Gemini deve **sempre perguntar** quais documentos precisam ser atualizados antes de concluir a feature
 
 ### 4. SUB-TASKS → PROMPTS (Sessão de Implementação com Gemini para GitHub Copilot)
 
