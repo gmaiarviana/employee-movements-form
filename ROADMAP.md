@@ -102,10 +102,34 @@
 
 ---
 
-## **Épico 4: Integração com Sistemas de RH**
+## 🎨 **Épico 4: Interface Organizada e Transparente**
+**Contexto:** Melhorar a clareza e organização dos formulários de entrada/saída e seleção de funcionários, reduzindo a sobrecarga cognitiva através de melhor categorização visual dos dados.
+
+#### **Funcionalidades:**
+
+##### **4.1 Melhoria Visual das Seções de Formulário**
+- **Descrição:** Transformar as seções atuais (Dados Corporativos, Dados do Projeto, etc.) em cards visuais distintos
+- **Critérios de Aceite:**
+  - EntryForm: Converter seções existentes em cards com bordas e backgrounds
+  - ExitForm: Aplicar mesmo padrão de cards para seções de dados
+  - Headers de seção com ícones e tipografia destacada (ex: 👤 Dados Corporativos, 📋 Dados do Projeto)
+  - Cards com sombra sutil e espaçamento de 16px entre eles
+  - Campos de formulário agrupados dentro de cada card com padding interno
+  - Manter funcionalidade atual: validações, navegação, submissão
+
+##### **4.2 Transparência na Seleção de Funcionários**
+- **Descrição:** Mostrar contexto claro sobre quais funcionários estão sendo exibidos
+- **Critérios de Aceite:**
+  - SelectForExit deve mostrar: "Exibindo X funcionários da sua equipe nos projetos: [Lista de Projetos]"
+  - Dropdown de funcionários deve incluir projeto atual de cada um
+  - Mensagens claras quando não há funcionários disponíveis
+  - Manter filtragem automática por gestor logado
+---
+
+## **Épico 5: Integração com Sistemas de RH**
 Integrar com sistemas externos de RH para utilizar dados corporativos como fonte automatizada, reduzindo entrada manual de informações de funcionários e mantendo dados sempre atualizados.
 
-## **Épico 5: Refatoração de Componentes**
+## **Épico 6: Refatoração de Componentes**
 Melhorar maintainability do código quebrando componentes grandes em módulos menores e mais organizados, facilitando desenvolvimento e manutenção futura.
 
 ---
