@@ -118,57 +118,87 @@ const ExitForm = () => {
         <div className="container">
           <h2>Dados da Saída de Funcionário</h2>
           
-          <div id="employee-info" className="employee-info-display">
+          <div id="employee-info" className="form-cards-container">
             {loading && <p>Carregando informações do funcionário...</p>}
             {error && (
-              <div className="employee-display">
-                <h3>Erro ao carregar informações</h3>
-                <p className="error-message">{error}</p>
+              <div className="form-card error">
+                <div className="form-card-header settings-card">
+                  <span className="icon">⚠️</span>
+                  <h3>Erro ao carregar informações</h3>
+                </div>
+                <div className="form-card-body">
+                  <p className="error-message">{error}</p>
+                </div>
               </div>
             )}
             {!loading && !error && employeeInfo && (
               <>
                 {/* Seção de Dados Corporativos */}
-                <div className="employee-display">
-                  <h3>Dados Corporativos</h3>
-                  <p><strong>ID:</strong> {getFieldValue(employeeInfo.employee?.id)}</p>
-                  <p><strong>Nome Completo:</strong> {getFieldValue(employeeInfo.employee?.name)}</p>
-                  <p><strong>E-mail:</strong> {getFieldValue(employeeInfo.employee?.email)}</p>
-                  <p><strong>Nome do Instituto:</strong> {getFieldValue(employeeInfo.employee?.company)}</p>
-                  <p><strong>Cargo:</strong> {getFieldValue(employeeInfo.employee?.role)}</p>
+                <div className="form-card">
+                  <div className="form-card-header employee-card">
+                    <span className="icon">👤</span>
+                    <h3>Dados Corporativos</h3>
+                  </div>
+                  <div className="form-card-body">
+                    <p><strong>ID:</strong> {getFieldValue(employeeInfo.employee?.id)}</p>
+                    <p><strong>Nome Completo:</strong> {getFieldValue(employeeInfo.employee?.name)}</p>
+                    <p><strong>E-mail:</strong> {getFieldValue(employeeInfo.employee?.email)}</p>
+                    <p><strong>Nome do Instituto:</strong> {getFieldValue(employeeInfo.employee?.company)}</p>
+                    <p><strong>Cargo:</strong> {getFieldValue(employeeInfo.employee?.role)}</p>
+                  </div>
                 </div>
 
                 {/* Seção de Dados do Projeto */}
-                <div className="employee-display">
-                  <h3>Dados do Projeto</h3>
-                  <p><strong>Nome do projeto:</strong> {getFieldValue(employeeInfo.project?.name)}</p>
-                  <p><strong>Tipo de projeto:</strong> {getFieldValue(employeeInfo.project?.type)}</p>
-                  <p><strong>SOW ou PT do projeto:</strong> {getFieldValue(employeeInfo.project?.sow)}</p>
-                  <p><strong>Papel do profissional:</strong> {getFieldValue(employeeInfo.employee?.currentRole || 'Não informado')}</p>
+                <div className="form-card">
+                  <div className="form-card-header project-card">
+                    <span className="icon">📋</span>
+                    <h3>Dados do Projeto</h3>
+                  </div>
+                  <div className="form-card-body">
+                    <p><strong>Nome do projeto:</strong> {getFieldValue(employeeInfo.project?.name)}</p>
+                    <p><strong>Tipo de projeto:</strong> {getFieldValue(employeeInfo.project?.type)}</p>
+                    <p><strong>SOW ou PT do projeto:</strong> {getFieldValue(employeeInfo.project?.sow)}</p>
+                    <p><strong>Papel do profissional:</strong> {getFieldValue(employeeInfo.employee?.currentRole || 'Não informado')}</p>
+                  </div>
                 </div>
 
                 {/* Seção de Dados HP */}
-                <div className="employee-display">
-                  <h3>Dados HP</h3>
-                  <p><strong>Employee ID HP:</strong> {getFieldValue(employeeInfo.employee?.hp_employee_id)}</p>
+                <div className="form-card">
+                  <div className="form-card-header company-card">
+                    <span className="icon">🏢</span>
+                    <h3>Dados HP</h3>
+                  </div>
+                  <div className="form-card-body">
+                    <p><strong>Employee ID HP:</strong> {getFieldValue(employeeInfo.employee?.hp_employee_id)}</p>
+                  </div>
                 </div>
                 
                 {/* Seção de Dados Pessoais */}
-                <div className="employee-display">
-                  <h4>Dados Pessoais</h4>
-                  <p><strong>CPF:</strong> {getFieldValue(employeeInfo.employee?.cpf)}</p>
-                  <p><strong>RG:</strong> {getFieldValue(employeeInfo.employee?.rg)}</p>
-                  <p><strong>Data de Nascimento:</strong> {getFieldValue(employeeInfo.employee?.data_nascimento ? formatDate(employeeInfo.employee.data_nascimento) : null)}</p>
-                  <p><strong>Escolaridade:</strong> {getFieldValue(employeeInfo.employee?.nivel_escolaridade)}</p>
-                  <p><strong>Formação:</strong> {getFieldValue(employeeInfo.employee?.formacao)}</p>
+                <div className="form-card">
+                  <div className="form-card-header employee-card">
+                    <span className="icon">👥</span>
+                    <h3>Dados Pessoais</h3>
+                  </div>
+                  <div className="form-card-body">
+                    <p><strong>CPF:</strong> {getFieldValue(employeeInfo.employee?.cpf)}</p>
+                    <p><strong>RG:</strong> {getFieldValue(employeeInfo.employee?.rg)}</p>
+                    <p><strong>Data de Nascimento:</strong> {getFieldValue(employeeInfo.employee?.data_nascimento ? formatDate(employeeInfo.employee.data_nascimento) : null)}</p>
+                    <p><strong>Escolaridade:</strong> {getFieldValue(employeeInfo.employee?.nivel_escolaridade)}</p>
+                    <p><strong>Formação:</strong> {getFieldValue(employeeInfo.employee?.formacao)}</p>
+                  </div>
                 </div>
                 
                 {/* Informações da Alocação */}
                 {entryDate && (
-                  <div className="employee-display">
-                    <h4>Informações da Alocação</h4>
-                    <p><strong>Data de Entrada:</strong> {formatDate(entryDate)}</p>
-                    <p><em>A data de saída deve ser posterior à data de entrada.</em></p>
+                  <div className="form-card highlighted">
+                    <div className="form-card-header settings-card">
+                      <span className="icon">📅</span>
+                      <h3>Informações da Alocação</h3>
+                    </div>
+                    <div className="form-card-body">
+                      <p><strong>Data de Entrada:</strong> {formatDate(entryDate)}</p>
+                      <p><em>A data de saída deve ser posterior à data de entrada.</em></p>
+                    </div>
                   </div>
                 )}
               </>

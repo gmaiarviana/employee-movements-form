@@ -221,38 +221,58 @@ const EntryForm = () => {
           {selectedEmployeeId && selectedProjectId && (
             <form id="entry-form" onSubmit={handleSubmit} className="form">
               {/* Display selected employee and project info */}
-              <div className="employee-info-display">
-                <div className="employee-display">
-                  <h3>Dados Corporativos</h3>
-                  <p><strong>ID:</strong> {getFieldValue(selectedEmployee?.id)}</p>
-                  <p><strong>Nome Completo:</strong> {getFieldValue(selectedEmployee?.name)}</p>
-                  <p><strong>E-mail:</strong> {getFieldValue(selectedEmployee?.email)}</p>
-                  <p><strong>Nome do Instituto:</strong> {getFieldValue(selectedEmployee?.company)}</p>
-                  <p><strong>Cargo:</strong> {getFieldValue(selectedEmployee?.role)}</p>
+              <div className="form-cards-container">
+                <div className="form-card">
+                  <div className="form-card-header employee-card">
+                    <span className="icon">👤</span>
+                    <h3>Dados Corporativos</h3>
+                  </div>
+                  <div className="form-card-body">
+                    <p><strong>ID:</strong> {getFieldValue(selectedEmployee?.id)}</p>
+                    <p><strong>Nome Completo:</strong> {getFieldValue(selectedEmployee?.name)}</p>
+                    <p><strong>E-mail:</strong> {getFieldValue(selectedEmployee?.email)}</p>
+                    <p><strong>Nome do Instituto:</strong> {getFieldValue(selectedEmployee?.company)}</p>
+                    <p><strong>Cargo:</strong> {getFieldValue(selectedEmployee?.role)}</p>
+                  </div>
                 </div>
 
-                <div className="employee-display">
-                  <h3>Dados Pessoais</h3>
-                  <p><strong>CPF:</strong> {getFieldValue(selectedEmployee?.cpf)}</p>
-                  <p><strong>RG:</strong> {getFieldValue(selectedEmployee?.rg)}</p>
-                  <p><strong>Data de Nascimento:</strong> {selectedEmployee?.data_nascimento ? new Date(selectedEmployee.data_nascimento).toLocaleDateString('pt-BR') : 'Não informado'}</p>
-                  <p><strong>Escolaridade:</strong> {getFieldValue(selectedEmployee?.nivel_escolaridade)}</p>
-                  <p><strong>Formação:</strong> {getFieldValue(selectedEmployee?.formacao)}</p>
+                <div className="form-card">
+                  <div className="form-card-header employee-card">
+                    <span className="icon">👥</span>
+                    <h3>Dados Pessoais</h3>
+                  </div>
+                  <div className="form-card-body">
+                    <p><strong>CPF:</strong> {getFieldValue(selectedEmployee?.cpf)}</p>
+                    <p><strong>RG:</strong> {getFieldValue(selectedEmployee?.rg)}</p>
+                    <p><strong>Data de Nascimento:</strong> {selectedEmployee?.data_nascimento ? new Date(selectedEmployee.data_nascimento).toLocaleDateString('pt-BR') : 'Não informado'}</p>
+                    <p><strong>Escolaridade:</strong> {getFieldValue(selectedEmployee?.nivel_escolaridade)}</p>
+                    <p><strong>Formação:</strong> {getFieldValue(selectedEmployee?.formacao)}</p>
+                  </div>
                 </div>
 
                 {selectedEmployee?.hp_employee_id && (
-                  <div className="employee-display">
-                    <h3>Dados HP</h3>
-                    <p><strong>Employee ID HP:</strong> {selectedEmployee.hp_employee_id}</p>
+                  <div className="form-card">
+                    <div className="form-card-header company-card">
+                      <span className="icon">🏢</span>
+                      <h3>Dados HP</h3>
+                    </div>
+                    <div className="form-card-body">
+                      <p><strong>Employee ID HP:</strong> {selectedEmployee.hp_employee_id}</p>
+                    </div>
                   </div>
                 )}
 
-                <div className="employee-display">
-                  <h3>Dados do Projeto</h3>
-                  <p><strong>Nome do projeto:</strong> {getFieldValue(selectedProject?.name)}</p>
-                  <p><strong>SOW ou PT do projeto:</strong> {getFieldValue(selectedProject?.sow_pt)}</p>
-                  <p><strong>Gerente HP:</strong> {getFieldValue(selectedProject?.gerente_hp)}</p>
-                  <p><strong>Descrição:</strong> {getFieldValue(selectedProject?.description)}</p>
+                <div className="form-card">
+                  <div className="form-card-header project-card">
+                    <span className="icon">📋</span>
+                    <h3>Dados do Projeto</h3>
+                  </div>
+                  <div className="form-card-body">
+                    <p><strong>Nome do projeto:</strong> {getFieldValue(selectedProject?.name)}</p>
+                    <p><strong>SOW ou PT do projeto:</strong> {getFieldValue(selectedProject?.sow_pt)}</p>
+                    <p><strong>Gerente HP:</strong> {getFieldValue(selectedProject?.gerente_hp)}</p>
+                    <p><strong>Descrição:</strong> {getFieldValue(selectedProject?.description)}</p>
+                  </div>
                 </div>
               </div>
 
