@@ -41,7 +41,7 @@ docker-compose ps
 Invoke-WebRequest -Uri "http://localhost:3000/api/health"
 
 # Verificar dados no banco
-docker-compose exec db psql -U app_user -d employee_movements -c "SELECT COUNT(*) FROM employees;"
+docker-compose exec db psql -U app_user -d employee_movements -c "SELECT COUNT(*) FROM core.employees;"
 
 # Testar autenticação
 Invoke-WebRequest -Uri "http://localhost:3000/api/register" -Method POST -ContentType "application/json" -Body '{"username":"test","email":"test@email.com","password":"123456"}'
