@@ -73,12 +73,12 @@ const getMovements = async (req, res) => {
             data: movements
         });
     } catch (error) {
-        console.error(`[MOVEMENTS ERROR] Failed to fetch movements: ${error.message}`);
-        
+        // Sanitized logging - different messages for dev vs production
         if (process.env.NODE_ENV === 'development') {
+            console.error(`[MOVEMENTS ERROR] Failed to fetch movements: ${error.message}`);
             console.error('Error fetching movements:', error);
         } else {
-            console.error('Error fetching movements - check logs for details');
+            console.error('Database error occurred');
         }
         res.status(500).json({
             success: false,
@@ -113,7 +113,11 @@ const createEntry = async (req, res) => {
         
         // Validate required fields for HP structure
         if (!selectedEmployeeId || !selectedProjectId || !complianceTraining || !billable || !role || !startDate) {
-            console.error(`[ENTRY ERROR] Missing required fields for employee ${selectedEmployeeId}`);
+            if (process.env.NODE_ENV === 'development') {
+                console.error(`[ENTRY ERROR] Missing required fields for employee ${selectedEmployeeId}`);
+            } else {
+                console.error('Validation failed - missing required fields');
+            }
             return res.status(400).json({
                 success: false,
                 error: 'Missing required fields',
@@ -123,7 +127,11 @@ const createEntry = async (req, res) => {
         
         // employeeIdHP is only required if has_previous_hp_experience is 'sim'
         if (has_previous_hp_experience === 'sim' && (!employeeIdHP || employeeIdHP.trim() === '')) {
-            console.error(`[ENTRY ERROR] Missing employeeIdHP for employee ${selectedEmployeeId} with previous HP experience`);
+            if (process.env.NODE_ENV === 'development') {
+                console.error(`[ENTRY ERROR] Missing employeeIdHP for employee ${selectedEmployeeId} with previous HP experience`);
+            } else {
+                console.error('Validation failed - missing HP employee ID');
+            }
             return res.status(400).json({
                 success: false,
                 error: 'Missing Employee ID HP',
@@ -136,7 +144,11 @@ const createEntry = async (req, res) => {
 
         // Validate HP experience fields
         if (has_previous_hp_experience === true && !previous_hp_account_id) {
-            console.error(`[ENTRY ERROR] Missing previous_hp_account_id for employee ${selectedEmployeeId} with HP experience`);
+            if (process.env.NODE_ENV === 'development') {
+                console.error(`[ENTRY ERROR] Missing previous_hp_account_id for employee ${selectedEmployeeId} with HP experience`);
+            } else {
+                console.error('Validation failed - missing HP account ID');
+            }
             return res.status(400).json({
                 success: false,
                 error: 'Missing required HP experience field',
@@ -146,7 +158,11 @@ const createEntry = async (req, res) => {
         
         // Validate specific field values
         if (!['sim', 'nao'].includes(complianceTraining)) {
-            console.error(`[ENTRY ERROR] Invalid complianceTraining: ${complianceTraining} for employee ${selectedEmployeeId}`);
+            if (process.env.NODE_ENV === 'development') {
+                console.error(`[ENTRY ERROR] Invalid complianceTraining: ${complianceTraining} for employee ${selectedEmployeeId}`);
+            } else {
+                console.error('Validation failed - invalid compliance training value');
+            }
             return res.status(400).json({
                 success: false,
                 error: 'Invalid complianceTraining value',
@@ -155,7 +171,11 @@ const createEntry = async (req, res) => {
         }
         
         if (!['sim', 'nao'].includes(billable)) {
-            console.error(`[ENTRY ERROR] Invalid billable: ${billable} for employee ${selectedEmployeeId}`);
+            if (process.env.NODE_ENV === 'development') {
+                console.error(`[ENTRY ERROR] Invalid billable: ${billable} for employee ${selectedEmployeeId}`);
+            } else {
+                console.error('Validation failed - invalid billable value');
+            }
             return res.status(400).json({
                 success: false,
                 error: 'Invalid billable value',
@@ -254,12 +274,12 @@ const createEntry = async (req, res) => {
         });
         
     } catch (error) {
-        console.error(`[ENTRY ERROR] Failed to create entry for employee ${req.body.selectedEmployeeId}: ${error.message}`);
-        
+        // Sanitized logging - different messages for dev vs production
         if (process.env.NODE_ENV === 'development') {
+            console.error(`[ENTRY ERROR] Failed to create entry for employee ${req.body.selectedEmployeeId}: ${error.message}`);
             console.error('Error creating entry:', error);
         } else {
-            console.error('Error creating entry - check logs for details');
+            console.error('Entry creation failed');
         }
         
         // Handle specific PostgreSQL errors
@@ -306,7 +326,11 @@ const createExit = async (req, res) => {
         
         // Validate required fields
         if (!employeeId || !projectId || !date || !reason || !exitDate) {
-            console.error(`[EXIT ERROR] Missing required fields for employee ${employeeId}`);
+            if (process.env.NODE_ENV === 'development') {
+                console.error(`[EXIT ERROR] Missing required fields for employee ${employeeId}`);
+            } else {
+                console.error('Validation failed - missing required fields for exit');
+            }
             return res.status(400).json({
                 success: false,
                 error: 'Missing required fields',
@@ -337,7 +361,11 @@ const createExit = async (req, res) => {
         const entryResult = await dbClient.query(entryMovementQuery, [employeeId, projectId]);
 
         if (entryResult.rows.length === 0) {
-            console.error(`[EXIT ERROR] No active entry found for employee ${employeeId} in project ${projectId}`);
+            if (process.env.NODE_ENV === 'development') {
+                console.error(`[EXIT ERROR] No active entry found for employee ${employeeId} in project ${projectId}`);
+            } else {
+                console.error('Active entry not found for exit operation');
+            }
             return res.status(404).json({
                 success: false,
                 error: 'Active entry not found',
@@ -411,12 +439,12 @@ const createExit = async (req, res) => {
         });
         
     } catch (error) {
-        console.error(`[EXIT ERROR] Failed to create exit for employee ${req.body.employeeId}: ${error.message}`);
-        
+        // Sanitized logging - different messages for dev vs production
         if (process.env.NODE_ENV === 'development') {
+            console.error(`[EXIT ERROR] Failed to create exit for employee ${req.body.employeeId}: ${error.message}`);
             console.error('Error creating exit:', error);
         } else {
-            console.error('Error creating exit - check logs for details');
+            console.error('Exit creation failed');
         }
         
         // Handle specific PostgreSQL errors

@@ -185,10 +185,11 @@ const register = async (req, res) => {
         }
 
     } catch (error) {
+        // Sanitized logging - different messages for dev vs production
         if (process.env.NODE_ENV === 'development') {
             console.error('Error during GP registration:', error);
         } else {
-            console.error('Error during GP registration - check logs for details');
+            console.error('Registration failed');
         }
 
         // Handle specific PostgreSQL errors
@@ -272,10 +273,11 @@ const login = async (req, res) => {
         });
 
     } catch (error) {
+        // Sanitized logging - different messages for dev vs production
         if (process.env.NODE_ENV === 'development') {
             console.error('Error during login:', error);
         } else {
-            console.error('Authentication error occurred');
+            console.error('Authentication failed');
         }
 
         res.status(500).json({

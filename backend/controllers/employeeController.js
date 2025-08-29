@@ -61,10 +61,11 @@ const getAllEmployees = async (req, res) => {
             data: { teamMembers: employees }
         });
     } catch (error) {
+        // Sanitized logging - different messages for dev vs production
         if (process.env.NODE_ENV === 'development') {
             console.error('Error fetching all employees:', error);
         } else {
-            console.error('Error fetching all employees - check logs for details');
+            console.error('Database error occurred');
         }
         res.status(500).json({
             success: false,
@@ -172,10 +173,11 @@ const getTeamMembers = async (req, res) => {
             data: { teamMembers }
         });
     } catch (error) {
+        // Sanitized logging - different messages for dev vs production
         if (process.env.NODE_ENV === 'development') {
             console.error('Error fetching team members:', error);
         } else {
-            console.error('Error fetching team members - check logs for details');
+            console.error('Database error occurred');
         }
         res.status(500).json({
             success: false,
@@ -277,10 +279,11 @@ const getEmployeeDetails = async (req, res) => {
             data: response
         });
     } catch (error) {
+        // Sanitized logging - different messages for dev vs production
         if (process.env.NODE_ENV === 'development') {
             console.error('Error fetching employee details:', error);
         } else {
-            console.error('Error fetching employee details - check logs for details');
+            console.error('Database error occurred');
         }
         res.status(500).json({
             success: false,
@@ -368,10 +371,11 @@ const createEmployee = async (req, res) => {
         });
         
     } catch (error) {
+        // Sanitized logging - different messages for dev vs production
         if (process.env.NODE_ENV === 'development') {
             console.error('Error creating employee:', error);
         } else {
-            console.error('Error creating employee - check logs for details');
+            console.error('Employee creation failed');
         }
         
         // Handle specific PostgreSQL errors

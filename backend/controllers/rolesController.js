@@ -24,12 +24,12 @@ const getRoles = async (req, res) => {
             data: result.rows
         });
     } catch (error) {
-        console.error(`[ROLES ERROR] Failed to fetch roles: ${error.message}`);
-        
+        // Sanitized logging - different messages for dev vs production
         if (process.env.NODE_ENV === 'development') {
+            console.error(`[ROLES ERROR] Failed to fetch roles: ${error.message}`);
             console.error('Error fetching roles:', error);
         } else {
-            console.error('Error fetching roles - check logs for details');
+            console.error('Database error occurred');
         }
         
         res.status(500).json({
