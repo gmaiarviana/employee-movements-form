@@ -4,14 +4,14 @@ const { dbClient } = require('../config/database');
 // ROLES CONTROLLER - MANAGE HP PORTFOLIO ROLES
 // =============================================================================
 
-// Get all roles from hp_portfolio.roles table
+// Get all roles from hp_portfolio.roles_hp table
 const getRoles = async (req, res) => {
     try {
         console.log('[ROLES] Fetching roles data...');
         
         const query = `
             SELECT name, category, sort_order 
-            FROM hp_portfolio.roles 
+            FROM hp_portfolio.roles_hp 
             ORDER BY sort_order, name
         `;
         

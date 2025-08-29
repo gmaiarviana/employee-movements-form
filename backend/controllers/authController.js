@@ -135,21 +135,19 @@ const register = async (req, res) => {
 
             const newEmployee = employeeResult.rows[0];
 
-            // Add as project manager
-            const insertProjectManagerQuery = `
-                INSERT INTO hp_portfolio.project_managers (project_id, employee_id, role, assigned_date, is_primary, created_at, updated_at)
-                VALUES ($1, $2, $3, CURRENT_DATE, $4, NOW(), NOW())
-                RETURNING id, project_id, employee_id, role, assigned_date
+            // Create HP profile and set as manager
+            const insertHPProfileQuery = `
+                INSERT INTO hp_portfolio.hp_employee_profiles (employee_id, is_manager)
+                VALUES ($1, $2)
+                RETURNING id, employee_id, is_manager
             `;
             
-            const projectManagerResult = await dbClient.query(insertProjectManagerQuery, [
-                projectId,
+            const hpProfileResult = await dbClient.query(insertHPProfileQuery, [
                 employeeId,
-                'Project Manager',
-                false // is_primary - secondary manager
+                true // is_manager = true
             ]);
 
-            const projectManager = projectManagerResult.rows[0];
+            const hpProfile = hpProfileResult.rows[0];
 
             // Commit transaction
             await dbClient.query('COMMIT');
@@ -168,16 +166,14 @@ const register = async (req, res) => {
                         id: newEmployee.id,
                         name: newEmployee.name,
                         email: newEmployee.email,
-                        role: newEmployee.role,
+                        role: newEmployee.funcao_atlantico,
                         company: newEmployee.company,
                         createdAt: newEmployee.created_at
                     },
-                    projectManager: {
-                        id: projectManager.id,
-                        projectId: projectManager.project_id,
-                        employeeId: projectManager.employee_id,
-                        role: projectManager.role,
-                        assignedDate: projectManager.assigned_date
+                    hpProfile: {
+                        id: hpProfile.id,
+                        employeeId: hpProfile.employee_id,
+                        isManager: hpProfile.is_manager
                     }
                 }
             });

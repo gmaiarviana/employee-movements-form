@@ -22,13 +22,13 @@ const getAllEmployees = async (req, res) => {
     try {
         // Get basic employee data for selection dropdowns (lightweight query)
         const employeesResult = await dbClient.query(
-            'SELECT id, name, role, company, formacao FROM core.employees ORDER BY name'
+            'SELECT id, name, funcao_atlantico, company, formacao FROM core.employees ORDER BY name'
         );
         
         const employees = employeesResult.rows.map(emp => ({
             id: emp.id,
             name: emp.name,
-            role: emp.role,
+            role: emp.funcao_atlantico,
             company: emp.company,
             formacao: emp.formacao,
             project: 'N/A' // Default, will be updated if they have active allocation
@@ -96,11 +96,16 @@ const getTeamMembers = async (req, res) => {
         
         const managerId = managerResult.rows[0].id;
         
-        // 2. Find projects managed by this employee
-        const projectsResult = await dbClient.query(
-            'SELECT project_id FROM hp_portfolio.project_managers WHERE employee_id = $1',
-            [managerId]
-        );
+        // 2. Find projects where this manager has is_manager = true
+        // For now, return all projects since we don't have project-specific manager assignment
+        const projectsResult = await dbClient.query(`
+            SELECT DISTINCT p.id as project_id 
+            FROM hp_portfolio.projects p
+            WHERE EXISTS (
+                SELECT 1 FROM hp_portfolio.hp_employee_profiles hp 
+                WHERE hp.employee_id = $1 AND hp.is_manager = true
+            )
+        `, [managerId]);
         
         if (projectsResult.rows.length === 0) {
             return res.json({
@@ -116,7 +121,7 @@ const getTeamMembers = async (req, res) => {
             SELECT DISTINCT 
                 e.id, 
                 e.name, 
-                e.role, 
+                e.funcao_atlantico, 
                 e.company,
                 e.cpf,
                 e.rg,
@@ -132,8 +137,8 @@ const getTeamMembers = async (req, res) => {
             WHERE m.project_id = ANY($1)
             AND m.movement_type = 'ENTRY'
             AND e.id NOT IN (
-                -- Excluir gestores (que estão em project_managers)
-                SELECT employee_id FROM hp_portfolio.project_managers
+                -- Excluir gestores (que têm is_manager = true)
+                SELECT hp.employee_id FROM hp_portfolio.hp_employee_profiles hp WHERE hp.is_manager = true
             )
             AND NOT EXISTS (
                 SELECT 1 FROM hp_portfolio.movements m2 
@@ -150,7 +155,7 @@ const getTeamMembers = async (req, res) => {
         const teamMembers = teamMembersResult.rows.map(member => ({
             id: member.id,
             name: member.name,
-            role: member.role,
+            role: member.funcao_atlantico,
             company: member.company,
             cpf: member.cpf,
             rg: member.rg,
@@ -228,7 +233,7 @@ const getEmployeeDetails = async (req, res) => {
                 id: employee.id,
                 name: employee.name,
                 email: employee.email,
-                role: employee.role,
+                role: employee.funcao_atlantico,
                 company: employee.company,
                 cpf: employee.cpf,
                 rg: employee.rg,

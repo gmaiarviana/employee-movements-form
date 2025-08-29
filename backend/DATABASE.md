@@ -9,7 +9,7 @@ Sistema de gestão de movimentações para consultoria, projetado para gerenciar
 ```
 employee_movements_db/
 ├── core/           # Usuários e funcionários (autenticação + dados pessoais)
-├── hp_portfolio/   # Projetos e movimentações (5 tabelas: projects, project_managers, hp_employee_profiles, movements, roles)
+├── hp_portfolio/   # Projetos e movimentações (4 tabelas: projects, hp_employee_profiles, movements, roles_hp)
 └── public/         # Schema padrão PostgreSQL
 ```
 
@@ -25,7 +25,7 @@ employee_movements_db/
 │ PK: user_id         │ 1:1   │ PK: employee_id     │
 │     email           │ ◄───► │ FK: user_id         │
 │     password_hash   │       │     name, email     │
-│     role            │       │     cpf, rg         │
+│     funcao_atlantico│       │     cpf, rg         │
 │     created_at      │       │     data_nascimento │
 └─────────────────────┘       │     escolaridade    │
                               └─────────────────────┘
@@ -34,19 +34,19 @@ employee_movements_db/
 ### SCHEMA HP_PORTFOLIO - Projetos e Movimentações
 ```
 ┌─────────────────────┐       ┌─────────────────────┐
-│hp_portfolio.projects│       │project_managers     │
+│hp_portfolio.projects│       │hp_employee_profiles │
 ├─────────────────────┤       ├─────────────────────┤
-│ PK: project_id (uuid)│ 1:1   │ PK: manager_id      │
-│     name            │ ◄───► │ FK: project_id      │
-│     sow_pt (UNIQUE) │       │ FK: employee_id     │
-│     gerente_hp      │       │     assigned_at     │
-│     description     │       └─────────────────────┘
-│     budget, status  │                 │
+│ PK: project_id (uuid)│       │ PK: id              │
+│     name            │       │ FK: employee_id     │
+│     sow_pt (UNIQUE) │       │     hp_employee_id  │
+│     gerente_hp      │       │     is_manager      │
+│     description     │       │     has_previous... │
+│     project_type    │       └─────────────────────┘
 └─────────────────────┘                 │ 1:N
          │ N:1                          ▼
          ▼                    ┌─────────────────────┐
-┌─────────────────────┐       │hp_employee_profiles │
-│hp_portfolio.movements│       ├─────────────────────┤
+┌─────────────────────┐       │hp_portfolio.movements│
+│hp_portfolio.roles_hp│       ├─────────────────────┤
 ├─────────────────────┤       │ PK: id              │
 │ PK: id              │       │ FK: employee_id     │
 │ FK: employee_id     │ ──┐   │     hp_employee_id  │
@@ -145,10 +145,9 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 #### SCHEMA HP_PORTFOLIO
 ```sql
 -- hp_portfolio.projects (projetos, clientes + sow_pt + gerente_hp)
--- hp_portfolio.project_managers (1 gerente por projeto)  
--- hp_portfolio.hp_employee_profiles (dados HP específicos por funcionário)
+-- hp_portfolio.hp_employee_profiles (dados HP específicos + is_manager flag)
 -- hp_portfolio.movements (todas as movimentações)
--- hp_portfolio.roles (papéis/funções disponíveis)
+-- hp_portfolio.roles_hp (papéis/funções HP disponíveis)
 ```
 
 #### TABELA: hp_portfolio.movements
@@ -191,10 +190,11 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 | `previous_hp_account_id` | VARCHAR(50) | ID HP anterior (se já atuou) |
 | `previous_hp_period_start` | VARCHAR(20) | Início período anterior (MM/AAAA) |
 | `previous_hp_period_end` | VARCHAR(20) | Fim período anterior (MM/AAAA) |
+| `is_manager` | BOOLEAN | Se funcionário é gerente de projetos |
 | `created_at` | TIMESTAMP | Data de criação |
 | `updated_at` | TIMESTAMP | Data de atualização |
 
-#### TABELA: hp_portfolio.roles
+#### TABELA: hp_portfolio.roles_hp
 
 **Papéis/funções disponíveis:**
 
@@ -206,23 +206,40 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 | `sort_order` | INTEGER | Ordem de exibição |
 | `created_at` | TIMESTAMP | Data de criação |
 
-#### CAMPOS ADICIONADOS: core.employees
+#### CAMPOS ATUALIZADOS: core.employees
 
-**Novos campos de dados pessoais:**
+**Campos de função e dados pessoais:**
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
+| `funcao_atlantico` | VARCHAR(50) | Função contratada no Atlântico (renomeado de 'role') |
 | `cpf` | VARCHAR(14) | CPF no formato ###.###.###-## |
 | `rg` | VARCHAR(20) | RG (formato variável) |
 | `data_nascimento` | DATE | Data de nascimento |
 | `nivel_escolaridade` | TEXT | Nível de escolaridade (texto livre) |
 | `formacao` | TEXT | Formação acadêmica (texto livre) |
 
-#### CAMPOS ADICIONADOS: hp_portfolio.projects
+#### CAMPOS: hp_portfolio.projects
 
-**Novos campos HP específicos:**
+**Campos específicos de projeto:**
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `sow_pt` | VARCHAR(50) | Statement of Work/Purchase Order (UNIQUE) |
+| `gerente_hp` | VARCHAR(100) | Gerente HP stakeholder externo |
+| `project_type` | VARCHAR(50) | Tipo do projeto (interno/externo/misto) |
+
+---
+
+## MUDANÇAS ESTRUTURAIS IMPLEMENTADAS
+
+### ❌ REMOVIDO:
+- Tabela `hp_portfolio.project_managers` (overhead desnecessário)
+
+### ✅ ADICIONADO:
+- Campo `is_manager` em `hp_employee_profiles` (identifica gestores)
+- Campo `funcao_atlantico` em `employees` (renomeado de 'role')
+
+### 🔄 RENOMEADO:
+- `hp_portfolio.roles` → `hp_portfolio.roles_hp` (clareza de propósito)
 | `gerente_hp` | VARCHAR(100) | Gerente HP stakeholder externo |
