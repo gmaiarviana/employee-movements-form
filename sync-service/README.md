@@ -1,108 +1,138 @@
-# Google Sheets Sync Service
+# Google Sheets Sync Service (Service Account)
 
-Serviço Docker para sincronizar dados do Google Sheets para PostgreSQL usando **OAuth** (bem mais fácil!).
+Serviço Docker para sincronizar dados do Google Sheets para PostgreSQL usando **Service Account** (zero setup manual).
 
-## 🚀 Setup Rápido (5 minutos)
+## 🚀 Setup Inicial (5 minutos)
 
-### 1. Criar OAuth Credentials
+### 1. Criar Service Account
 
-1. Vá em [Google Cloud Console](https://console.cloud.google.com)
+1. Acesse [Google Cloud Console](https://console.cloud.google.com)
 2. Crie ou selecione um projeto
-3. Vá em **APIs & Services → Credentials**
-4. Clique **+ CREATE CREDENTIALS → OAuth 2.0 Client IDs**
-5. Configure:
-   - **Application type**: `Desktop application`
-   - **Name**: `Sheets Sync`
-6. **DOWNLOAD JSON** (vai baixar algo como `client_secret_123.json`)
+3. Vá em **APIs & Services → Library**
+4. Ative a **Google Sheets API**
+5. Vá em **APIs & Services → Credentials**
+6. Clique **+ CREATE CREDENTIALS → Service Account**
+7. Configure:
+   - **Name**: `sheets-sync`
+   - **Description**: `Sync service for employee movements`
+8. Na tela seguinte, pule as permissões (clique **DONE**)
+9. Na lista de Service Accounts, clique no email criado
+10. Vá na aba **Keys**
+11. Clique **ADD KEY → Create new key**
+12. Escolha **JSON** e clique **CREATE**
+13. **Baixa automaticamente** o arquivo JSON
 
-### 2. Configurar variáveis
+### 2. Configurar credenciais
 
-```bash
-# Na pasta sync-service/
-cp .env.example .env
+```powershell
+# Copiar arquivo JSON para local correto
+# Renomeie o arquivo baixado para: service-account-key.json
+Copy-Item "caminho\para\arquivo-baixado.json" "sync-service\credentials\service-account-key.json"
+
+# Configurar variáveis
+Copy-Item "sync-service\.env.example" "sync-service\.env"
 ```
 
-Edite `sync-service/.env`:
-
+**Edite `sync-service/.env`:**
 ```env
-# ID da sua planilha (pegar da URL)
-GOOGLE_SPREADSHEET_ID=1ABC123xyz_exemplo
-
-# OAuth credentials (do arquivo JSON baixado)
-GOOGLE_CLIENT_ID=123456789.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=GOCSPX-abc123xyz
-```
-
-**Como pegar as credenciais do arquivo JSON:**
-```json
-{
-  "installed": {
-    "client_id": "123456789.apps.googleusercontent.com",    ← GOOGLE_CLIENT_ID
-    "client_secret": "GOCSPX-abc123xyz"                     ← GOOGLE_CLIENT_SECRET
-  }
-}
+GOOGLE_SPREADSHEET_ID=SEU_ID_DA_PLANILHA_AQUI
+GOOGLE_SHEET_RANGE=A:E
 ```
 
 **Como pegar ID da planilha:**
 - URL: `https://docs.google.com/spreadsheets/d/1ABC123xyz_exemplo/edit`
 - ID: `1ABC123xyz_exemplo`
 
-## 🔑 Primeira execução (autorizar)
+### 3. Compartilhar planilha
 
-```bash
-# Primeira vez - vai pedir autorização
+1. **Abra sua planilha** no Google Sheets
+2. Clique **Share** (botão azul no canto superior direito)
+3. **Adicione o email da Service Account**:
+   - Copie o email do arquivo JSON (campo `"client_email"`)
+   - Cole no campo de compartilhamento
+   - Escolha **Viewer** (só leitura)
+   - Clique **Send**
+
+## ⚡ Executar sincronização
+
+```powershell
+# Sincronizar dados (automático)
+docker-compose run --rm sync
+
+# Ver logs detalhados
 docker-compose run --rm sync
 ```
 
-**O sistema vai:**
-1. **Mostrar uma URL** para você abrir no browser
-2. **Pedir para fazer login** e autorizar
-3. **Mostrar um código** para você copiar
-4. **Executar um comando** com esse código
+## 📊 Estrutura esperada da planilha
 
-**Exemplo do que vai aparecer:**
-```
-1. Abra esta URL no browser: https://accounts.google.com/oauth/authorize?...
-2. Faça login e autorize
-3. Copie o código e execute:
-   docker-compose run --rm sync node -e "require('./sync.js').setAuthCode('4/codigo_aqui')"
-```
-
-## ⚡ Execuções seguintes (automático)
-
-Depois da primeira autorização:
-
-```bash
-# Sincronizar (automático)
-docker-compose run --rm sync
-```
-
-## 📊 Como funciona
-
-1. **Primeira vez**: Autoriza via browser, salva token
-2. **Sempre**: Lê Google Sheets → Limpa PostgreSQL → Insere dados
-3. **Automático**: Renova tokens quando necessário
-
-## 🛠️ Estrutura esperada da planilha
+**Headers obrigatórios na linha 1:**
 
 | name | description | sow_pt | gerente_hp | project_type |
 |------|-------------|---------|------------|--------------|
-| Projeto Alpha | Descrição... | SOW-001 | Maria Silva | externo |
-| Projeto Beta | Descrição... | PT-002 | João Santos | interno |
+| Projeto Alpha | Descrição do projeto | SOW-001 | Maria Silva | externo |
+| Projeto Beta | Outra descrição | PT-002 | João Santos | interno |
 
-## 🔧 Resolução de problemas
+**Campos:**
+- **name** (obrigatório): Nome do projeto
+- **description**: Descrição detalhada
+- **sow_pt** (obrigatório, único): Código SOW/PT
+- **gerente_hp**: Nome do gerente HP
+- **project_type**: Tipo do projeto (externo/interno/etc)
 
-**"Token expirado":**
-```bash
-# Remover token e re-autorizar
-docker-compose run --rm sync rm -f /app/credentials/token.json
-docker-compose run --rm sync
+## 🔧 Configurações avançadas
+
+**No arquivo `.env`:**
+
+```env
+# Backup automático antes de sync
+BACKUP_BEFORE_SYNC=true
+
+# Validação de integridade
+VALIDATE_INTEGRITY=true
+
+# Range personalizado da planilha
+GOOGLE_SHEET_RANGE=A:F  # Se tiver 6 colunas
 ```
 
-**"Spreadsheet not found":**
-- Verifique se o `GOOGLE_SPREADSHEET_ID` está correto
-- Certifique-se que você tem acesso à planilha
+## 🛠️ Resolução de problemas
 
-**"Insufficient permissions":**
-- Re-execute a autorização
-- Certifique-se de autorizar acesso às planilhas
+**"Service Account key file not found":**
+```powershell
+# Verificar se arquivo existe
+Test-Path "sync-service\credentials\service-account-key.json"
+```
+
+**"Permission denied" ou "Spreadsheet not found":**
+- Verifique se compartilhou a planilha com o email da Service Account
+- Confirme se o `GOOGLE_SPREADSHEET_ID` está correto
+
+**"Headers obrigatórios ausentes":**
+- Certifique-se que a primeira linha da planilha contém: `name`, `description`, `sow_pt`, `gerente_hp`
+
+**Ver relacionamentos após sync:**
+```powershell
+# Verificar se não quebrou relacionamentos
+docker exec employee-movements-form-db-1 psql -U app_user -d employee_movements -c "
+SELECT 
+  (SELECT COUNT(*) FROM hp_portfolio.projects) as projetos,
+  (SELECT COUNT(*) FROM hp_portfolio.project_managers) as gestores,
+  (SELECT COUNT(*) FROM hp_portfolio.movements) as movimentacoes
+"
+```
+
+## 📁 Estrutura final
+
+```
+sync-service/
+├── credentials/
+│   └── service-account-key.json  ← Arquivo JSON baixado
+├── sync.js                       ← Script principal
+├── .env                          ← Configurações
+└── README.md                     ← Este arquivo
+```
+
+**Vantagens do Service Account:**
+✅ Zero setup após configuração inicial  
+✅ Sem autorização manual  
+✅ Token nunca expira  
+✅ Ideal para automação

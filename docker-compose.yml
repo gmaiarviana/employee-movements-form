@@ -61,8 +61,8 @@ services:
     volumes:
       - ./sync-service:/app
       - /app/node_modules
-      # Persistir tokens OAuth entre execuções
-      - sync_credentials:/app/credentials
+      # Montar diretório de credenciais do host para container
+      - ./sync-service/credentials:/app/credentials
     env_file:
       - ./sync-service/.env
     environment:

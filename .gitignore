@@ -113,3 +113,9 @@ Thumbs.db
 *.mov
 *.wmv
 
+# Service account credentials (sensitive data)
+sync-service/credentials/service-account-key.json
+**/service-account-key.json
+credentials/
+*.json
+
