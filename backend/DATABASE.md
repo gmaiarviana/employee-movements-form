@@ -125,7 +125,7 @@ docker exec employee-movements-form-db-1 psql -U app_user -d employee_movements
 - **Campos HP**: `compliance_training`, `billable`, `project_type`, `bundle_aws` (em movements); `hp_employee_id`, `has_previous_hp_experience` (em hp_employee_profiles)
 - **Novos Campos**: `machine_reuse`, `changed_by`, `notes` para auditoria
 - **Dados Pessoais**: `cpf`, `rg`, `data_nascimento`, `nivel_escolaridade`, `formacao`
-- **Projetos**: `sow_pt` (Statement of Work/Purchase Order), `gerente_hp`
+- **Projetos**: `sow_pt` (Statement of Work/Purchase Order), `gerente_hp`, `gerente_ia` (email do gerente responsável)
 - **Auditoria**: Histórico completo mantido na tabela `movements`
 
 Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos SQL descritivos como `\d schema.table`.
@@ -227,6 +227,7 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 |-------|------|-----------|
 | `sow_pt` | VARCHAR(50) | Statement of Work/Purchase Order (UNIQUE) |
 | `gerente_hp` | VARCHAR(100) | Gerente HP stakeholder externo |
+| `gerente_ia` | VARCHAR(100) | Email do gerente responsável (Atlântico) |
 | `project_type` | VARCHAR(50) | Tipo do projeto (interno/externo/misto) |
 
 ---
@@ -239,6 +240,7 @@ Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos
 ### ✅ ADICIONADO:
 - Campo `is_manager` em `hp_employee_profiles` (identifica gestores)
 - Campo `funcao_atlantico` em `employees` (renomeado de 'role')
+- Campo `gerente_ia` em `projects` (email do gerente responsável do Atlântico)
 
 ### 🔄 RENOMEADO:
 - `hp_portfolio.roles` → `hp_portfolio.roles_hp` (clareza de propósito)

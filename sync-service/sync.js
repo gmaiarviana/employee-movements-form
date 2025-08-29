@@ -170,7 +170,7 @@ async function readSheetsData(sheets) {
     console.log(`📊 ${dataRows.length} projetos encontrados`);
     
     // Validar headers obrigatórios
-    const requiredHeaders = ['name', 'description', 'sow_pt', 'gerente_hp'];
+    const requiredHeaders = ['name', 'description', 'sow_pt', 'gerente_hp', 'gerente_ia'];
     const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
     
     if (missingHeaders.length > 0) {
@@ -188,8 +188,8 @@ async function readSheetsData(sheets) {
         });
         
         // Validar campos obrigatórios
-        if (!project.name || !project.sow_pt) {
-          console.warn(`⚠️ Linha ${index + 2}: campos obrigatórios ausentes (name/sow_pt)`);
+        if (!project.name || !project.sow_pt || !project.gerente_ia) {
+          console.warn(`⚠️ Linha ${index + 2}: campos obrigatórios ausentes (name/sow_pt/gerente_ia)`);
           return null;
         }
         
@@ -253,24 +253,15 @@ async function syncProjectsToDatabase(dbClient, projects) {
           [project.id]
         );
         
-        // Verificar se tem project_managers
-        const managersResult = await dbClient.query(
-          'SELECT COUNT(*) as count FROM hp_portfolio.project_managers WHERE project_id = $1',
-          [project.id]
-        );
-        
         const movementCount = parseInt(movementsResult.rows[0].count);
-        const managerCount = parseInt(managersResult.rows[0].count);
         
-        if (movementCount > 0 || managerCount > 0) {
+        if (movementCount > 0) {
           console.log(`⚠️ Projeto ${project.name} tem relacionamentos ativos:`);
           console.log(`   • ${movementCount} movimentações`);
-          console.log(`   • ${managerCount} gestores`);
           console.log(`🗑️ Removendo relacionamentos em cascata...`);
           
           // Deletar relacionamentos primeiro
           await dbClient.query('DELETE FROM hp_portfolio.movements WHERE project_id = $1', [project.id]);
-          await dbClient.query('DELETE FROM hp_portfolio.project_managers WHERE project_id = $1', [project.id]);
           
           console.log(`✅ Relacionamentos removidos para: ${project.name}`);
         }
@@ -289,19 +280,21 @@ async function syncProjectsToDatabase(dbClient, projects) {
           // UPSERT baseado em sow_pt (que é único)
           const upsertQuery = `
             INSERT INTO hp_portfolio.projects (
-              id, name, description, sow_pt, gerente_hp, project_type, created_at, updated_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+              id, name, description, sow_pt, gerente_hp, gerente_ia, project_type, created_at, updated_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             ON CONFLICT (sow_pt) 
             DO UPDATE SET 
               name = EXCLUDED.name,
               description = EXCLUDED.description,
               gerente_hp = EXCLUDED.gerente_hp,
+              gerente_ia = EXCLUDED.gerente_ia,
               project_type = EXCLUDED.project_type,
               updated_at = EXCLUDED.updated_at
             WHERE 
               hp_portfolio.projects.name IS DISTINCT FROM EXCLUDED.name OR
               hp_portfolio.projects.description IS DISTINCT FROM EXCLUDED.description OR
               hp_portfolio.projects.gerente_hp IS DISTINCT FROM EXCLUDED.gerente_hp OR
+              hp_portfolio.projects.gerente_ia IS DISTINCT FROM EXCLUDED.gerente_ia OR
               hp_portfolio.projects.project_type IS DISTINCT FROM EXCLUDED.project_type
             RETURNING 
               id,
@@ -317,6 +310,7 @@ async function syncProjectsToDatabase(dbClient, projects) {
             project.description,
             project.sow_pt,
             project.gerente_hp,
+            project.gerente_ia,
             project.project_type || null,
             project.created_at,
             project.updated_at

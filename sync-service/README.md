@@ -67,16 +67,17 @@ docker-compose run --rm sync
 
 **Headers obrigatórios na linha 1:**
 
-| name | description | sow_pt | gerente_hp | project_type |
-|------|-------------|---------|------------|--------------|
-| Projeto Alpha | Descrição do projeto | SOW-001 | Maria Silva | externo |
-| Projeto Beta | Outra descrição | PT-002 | João Santos | interno |
+| name | description | sow_pt | gerente_hp | gerente_ia | project_type |
+|------|-------------|---------|------------|------------|--------------|
+| Projeto Alpha | Descrição do projeto | SOW-001 | Maria Silva | admin@admin.com.br | externo |
+| Projeto Beta | Outra descrição | PT-002 | João Santos | joao.silva@atlantico.com.br | interno |
 
 **Campos:**
 - **name** (obrigatório): Nome do projeto
 - **description**: Descrição detalhada
 - **sow_pt** (obrigatório, único): Código SOW/PT
 - **gerente_hp**: Nome do gerente HP
+- **gerente_ia** (obrigatório): Email do gerente do Atlântico
 - **project_type**: Tipo do projeto (externo/interno/etc)
 
 ## 🔧 Configurações avançadas
