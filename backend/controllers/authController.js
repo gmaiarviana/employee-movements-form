@@ -102,7 +102,7 @@ const register = async (req, res) => {
             // Generate next employee ID
             const maxEmployeeIdQuery = `
                 SELECT id FROM core.employees 
-                WHERE id ~ '^EMP[0-9]+$' 
+                WHERE id LIKE 'EMP%' AND LENGTH(id) <= 10 AND id ~ '^[A-Z0-9]+$'
                 ORDER BY CAST(SUBSTRING(id FROM 4) AS INTEGER) DESC 
                 LIMIT 1
             `;
@@ -119,9 +119,9 @@ const register = async (req, res) => {
 
             // Insert new employee
             const insertEmployeeQuery = `
-                INSERT INTO core.employees (id, name, email, role, company, user_id, created_at, updated_at)
+                INSERT INTO core.employees (id, name, email, funcao_atlantico, company, user_id, created_at, updated_at)
                 VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
-                RETURNING id, name, email, role, company, created_at
+                RETURNING id, name, email, funcao_atlantico, company, created_at
             `;
             
             const employeeResult = await dbClient.query(insertEmployeeQuery, [
