@@ -38,6 +38,19 @@ docker-compose exec db psql -U app_user -d employee_movements
 
 > **Database Schema**: Ver `DATABASE.md` para schema completo e queries detalhadas
 
+## Segurança
+
+### Rate Limiting
+- **Endpoints protegidos:** `/api/login` e `/api/register`
+- **Limite:** 5 tentativas por IP a cada 15 minutos
+- **Resposta:** HTTP 429 quando limite excedido
+- **Headers:** X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset
+
+### Logs de Produção
+- Logs sanitizados automaticamente em `NODE_ENV=production`
+- Informações sensíveis não expostas em produção
+- Logs detalhados mantidos em desenvolvimento
+
 ### Estrutura do Banco (Resumo)
 
 O banco utiliza PostgreSQL com 2 schemas principais:

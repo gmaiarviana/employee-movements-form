@@ -346,7 +346,7 @@ const createEmployee = async (req, res) => {
         
         // Insert new employee
         const insertQuery = `
-            INSERT INTO core.employees (id, name, email, role, company, cpf, rg, data_nascimento, nivel_escolaridade, formacao)
+            INSERT INTO core.employees (id, name, email, funcao_atlantico, company, cpf, rg, data_nascimento, nivel_escolaridade, formacao)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
             RETURNING *
         `;
@@ -364,10 +364,15 @@ const createEmployee = async (req, res) => {
             formacao
         ]);
         
+        const employee = result.rows[0];
+        
         res.status(201).json({
             success: true,
             message: 'Employee created successfully',
-            data: result.rows[0]
+            data: {
+                ...employee,
+                role: employee.funcao_atlantico // Mapear funcao_atlantico para role na resposta
+            }
         });
         
     } catch (error) {
