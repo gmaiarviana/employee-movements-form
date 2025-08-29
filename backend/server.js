@@ -7,6 +7,7 @@ require('dotenv').config();
 // Import configurations and modules
 const { connectDatabase } = require('./config/database');
 const { corsOptions } = require('./config/cors');
+const { authRateLimiter } = require('./middleware/rateLimiter');
 
 // Import route modules
 const authRoutes = require('./routes/auth');
@@ -52,6 +53,10 @@ app.use(express.json());
 // =============================================================================
 // ROUTES
 // =============================================================================
+
+// Apply rate limiting only to authentication endpoints
+app.use('/api/register', authRateLimiter);
+app.use('/api/login', authRateLimiter);
 
 // Mount route modules
 app.use('/api', authRoutes);
