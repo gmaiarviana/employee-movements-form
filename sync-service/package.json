@@ -1,0 +1,25 @@
+{
+  "name": "sync-service",
+  "version": "1.0.0",
+  "description": "Google Sheets to PostgreSQL sync service",
+  "main": "sync.js",
+  "scripts": {
+    "start": "node sync.js",
+    "dev": "node sync.js"
+  },
+  "dependencies": {
+    "googleapis": "^131.0.0",
+    "pg": "^8.11.3",
+    "dotenv": "^16.3.1",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "google-sheets",
+    "postgresql",
+    "sync",
+    "docker"
+  ],
+  "author": "",
+  "license": "ISC"
+}

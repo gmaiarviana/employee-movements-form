@@ -55,9 +55,35 @@ services:
     networks:
       - app-network
 
+  # ===== NOVO SERVIÇO DE SINCRONIZAÇÃO =====
+  sync:
+    build: ./sync-service
+    volumes:
+      - ./sync-service:/app
+      - /app/node_modules
+      # Persistir tokens OAuth entre execuções
+      - sync_credentials:/app/credentials
+    env_file:
+      - ./sync-service/.env
+    environment:
+      - NODE_ENV=development
+      # Database Configuration (mesmas do backend)
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=employee_movements
+      - DB_USER=app_user
+      - DB_PASSWORD=app_password
+    depends_on:
+      - db
+    networks:
+      - app-network
+    profiles:
+      - sync
+
 networks:
   app-network:
     driver: bridge
 
 volumes:
   postgres_data:
+  sync_credentials:  # Volume para persistir tokens OAuth
