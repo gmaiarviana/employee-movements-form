@@ -25,7 +25,6 @@ const CONFIG = {
     password: process.env.DB_PASSWORD || 'app_password'
   },
   options: {
-    backupBeforeSync: process.env.BACKUP_BEFORE_SYNC === 'true',
     validateIntegrity: process.env.VALIDATE_INTEGRITY === 'true'
   }
 };
@@ -216,9 +215,6 @@ async function syncProjectsToDatabase(dbClient, projects) {
   try {
     console.log(`🔄 Iniciando sincronização completa de ${projects.length} projetos...`);
     
-    // Backup antes de sincronizar
-    await backupProjects(dbClient);
-    
     let inserted = 0;
     let updated = 0;
     let skipped = 0;
@@ -241,7 +237,7 @@ async function syncProjectsToDatabase(dbClient, projects) {
         const sheetsSowPts = projects.map(p => p.sow_pt);
         const orphanProjectsQuery = `
           SELECT id, name, sow_pt FROM hp_portfolio.projects 
-          WHERE sow_pt NOT IN (${sheetsSowPts.map((_, i) => `${i + 1}`).join(',')})
+          WHERE sow_pt NOT IN (${sheetsSowPts.map((_, i) => `$${i + 1}`).join(',')})
         `;
         const orphanResult = await dbClient.query(orphanProjectsQuery, sheetsSowPts);
         projectsToDelete = orphanResult.rows;
@@ -384,7 +380,6 @@ async function syncProjectsFromSheets() {
     console.log('📋 Configuração:', {
       planilhaId: CONFIG.spreadsheet.id.substring(0, 10) + '...',
       range: CONFIG.spreadsheet.range,
-      backup: CONFIG.options.backupBeforeSync ? 'Habilitado' : 'Desabilitado',
       validacao: CONFIG.options.validateIntegrity ? 'Habilitada' : 'Desabilitada'
     });
     
