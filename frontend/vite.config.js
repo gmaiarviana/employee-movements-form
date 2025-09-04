@@ -10,7 +10,7 @@ export default defineConfig({
     proxy: {
       '/api': {
         // Use backend service name for Docker, fallback to localhost for local development
-        target: process.env.VITE_API_URL || 'http://backend:3000',
+        target: 'http://backend:3000',
         changeOrigin: true,
         secure: false,
         timeout: 10000,

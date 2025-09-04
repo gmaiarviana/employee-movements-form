@@ -88,11 +88,8 @@ const getTeamMembers = async (req, res) => {
         );
         
         if (managerResult.rows.length === 0) {
-            return res.status(404).json({
-                success: false,
-                error: 'Manager not found',
-                message: 'No employee record found for the logged in user'
-            });
+            // If no employee found, assume it's an admin user and return all employees
+            return await getAllEmployees(req, res);
         }
         
         const managerId = managerResult.rows[0].id;

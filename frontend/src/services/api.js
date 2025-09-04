@@ -2,7 +2,9 @@
 // API SERVICE - Centralized API calls
 // =============================================================================
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+// Use Vite proxy when VITE_API_URL is not set (Docker setup)
+// Use direct URL when VITE_API_URL is set (local development)
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 const REQUEST_TIMEOUT = 10000; // 10 seconds
 
 // =============================================================================
