@@ -1,68 +1,8 @@
-// sync.js
+// sync-projects.js
 
-const { google } = require('googleapis');
-const { Client } = require('pg');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs').promises;
-require('dotenv').config();
-
-// =============================================================================
-// CONFIGURATION
-// =============================================================================
-
-const CONFIG = {
-  spreadsheet: {
-    id: process.env.GOOGLE_SPREADSHEET_ID,
-    sheetName: 'Baseline Contratos',
-    range: process.env.GOOGLE_SHEET_RANGE || 'A:G',
-  },
-  serviceAccount: {
-    keyPath: process.env.GOOGLE_SERVICE_ACCOUNT_PATH || '/app/credentials/service-account-key.json',
-    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
-  },
-  database: {
-    host: process.env.DB_HOST || 'db',
-    port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME || 'employee_movements',
-    user: process.env.DB_USER || 'app_user',
-    password: process.env.DB_PASSWORD || 'app_password'
-  },
-  options: {
-    validateIntegrity: process.env.VALIDATE_INTEGRITY === 'true'
-  }
-};
-
-// =============================================================================
-// GOOGLE SHEETS & DATABASE CLIENTS
-// =============================================================================
-
-async function createSheetsClient() {
-  try {
-    console.log('🔑 Inicializando Google Sheets com Service Account...');
-    const auth = new google.auth.GoogleAuth({
-      keyFile: CONFIG.serviceAccount.keyPath,
-      scopes: CONFIG.serviceAccount.scopes
-    });
-    const sheets = google.sheets({ version: 'v4', auth });
-    console.log('✅ Cliente Google Sheets criado com sucesso');
-    return sheets;
-  } catch (error) {
-    console.error('❌ Erro ao criar cliente Google Sheets:', error.message);
-    throw error;
-  }
-}
-
-async function createDbClient() {
-  const client = new Client(CONFIG.database);
-  try {
-    await client.connect();
-    console.log('✅ Conexão com banco de dados estabelecida');
-    return client;
-  } catch (error) {
-    console.error('❌ Erro ao conectar com o banco de dados:', error.message);
-    throw error;
-  }
-}
+const { CONFIG, GoogleSheetsClient, DatabaseClient } = require('./utils/syncUtils');
 
 // =============================================================================
 // HELPER FUNCTIONS
@@ -82,15 +22,16 @@ async function syncProjectsFromSheets() {
   const startTime = Date.now();
 
   try {
-    sheetsClient = await createSheetsClient();
-    dbClient = await createDbClient();
+    sheetsClient = new GoogleSheetsClient();
+    dbClient = new DatabaseClient();
+    await dbClient.connect();
 
     // Fetch data from Google Sheets
     console.log(`⏳ Buscando dados da planilha '${CONFIG.spreadsheet.sheetName}'...`);
-    const response = await sheetsClient.spreadsheets.values.get({
-      spreadsheetId: CONFIG.spreadsheet.id,
-      range: `${CONFIG.spreadsheet.sheetName}!${CONFIG.spreadsheet.range}`,
-    });
+    const response = await sheetsClient.getData(
+      CONFIG.spreadsheet.id,
+      `${CONFIG.spreadsheet.sheetName}!${CONFIG.spreadsheet.range}`
+    );
 
     const rows = response.data.values;
     if (!rows || rows.length <= 1) {
@@ -211,7 +152,6 @@ async function syncProjectsFromSheets() {
   } finally {
     if (dbClient) {
       await dbClient.end();
-      console.log('🔒 Conexão com banco fechada');
     }
   }
 }

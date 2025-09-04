@@ -13,4 +13,4 @@ COPY . .
 RUN mkdir -p /app/credentials
 
 # Default command
-CMD ["node", "sync.js"]
+CMD ["node", "sync-projects.js"]
