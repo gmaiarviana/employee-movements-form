@@ -5,7 +5,8 @@
   "main": "sync-projects.js",
   "scripts": {
     "start": "node sync-projects.js",
-    "dev": "node sync-projects.js"
+    "dev": "node sync-projects.js",
+    "sync:all": "node run-all-syncs.js"
   },
   "dependencies": {
     "googleapis": "^131.0.0",

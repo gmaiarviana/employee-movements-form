@@ -157,7 +157,16 @@ async function syncProjectsFromSheets() {
 }
 
 // =============================================================================
+// EXPORTS
+// =============================================================================
+
+module.exports = { syncProjectsFromSheets };
+
+// =============================================================================
 // RUN
 // =============================================================================
 
-syncProjectsFromSheets();
+// Only run if this file is executed directly
+if (require.main === module) {
+  syncProjectsFromSheets();
+}
