@@ -1,6 +1,8 @@
 // sync.js
 
 const { google } = require('googleapis');
+const { Client } = require('pg');
+const { v4: uuidv4 } = require('uuid');
 const fs = require('fs').promises;
 require('dotenv').config();
 
@@ -11,17 +13,27 @@ require('dotenv').config();
 const CONFIG = {
   spreadsheet: {
     id: process.env.GOOGLE_SPREADSHEET_ID,
-    sheetName: 'Atlantes',
-    range: process.env.GOOGLE_SHEET_RANGE || 'A:F',
+    sheetName: 'Baseline Contratos',
+    range: process.env.GOOGLE_SHEET_RANGE || 'A:G',
   },
   serviceAccount: {
     keyPath: process.env.GOOGLE_SERVICE_ACCOUNT_PATH || '/app/credentials/service-account-key.json',
     scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
+  },
+  database: {
+    host: process.env.DB_HOST || 'db',
+    port: process.env.DB_PORT || 5432,
+    database: process.env.DB_NAME || 'employee_movements',
+    user: process.env.DB_USER || 'app_user',
+    password: process.env.DB_PASSWORD || 'app_password'
+  },
+  options: {
+    validateIntegrity: process.env.VALIDATE_INTEGRITY === 'true'
   }
 };
 
 // =============================================================================
-// GOOGLE SHEETS CLIENT (SERVICE ACCOUNT)
+// GOOGLE SHEETS & DATABASE CLIENTS
 // =============================================================================
 
 async function createSheetsClient() {
@@ -40,70 +52,167 @@ async function createSheetsClient() {
   }
 }
 
-// =============================================================================
-// READ AND PROCESS DATA
-// =============================================================================
-
-async function countEmployees() {
-  let sheets;
+async function createDbClient() {
+  const client = new Client(CONFIG.database);
   try {
-    // Validar arquivo de credenciais
-    await fs.access(CONFIG.serviceAccount.keyPath);
-    console.log('✅ Arquivo de credenciais encontrado');
+    await client.connect();
+    console.log('✅ Conexão com banco de dados estabelecida');
+    return client;
+  } catch (error) {
+    console.error('❌ Erro ao conectar com o banco de dados:', error.message);
+    throw error;
+  }
+}
 
-    // Criar cliente Sheets
-    sheets = await createSheetsClient();
-    
-    // Ler dados da planilha
-    const fullRange = `${CONFIG.spreadsheet.sheetName}!${CONFIG.spreadsheet.range}`;
-    console.log(`📊 Lendo dados da planilha ${CONFIG.spreadsheet.id} na aba '${CONFIG.spreadsheet.sheetName}'...`);
-    
-    const response = await sheets.spreadsheets.values.get({
+// =============================================================================
+// HELPER FUNCTIONS
+// =============================================================================
+
+function cleanValue(value) {
+  return value ? String(value).trim() : null;
+}
+
+// =============================================================================
+// CORE SYNC LOGIC
+// =============================================================================
+
+async function syncProjectsFromSheets() {
+  let sheetsClient;
+  let dbClient;
+  const startTime = Date.now();
+
+  try {
+    sheetsClient = await createSheetsClient();
+    dbClient = await createDbClient();
+
+    // Fetch data from Google Sheets
+    console.log(`⏳ Buscando dados da planilha '${CONFIG.spreadsheet.sheetName}'...`);
+    const response = await sheetsClient.spreadsheets.values.get({
       spreadsheetId: CONFIG.spreadsheet.id,
-      range: fullRange
+      range: `${CONFIG.spreadsheet.sheetName}!${CONFIG.spreadsheet.range}`,
     });
-    
-    const rows = response.data.values || [];
-    
-    if (rows.length === 0) {
-      console.log('⚠️ Planilha vazia');
-      return 0;
+
+    const rows = response.data.values;
+    if (!rows || rows.length <= 1) {
+      console.log('❗ Nenhuma linha de dados encontrada na planilha.');
+      return;
     }
-    
-    // Headers are in the first row
+
     const headers = rows[0].map(h => h.toLowerCase().trim());
     const dataRows = rows.slice(1);
     
-    // Find the index of the 'matricula ia' and 'situação' columns
-    const matriculaIaIndex = headers.indexOf('matricula ia');
-    const situacaoIndex = headers.indexOf('situação');
-    
-    if (matriculaIaIndex === -1) {
-      throw new Error("Coluna 'Matricula IA' não encontrada na planilha.");
-    }
-    if (situacaoIndex === -1) {
-      throw new Error("Coluna 'Situação' não encontrada na planilha.");
-    }
-    
-    // Collect all unique employee IDs where 'Situação' is 'Atuando no Projeto'
-    const activeEmployeeIds = dataRows
-      .filter(row => (row[situacaoIndex] || '').trim() === 'Atuando no Projeto')
-      .map(row => (row[matriculaIaIndex] || '').trim())
-      .filter(id => id); // Remove empty values
+    console.log('Headers encontrados na planilha (todos em minúsculas):', headers);
 
-    // Get unique IDs
-    const uniqueActiveEmployees = new Set(activeEmployeeIds);
+    // Mapeamento das colunas
+    const getColumnIndex = (headerName) => {
+      const normalizedHeaderName = headerName.toLowerCase().trim();
+      const index = headers.findIndex(h => h.toLowerCase().trim() === normalizedHeaderName);
+      if (index === -1) {
+        throw new Error(`Coluna '${headerName}' não encontrada na planilha.`);
+      }
+      return index;
+    };
     
-    console.log(`✅ ${uniqueActiveEmployees.size} funcionários únicos identificados como 'Atuando no Projeto'.`);
+    const projectsMap = new Map();
+    let projectsFilteredOut = 0;
+
+    // Processa de baixo para cima para manter a última ocorrência de duplicatas
+    for (let i = dataRows.length - 1; i >= 0; i--) {
+      const row = dataRows[i];
+      const anoBase = cleanValue(row[getColumnIndex('ano base')]);
+
+      // Requisito 1: Filtrar apenas projetos com 'Ano Base' igual a '2025'
+      if (anoBase !== '2025') {
+        projectsFilteredOut++;
+        continue;
+      }
+      
+      const sowPt = cleanValue(row[getColumnIndex('sow/pt')]);
+      
+      if (!sowPt) {
+        console.log('❗ Linha ignorada: `SOW/PT` está vazio.');
+        continue;
+      }
+
+      // Requisito 2: Sobrescreve o projeto se a chave (sowPt) já existir.
+      // Isso garante que apenas a última ocorrência (a mais abaixo na planilha) seja mantida.
+      if (!projectsMap.has(sowPt)) {
+        const name = cleanValue(row[getColumnIndex('projeto')]);
+        const gerenteHp = cleanValue(row[getColumnIndex('gerente hp')]);
+        const projectType = cleanValue(row[getColumnIndex('tipo de projeto')]);
+        const description = '';
+        const gerenteIa = null;
+
+        projectsMap.set(sowPt, {
+          id: uuidv4(),
+          name,
+          sowPt,
+          gerenteHp,
+          gerenteIa,
+          projectType,
+          description
+        });
+      }
+    }
+
+    const projectsToInsert = Array.from(projectsMap.values());
+    const projectsDuplicatesRemoved = dataRows.length - projectsToInsert.length - projectsFilteredOut;
+
+    // Apagar todos os projetos existentes para fazer um Full Sync
+    console.log('🗑️ Apagando todos os projetos existentes no banco de dados...');
+    const deleteQuery = 'DELETE FROM hp_portfolio.projects;';
+    const deleteResult = await dbClient.query(deleteQuery);
+    console.log(`✅ ${deleteResult.rowCount} projetos apagados.`);
     
-    return uniqueActiveEmployees.size;
+    let projectsInserted = 0;
+
+    for (const project of projectsToInsert) {
+      const insertQuery = `
+        INSERT INTO hp_portfolio.projects(id, name, sow_pt, gerente_hp, gerente_ia, project_type, description)
+        VALUES($1, $2, $3, $4, $5, $6, $7);
+      `;
+      
+      const values = [
+        project.id,
+        project.name,
+        project.sowPt,
+        project.gerenteHp,
+        project.gerenteIa,
+        project.projectType,
+        project.description
+      ];
+
+      await dbClient.query(insertQuery, values);
+      projectsInserted++;
+    }
+
+    const totalProjectsQuery = 'SELECT COUNT(*) FROM hp_portfolio.projects;';
+    const totalProjectsResult = await dbClient.query(totalProjectsQuery);
+    const totalProjectsInDb = totalProjectsResult.rows[0].count;
+
+    const endTime = Date.now();
+    const durationInSeconds = ((endTime - startTime) / 1000).toFixed(2);
+
+    console.log('\n--- Resumo da Sincronização ---');
+    console.log(`⏱️ Tempo total: ${durationInSeconds} segundos`);
+    console.log(`📄 Linhas lidas da planilha: ${dataRows.length}`);
+    console.log(`✅ Projetos inseridos: ${projectsInserted}`);
+    console.log(`➡️ Projetos duplicados desconsiderados: ${projectsDuplicatesRemoved}`);
+    console.log(`🚫 Projetos filtrados (não são de 2025): ${projectsFilteredOut}`);
+    console.log(`📊 Total de projetos no banco de dados: ${totalProjectsInDb}`);
+    console.log('------------------------------');
 
   } catch (error) {
-    console.error('💥 Falha ao ler dados da planilha:', error.message);
+    console.error('💥 Falha na sincronização:', error.message);
     if (process.env.NODE_ENV === 'development') {
       console.error('🔍 Stack trace:', error.stack);
     }
     process.exit(1);
+  } finally {
+    if (dbClient) {
+      await dbClient.end();
+      console.log('🔒 Conexão com banco fechada');
+    }
   }
 }
 
@@ -111,4 +220,4 @@ async function countEmployees() {
 // RUN
 // =============================================================================
 
-countEmployees();
+syncProjectsFromSheets();
