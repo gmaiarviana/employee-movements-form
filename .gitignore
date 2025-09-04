@@ -119,3 +119,5 @@ sync-service/credentials/service-account-key.json
 credentials/
 *.json
 
+# Backup files
+*.bak
