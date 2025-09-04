@@ -36,7 +36,7 @@ Copy-Item "sync-service\.env.example" "sync-service\.env"
 **Edite `sync-service/.env`:**
 ```env
 GOOGLE_SPREADSHEET_ID=SEU_ID_DA_PLANILHA_AQUI
-GOOGLE_SHEET_RANGE=A:E
+GOOGLE_SHEET_RANGE=A:Q
 ```
 
 **Como pegar ID da planilha:**
@@ -65,20 +65,15 @@ docker-compose run --rm sync
 
 ## 📊 Estrutura esperada da planilha
 
-**Headers obrigatórios na linha 1:**
+**Campos obrigatórios para sincronização:**
 
-| name | description | sow_pt | gerente_hp | gerente_ia | project_type |
-|------|-------------|---------|------------|------------|--------------|
-| Projeto Alpha | Descrição do projeto | SOW-001 | Maria Silva | admin@admin.com.br | externo |
-| Projeto Beta | Outra descrição | PT-002 | João Santos | joao.silva@atlantico.com.br | interno |
+- **projeto**: Nome do projeto
+- **sow/pt**: Código SOW/PT (único)
+- **ano base**: Deve ser "2025" para sincronizar
+- **gerente hp**: Nome do gerente HP (opcional)
+- **tipo de projeto**: Tipo do projeto (opcional)
 
-**Campos:**
-- **name** (obrigatório): Nome do projeto
-- **description**: Descrição detalhada
-- **sow_pt** (obrigatório, único): Código SOW/PT
-- **gerente_hp**: Nome do gerente HP
-- **gerente_ia** (obrigatório): Email do gerente do Atlântico
-- **project_type**: Tipo do projeto (externo/interno/etc)
+*Nota: A planilha possui múltiplas colunas, mas apenas estes campos são processados.*
 
 ## 🔧 Configurações avançadas
 
@@ -92,7 +87,7 @@ BACKUP_BEFORE_SYNC=true
 VALIDATE_INTEGRITY=true
 
 # Range personalizado da planilha
-GOOGLE_SHEET_RANGE=A:F  # Se tiver 6 colunas
+GOOGLE_SHEET_RANGE=A:Q  # Default para 17 colunas (todas as colunas da planilha)
 ```
 
 ## 🛠️ Resolução de problemas
@@ -108,7 +103,7 @@ Test-Path "sync-service\credentials\service-account-key.json"
 - Confirme se o `GOOGLE_SPREADSHEET_ID` está correto
 
 **"Headers obrigatórios ausentes":**
-- Certifique-se que a primeira linha da planilha contém: `name`, `description`, `sow_pt`, `gerente_hp`
+- Certifique-se que a primeira linha da planilha contém: `projeto`, `sow/pt`, `gerente hp`, `tipo de projeto`, `ano base`
 
 **Ver relacionamentos após sync:**
 ```powershell
