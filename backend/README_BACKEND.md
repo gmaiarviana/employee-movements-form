@@ -96,7 +96,8 @@ SELECT COUNT(*) FROM hp_portfolio.hp_employee_profiles;  -- Verificar perfis HP 
 - `GET /api/employees/team-members` - Membros da equipe do gestor logado
   - **Lógica**: Utiliza `hp_portfolio.managers_mapping` para encontrar aliases do gestor
   - **Retorna**: Funcionários onde `gerente` corresponde aos aliases mapeados
-  - **Fallback**: Se usuário não for gestor mapeado, retorna todos os funcionários (admin)
+  - **Fallback**: Se usuário não for gestor mapeado E não for admin, retorna lista vazia
+  - **Admin**: Usuários com `is_admin = true` sempre veem todos os funcionários
   - **Filtro**: Exclui gestores (`is_manager = false`)
 - `GET /api/employees/:id/details` - Detalhes do funcionário
 

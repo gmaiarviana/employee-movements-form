@@ -82,8 +82,20 @@ const getTeamMembers = async (req, res) => {
         const employeeId = req.user.employeeId;
         
         if (!employeeId) {
-            // If no employee ID found, assume it's an admin user and return all employees
-            return await getAllEmployees(req, res);
+            // Verificar se é admin antes do fallback
+            const adminCheckQuery = 'SELECT is_admin FROM core.users WHERE email = $1';
+            const adminResult = await dbClient.query(adminCheckQuery, [req.user.email]);
+
+            if (adminResult.rows.length > 0 && adminResult.rows[0].is_admin) {
+                // É admin - retorna todos os funcionários
+                return await getAllEmployees(req, res);
+            } else {
+                // Não é admin e não tem aliases - retorna lista vazia
+                return res.json({
+                    success: true,
+                    data: { teamMembers: [] }
+                });
+            }
         }
         
         // 1. Buscar todos os aliases do gestor na tabela managers_mapping
@@ -93,8 +105,20 @@ const getTeamMembers = async (req, res) => {
         );
         
         if (managerAliasesResult.rows.length === 0) {
-            // If no manager aliases found, assume it's an admin user and return all employees
-            return await getAllEmployees(req, res);
+            // Verificar se é admin antes do fallback
+            const adminCheckQuery = 'SELECT is_admin FROM core.users WHERE email = $1';
+            const adminResult = await dbClient.query(adminCheckQuery, [req.user.email]);
+
+            if (adminResult.rows.length > 0 && adminResult.rows[0].is_admin) {
+                // É admin - retorna todos os funcionários
+                return await getAllEmployees(req, res);
+            } else {
+                // Não é admin e não tem aliases - retorna lista vazia
+                return res.json({
+                    success: true,
+                    data: { teamMembers: [] }
+                });
+            }
         }
         
         const managerAliases = managerAliasesResult.rows.map(row => row.alias);
