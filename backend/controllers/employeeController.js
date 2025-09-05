@@ -78,77 +78,48 @@ const getAllEmployees = async (req, res) => {
 // Get team members for a leader
 const getTeamMembers = async (req, res) => {
     try {
-        // Get user ID from JWT token
-        const userId = req.user.userId;
+        // Get employee ID from JWT token
+        const employeeId = req.user.employeeId;
         
-        // 1. Find employee_id of the logged in user
-        const managerResult = await dbClient.query(
-            'SELECT id FROM core.employees WHERE user_id = $1',
-            [userId]
-        );
-        
-        if (managerResult.rows.length === 0) {
-            // If no employee found, assume it's an admin user and return all employees
+        if (!employeeId) {
+            // If no employee ID found, assume it's an admin user and return all employees
             return await getAllEmployees(req, res);
         }
         
-        const managerId = managerResult.rows[0].id;
+        // 1. Buscar todos os aliases do gestor na tabela managers_mapping
+        const managerAliasesResult = await dbClient.query(
+            'SELECT alias FROM hp_portfolio.managers_mapping WHERE matricula_ia = $1',
+            [employeeId]
+        );
         
-        // 2. Find projects where this manager has is_manager = true
-        // For now, return all projects since we don't have project-specific manager assignment
-        const projectsResult = await dbClient.query(`
-            SELECT DISTINCT p.id as project_id 
-            FROM hp_portfolio.projects p
-            WHERE EXISTS (
-                SELECT 1 FROM hp_portfolio.employees hpe 
-                WHERE hpe.matricula_ia = $1 AND hpe.is_manager = true
-            )
-        `, [managerId]);
-        
-        if (projectsResult.rows.length === 0) {
-            return res.json({
-                success: true,
-                data: { teamMembers: [] }
-            });
+        if (managerAliasesResult.rows.length === 0) {
+            // If no manager aliases found, assume it's an admin user and return all employees
+            return await getAllEmployees(req, res);
         }
         
-        const projectIds = projectsResult.rows.map(row => row.project_id);
+        const managerAliases = managerAliasesResult.rows.map(row => row.alias);
         
-        // 3. Find active employees in these projects (ENTRY without EXIT)
+        // 2. Buscar funcionários da equipe baseado nos aliases do gestor
         const teamMembersQuery = `
             SELECT DISTINCT 
-                e.id, 
-                e.name, 
-                e.funcao_atlantico, 
-                e.company,
-                e.cpf,
-                e.rg,
-                e.data_nascimento,
-                e.nivel_escolaridade,
-                e.formacao,
-                p.name as project_name,
-                m.role as current_role,
-                m.start_date
-            FROM core.employees e
-            JOIN hp_portfolio.movements m ON e.id = m.employee_id
-            JOIN hp_portfolio.projects p ON m.project_id = p.id
-            WHERE m.project_id = ANY($1)
-            AND m.movement_type = 'ENTRY'
-            AND e.id NOT IN (
-                -- Excluir gestores (que têm is_manager = true)
-                SELECT hpe.matricula_ia FROM hp_portfolio.employees hpe WHERE hpe.is_manager = true
-            )
-            AND NOT EXISTS (
-                SELECT 1 FROM hp_portfolio.movements m2 
-                WHERE m2.employee_id = m.employee_id 
-                AND m2.project_id = m.project_id 
-                AND m2.movement_type = 'EXIT' 
-                AND m2.created_at > m.created_at
-            )
-            ORDER BY e.name
+                ce.id, 
+                ce.name, 
+                ce.funcao_atlantico, 
+                ce.company,
+                ce.cpf,
+                ce.rg,
+                ce.data_nascimento,
+                ce.nivel_escolaridade,
+                ce.formacao,
+                hpe.projeto as project_name
+            FROM core.employees ce
+            JOIN hp_portfolio.employees hpe ON ce.id = hpe.matricula_ia
+            WHERE hpe.gerente = ANY($1)
+                AND hpe.is_manager = false
+            ORDER BY ce.name
         `;
         
-        const teamMembersResult = await dbClient.query(teamMembersQuery, [projectIds]);
+        const teamMembersResult = await dbClient.query(teamMembersQuery, [managerAliases]);
         
         const teamMembers = teamMembersResult.rows.map(member => ({
             id: member.id,
@@ -160,9 +131,7 @@ const getTeamMembers = async (req, res) => {
             data_nascimento: member.data_nascimento,
             nivel_escolaridade: member.nivel_escolaridade,
             formacao: member.formacao,
-            project: member.project_name,
-            currentRole: member.current_role,
-            startDate: member.start_date
+            project: member.project_name || 'N/A'
         }));
         
         res.json({
