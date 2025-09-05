@@ -53,7 +53,7 @@ const EntryForm = () => {
     rg: employeeRg,
     data_nascimento: employeeDataNascimento,
     nivel_escolaridade: employeeNivelEscolaridade,
-    hp_employee_id: employeeHpId
+    employee_id_hp: employeeHpId
   } : null
   
   const selectedProject = selectedProjectId ? {
@@ -250,14 +250,14 @@ const EntryForm = () => {
                   </div>
                 </div>
 
-                {selectedEmployee?.hp_employee_id && (
+                {selectedEmployee?.employee_id_hp && (
                   <div className="form-card">
                     <div className="form-card-header company-card">
                       <span className="icon">🏢</span>
                       <h3>Dados HP</h3>
                     </div>
                     <div className="form-card-body">
-                      <p><strong>Employee ID HP:</strong> {selectedEmployee.hp_employee_id}</p>
+                      <p><strong>Employee ID HP:</strong> {selectedEmployee.employee_id_hp}</p>
                     </div>
                   </div>
                 )}

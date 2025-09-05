@@ -169,7 +169,7 @@ const ExitForm = () => {
                     <h3>Dados HP</h3>
                   </div>
                   <div className="form-card-body">
-                    <p><strong>Employee ID HP:</strong> {getFieldValue(employeeInfo.employee?.hp_employee_id)}</p>
+                    <p><strong>Employee ID HP:</strong> {getFieldValue(employeeInfo.employee?.employee_id_hp)}</p>
                   </div>
                 </div>
                 

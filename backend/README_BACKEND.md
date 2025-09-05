@@ -61,7 +61,7 @@ O banco utiliza PostgreSQL com 2 schemas principais:
 **Tabela Principal:**
 - `hp_portfolio.movements` - Fonte única para todas as movimentações (entradas e saídas)
 
-**Campos Específicos HP:** `compliance_training`, `billable`, `project_type`, etc. (em movements); `hp_employee_id` (em hp_employee_profiles)
+**Campos Específicos HP:** `compliance_training`, `billable`, `project_type`, etc. (em movements); `employee_id_hp` (em employees - sincronização BDI)
 
 ## Verificando o Database
 
@@ -76,8 +76,8 @@ docker exec employee-movements-form-db-1 psql -U app_user -d employee_movements
 \dt hp_portfolio.*                     -- 4 tabelas: projects, hp_employee_profiles, movements, roles_hp
 SELECT COUNT(*) FROM hp_portfolio.movements;    -- Verificar dados da tabela principal
 SELECT COUNT(*) FROM hp_portfolio.projects;     -- Verificar projetos cadastrados
-SELECT COUNT(*) FROM hp_portfolio.hp_employee_profiles WHERE is_manager = true;  -- Verificar gerentes
-SELECT COUNT(*) FROM hp_portfolio.hp_employee_profiles;  -- Verificar perfis HP
+SELECT COUNT(*) FROM hp_portfolio.employees WHERE is_manager = true;  -- Verificar gerentes (BDI)
+SELECT COUNT(*) FROM hp_portfolio.hp_employee_profiles;  -- Verificar perfis HP (formulários UI)
 \q                                     -- Sair do PostgreSQL
 ```
 

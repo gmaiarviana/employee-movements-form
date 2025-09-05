@@ -100,8 +100,8 @@ const getTeamMembers = async (req, res) => {
             SELECT DISTINCT p.id as project_id 
             FROM hp_portfolio.projects p
             WHERE EXISTS (
-                SELECT 1 FROM hp_portfolio.hp_employee_profiles hp 
-                WHERE hp.employee_id = $1 AND hp.is_manager = true
+                SELECT 1 FROM hp_portfolio.employees hpe 
+                WHERE hpe.matricula_ia = $1 AND hpe.is_manager = true
             )
         `, [managerId]);
         
@@ -136,7 +136,7 @@ const getTeamMembers = async (req, res) => {
             AND m.movement_type = 'ENTRY'
             AND e.id NOT IN (
                 -- Excluir gestores (que têm is_manager = true)
-                SELECT hp.employee_id FROM hp_portfolio.hp_employee_profiles hp WHERE hp.is_manager = true
+                SELECT hpe.matricula_ia FROM hp_portfolio.employees hpe WHERE hpe.is_manager = true
             )
             AND NOT EXISTS (
                 SELECT 1 FROM hp_portfolio.movements m2 
@@ -189,9 +189,9 @@ const getEmployeeDetails = async (req, res) => {
     const employeeId = req.params.id;
     
     try {
-        // Find the employee with HP data
+        // Find the employee with HP data from hp_portfolio.employees (BDI source)
         const employeeResult = await dbClient.query(
-            'SELECT e.*, hep.hp_employee_id FROM core.employees e LEFT JOIN hp_portfolio.hp_employee_profiles hep ON e.id = hep.employee_id WHERE e.id = $1',
+            'SELECT e.*, hpe.employee_id_hp FROM core.employees e LEFT JOIN hp_portfolio.employees hpe ON e.id = hpe.matricula_ia WHERE e.id = $1',
             [employeeId]
         );
         
@@ -242,9 +242,9 @@ const getEmployeeDetails = async (req, res) => {
             }
         };
 
-        // Conditionally add hp_employee_id if it exists
-        if (employee.hp_employee_id) {
-            response.employee.hp_employee_id = employee.hp_employee_id;
+        // Conditionally add employee_id_hp if it exists (from BDI sync)
+        if (employee.employee_id_hp) {
+            response.employee.employee_id_hp = employee.employee_id_hp;
         }
         
         if (projectResult.rows.length > 0) {

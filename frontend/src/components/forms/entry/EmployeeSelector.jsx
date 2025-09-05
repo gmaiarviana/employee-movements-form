@@ -239,7 +239,7 @@ const EmployeeSelector = ({
               </div>
 
               {/* HP Employee ID se disponível */}
-              {selectedEmployeeDetails.hp_employee_id && (
+              {selectedEmployeeDetails.employee_id_hp && (
                 <div className="form-group">
                   <label htmlFor="employee-hp-id" className="form-label">Employee ID HP</label>
                   <input 
@@ -247,7 +247,7 @@ const EmployeeSelector = ({
                     id="employee-hp-id" 
                     name="employee-hp-id" 
                     className="form-field"
-                    value={selectedEmployeeDetails.hp_employee_id}
+                    value={selectedEmployeeDetails.employee_id_hp}
                     readOnly
                     style={{ 
                       backgroundColor: '#f9fafb', 

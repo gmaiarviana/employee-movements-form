@@ -54,7 +54,7 @@ const SelectForEntry = () => {
       employeeRg: selectedEmployeeDetails.rg || '',
       employeeDataNascimento: selectedEmployeeDetails.data_nascimento || '',
       employeeNivelEscolaridade: selectedEmployeeDetails.nivel_escolaridade || '',
-      employeeHpId: selectedEmployeeDetails.hp_employee_id || '',
+      employeeHpId: selectedEmployeeDetails.employee_id_hp || '',
       projectName: selectedProject.name || '',
       projectSowPt: selectedProject.sow_pt || '',
       projectManager: selectedProject.gerente_hp || '',

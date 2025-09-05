@@ -175,7 +175,7 @@ const SummaryExit = () => {
                 <div className="summary-grid">
                   <div className="data-row">
                     <span className="data-label">Employee ID HP:</span>
-                    <span className="data-value">{summaryData.employee.hp_employee_id || 'Não informado'}</span>
+                    <span className="data-value">{summaryData.employee.employee_id_hp || 'Não informado'}</span>
                   </div>
                 </div>
 

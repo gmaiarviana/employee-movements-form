@@ -122,7 +122,7 @@ Test-Path "sync-service\credentials\service-account-key.json"
 docker exec employee-movements-form-db-1 psql -U app_user -d employee_movements -c "
 SELECT 
   (SELECT COUNT(*) FROM hp_portfolio.projects) as projetos,
-  (SELECT COUNT(*) FROM hp_portfolio.hp_employee_profiles WHERE is_manager = true) as gestores,
+  (SELECT COUNT(*) FROM hp_portfolio.employees WHERE is_manager = true) as gestores,
   (SELECT COUNT(*) FROM hp_portfolio.movements) as movimentacoes
 "
 ```
