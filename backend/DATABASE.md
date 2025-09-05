@@ -1,246 +1,166 @@
 # DATABASE ARCHITECTURE - EMPLOYEE MOVEMENTS SYSTEM
 
-## VISÃO GERAL
+Sistema de gestão de movimentações com separação por fonte de dados.
 
-Sistema de gestão de movimentações para consultoria, projetado para gerenciar **até 30 projetos simultâneos** com **máximo 10 funcionários por projeto**. Arquitetura multi-schema com tabela centralizada para movimentações.
+## SCHEMAS
 
-### Arquitetura de Schemas
+**`core`** - Dados corporativos e autenticação  
+**`hp_portfolio`** - Dados HP e movimentações (responsabilidade: time Portfolio HP)
 
-```
-employee_movements_db/
-├── core/           # Usuários e funcionários (autenticação + dados pessoais)
-├── hp_portfolio/   # Projetos e movimentações (4 tabelas: projects, hp_employee_profiles, movements, roles_hp)
-└── public/         # Schema padrão PostgreSQL
-```
+## ESTRUTURA PRINCIPAL
 
----
-
-## DIAGRAMA DE RELACIONAMENTOS
-
-### SCHEMA CORE - Usuários e Funcionários
-```
-┌─────────────────────┐       ┌─────────────────────┐
-│     core.users      │       │   core.employees    │
-├─────────────────────┤       ├─────────────────────┤
-│ PK: user_id         │ 1:1   │ PK: employee_id     │
-│     email           │ ◄───► │ FK: user_id         │
-│     password_hash   │       │     name, email     │
-│     funcao_atlantico│       │     cpf, rg         │
-│     created_at      │       │     data_nascimento │
-└─────────────────────┘       │     escolaridade    │
-                              └─────────────────────┘
+### core.users (AUTENTICAÇÃO)
+```sql
+id UUID PK
+email TEXT                     -- Deve existir em hp_portfolio.employees.email_ia
+password_hash TEXT
+name TEXT
+role TEXT                      -- 'admin' ou 'user'
 ```
 
-### SCHEMA HP_PORTFOLIO - Projetos e Movimentações
-```
-┌─────────────────────┐       ┌─────────────────────┐
-│hp_portfolio.projects│       │hp_employee_profiles │
-├─────────────────────┤       ├─────────────────────┤
-│ PK: project_id (uuid)│       │ PK: id              │
-│     name            │       │ FK: employee_id     │
-│     sow_pt (UNIQUE) │       │     hp_employee_id  │
-│     gerente_hp      │       │     is_manager      │
-│     description     │       │     has_previous... │
-│     project_type    │       └─────────────────────┘
-└─────────────────────┘                 │ 1:N
-         │ N:1                          ▼
-         ▼                    ┌─────────────────────┐
-┌─────────────────────┐       │hp_portfolio.movements│
-│hp_portfolio.roles_hp│       ├─────────────────────┤
-├─────────────────────┤       │ PK: id              │
-│ PK: id              │       │ FK: employee_id     │
-│ FK: employee_id     │ ──┐   │     hp_employee_id  │
-│ FK: project_id      │   │   │     created_at      │
-│     movement_type   │       └─────────────────────┘
-│     start_date      │   │             │ 1:1
-│     end_date        │   │             ▼
-│     role            │   │   ┌─────────────────────┐
-│     bundle_aws      │   └──►│   core.employees    │
-│     machine_type    │       │ (referência cruzada)│
-│     compliance_training │    └─────────────────────┘
-│     is_billable     │
-│     created_at      │
-└─────────────────────┘
+### hp_portfolio.employees (HUB PRINCIPAL - FONTE: BDI)
+```sql
+matricula_ia VARCHAR(10) PK    -- Matrícula Instituto Atlântico
+nome VARCHAR(100)              -- Nome completo  
+email_ia VARCHAR(100)          -- Email @atlantico.com.br
+perfil VARCHAR(50)             -- Função técnica (Fullstack, PM, QA, etc.)
+is_manager BOOLEAN             -- Inferido: projeto='Gestão' OR perfil LIKE '%PM%'
+projeto VARCHAR(100)           -- Projeto atual
+gerente VARCHAR(100)           -- Gerente responsável
+employee_id_hp VARCHAR(50)     -- Matrícula HP (quando aplicável)
+situacao VARCHAR(50)           -- Status na planilha BDI
+email_hp VARCHAR(100)          -- Email HP (quando aplicável)
+data_nascimento DATE
+escolaridade TEXT
+graduacao TEXT
 ```
 
-### FLUXO LÓGICO PRINCIPAL
+### core.employees (DADOS CORPORATIVOS - FONTE: TOTVS)
+```sql
+id VARCHAR(10) PK              -- Mesmo valor de matricula_ia
+matricula_ia VARCHAR(10) FK    -- FK para hp_portfolio.employees
+name VARCHAR(100)              -- Copiado de hp_portfolio.employees
+email VARCHAR(100)             -- Copiado de hp_portfolio.employees  
+cpf VARCHAR(14)                -- TOTVS (formato ###.###.###-##)
+rg VARCHAR(20)                 -- TOTVS
+user_id UUID                   -- FK para core.users (GPs autenticados)
 ```
-User ──1:1──► Employee ──1:1──► HP_Employee_Profile ──1:N──► HP_Portfolio.Movements ──N:1──► HP_Portfolio.Projects
-  │                                      │
-  │                                      │
-  │                                      ▼
-  └──► Authentication                API Endpoints
+
+### hp_portfolio.hp_employee_profiles (DADOS FORMULÁRIOS UI)
+```sql
+id UUID PK
+employee_id VARCHAR(10) FK     -- FK para hp_portfolio.employees.matricula_ia
+has_previous_hp_experience BOOLEAN
+previous_hp_account_id VARCHAR(50)
+previous_hp_period_start VARCHAR(20)
+previous_hp_period_end VARCHAR(20)
 ```
 
-### LEGENDA
-- **PK** = Primary Key (Chave Primária)
-- **FK** = Foreign Key (Chave Estrangeira)  
-- **1:1** = Relacionamento um para um
-- **1:N** = Relacionamento um para muitos
-- **N:1** = Relacionamento muitos para um
-- **◄─►** = Relacionamento bidirecional
-- **────►** = Relacionamento unidirecional
+### hp_portfolio.movements (MOVIMENTAÇÕES)
+```sql
+id UUID PK
+employee_id VARCHAR(10) FK     -- FK para hp_portfolio.employees.matricula_ia
+project_id UUID FK             -- FK para hp_portfolio.projects
+movement_type VARCHAR(10)      -- 'ENTRY' ou 'EXIT'
+start_date DATE
+end_date DATE                  -- Para EXIT
+role VARCHAR(100)              -- Função no projeto
+allocation_percentage NUMERIC(5,2)
+is_billable BOOLEAN
+compliance_training VARCHAR(10) -- 'sim' ou 'nao'
+machine_type VARCHAR(50)       -- 'empresa', 'aws', 'disponivel'
+bundle_aws VARCHAR(20)
+change_reason VARCHAR(255)     -- Para EXIT
+has_replacement BOOLEAN        -- Para EXIT
+changed_by VARCHAR(10) FK      -- FK para hp_portfolio.employees.matricula_ia
+```
 
----
+### hp_portfolio.projects
+```sql
+id UUID PK
+name VARCHAR(255)
+sow_pt VARCHAR(255)            -- Statement of Work/Purchase Order (UNIQUE)
+gerente_hp VARCHAR(100)        -- Gerente HP stakeholder
+gerente_ia VARCHAR(100)        -- Email gerente Atlântico
+project_type VARCHAR(255)     -- 'interno', 'externo', etc.
+description TEXT
+```
 
-## CREDENCIAIS PADRÃO
+### hp_portfolio.roles_hp
+```sql
+id UUID PK
+name VARCHAR(100)              -- Project Manager IV, Software Engineer III, etc.
+category VARCHAR(50)           -- Management, Engineering, Junior
+sort_order INTEGER
+```
 
-**Sistema de Autenticação:**
-- Email: admin@admin.com  
-- Senha: admin123
+## RELACIONAMENTOS
 
-**Banco PostgreSQL:**
+```
+hp_portfolio.employees (PK: matricula_ia)
+    ├── core.employees (FK: matricula_ia)
+    ├── hp_portfolio.movements (FK: employee_id)
+    ├── hp_portfolio.hp_employee_profiles (FK: employee_id)
+    └── hp_portfolio.movements (FK: changed_by)
+
+core.employees 
+    └── core.users (FK: user_id)
+
+hp_portfolio.projects
+    └── hp_portfolio.movements (FK: project_id)
+```
+
+## FLUXO DE DADOS
+
+**BDI Planilha → hp_portfolio.employees** (full sync)  
+**hp_portfolio.employees → core.employees** (UPSERT dados básicos)  
+**TOTVS → core.employees** (CPF/RG sob demanda)  
+**UI Formulários → hp_portfolio.hp_employee_profiles**  
+**Sistema → hp_portfolio.movements** (entradas/saídas manuais)
+
+## CREDENCIAIS
+
+**PostgreSQL:**
 - Host: localhost:5433
-- Database: employee_movements
+- Database: employee_movements  
 - User: app_user
 - Password: app_password
 
----
+**Autenticação Sistema:**
+- Email: admin@admin.com
+- Senha: admin123
 
-## COMANDOS ÚTEIS
+## COMANDOS ESSENCIAIS
 
-### Verificação Rápida do Sistema
 ```bash
-# Testar API (PowerShell)
-Invoke-WebRequest -Uri "http://localhost:3000/api/health"
-
 # Conectar ao banco
-docker exec employee-movements-form-db-1 psql -U app_user -d employee_movements
+docker-compose exec db psql -U app_user -d employee_movements
 
-# Ver tabelas por schema
-\dt core.*
-\dt hp_portfolio.*
+# Verificar tabelas principais
+docker-compose exec db psql -U app_user -d employee_movements -c "SELECT 'hp_portfolio.employees' as tabela, COUNT(*) FROM hp_portfolio.employees;"
 
-# Ver funções e triggers
-\df hp_portfolio.*
+docker-compose exec db psql -U app_user -d employee_movements -c "SELECT 'core.employees' as tabela, COUNT(*) FROM core.employees;"
+
+# Funcionário completo (todas as fontes)
+docker-compose exec db psql -U app_user -d employee_movements -c "
+SELECT hpe.matricula_ia, hpe.nome, hpe.perfil, hpe.is_manager, 
+       ce.cpf, ce.rg, hep.has_previous_hp_experience
+FROM hp_portfolio.employees hpe
+LEFT JOIN core.employees ce ON hpe.matricula_ia = ce.matricula_ia
+LEFT JOIN hp_portfolio.hp_employee_profiles hep ON hpe.matricula_ia = hep.employee_id
+LIMIT 5;"
+
+# Verificar managers
+docker-compose exec db psql -U app_user -d employee_movements -c "SELECT COUNT(*) as managers FROM hp_portfolio.employees WHERE is_manager = TRUE;"
+
+# Ver estrutura de uma tabela
+docker-compose exec db psql -U app_user -d employee_movements -c "\d hp_portfolio.employees"
 ```
 
----
+## REGRAS DE NEGÓCIO
 
-### Notas de Desenvolvimento
-
-- **Schemas**: `core` (usuários/funcionários) e `hp_portfolio` (projetos/movimentações)
-- **Relacionamentos**: Foreign keys garantem integridade referencial
-- **Triggers**: Triggers automáticos para updated_at (`trigger_movements_updated_at`, `trigger_hp_profiles_updated_at`, `trigger_hp_projects_updated_at`)
-- **Performance**: Índices otimizados para consultas frequentes (datas, employee_id, project_id, billable)
-- **Validações**: Constraints para CPF, percentual de alocação (1-100%), e campos obrigatórios
-- **Projetos**: `sow_pt` (Statement of Work/Purchase Order), `gerente_hp`, `gerente_ia` (email do gerente responsável)
-- **Auditoria**: Histórico completo mantido na tabela `movements`
-
-Para explorar estruturas detalhadas das tabelas, conecte ao banco e use comandos SQL descritivos como `\d schema.table`.
-
----
-
-## ESTRUTURA DETALHADA DO BANCO
-
-### TABELAS EXISTENTES
-
-#### SCHEMA CORE
-```sql
--- core.users (autenticação)
--- core.employees (dados pessoais + profissionais + cpf/rg/nascimento/escolaridade)
-```
-
-#### SCHEMA HP_PORTFOLIO
-```sql
--- hp_portfolio.projects (projetos, clientes + sow_pt + gerente_hp)
--- hp_portfolio.hp_employee_profiles (dados HP específicos + is_manager flag)
--- hp_portfolio.movements (todas as movimentações)
--- hp_portfolio.roles_hp (papéis/funções HP disponíveis)
-```
-
-#### TABELA: hp_portfolio.movements
-
-**Campos da tabela movements:**
-
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| `id` | UUID | Chave primária única |
-| `employee_id` | VARCHAR(10) | FK para core.employees |
-| `project_id` | UUID | FK para hp_portfolio.projects |
-| `movement_type` | VARCHAR | 'ENTRY' ou 'EXIT' |
-| `start_date` | DATE | Data de início (para ENTRY) |
-| `end_date` | DATE | Data de fim (para EXIT) |
-| `role` | VARCHAR | Função do funcionário |
-| `allocation_percentage` | NUMERIC(5,2) | Percentual de alocação (1-100) |
-| `is_billable` | BOOLEAN | Se é faturável (padrão: true) |
-| `project_type` | VARCHAR | Tipo do projeto |
-| `compliance_training` | VARCHAR | 'sim' ou 'nao' |
-| `billable` | VARCHAR | 'sim' ou 'nao' |
-| `change_reason` | TEXT | Motivo da mudança (para EXIT) |
-| `has_replacement` | BOOLEAN | Se haverá replacement na saída |
-| `machine_type` | VARCHAR(50) | 'empresa', 'aws' ou 'disponivel' |
-| `machine_reuse` | BOOLEAN | Se a máquina será reutilizada |
-| `bundle_aws` | VARCHAR(20) | Bundle necessário (quando machine_type='aws') |
-| `changed_by` | VARCHAR(10) | FK para core.employees (quem fez a alteração) |
-| `created_at` | TIMESTAMP | Data de criação |
-| `updated_at` | TIMESTAMP | Data de atualização |
-
-#### TABELA: hp_portfolio.hp_employee_profiles
-
-**Dados HP específicos por funcionário:**
-
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| `id` | UUID | Chave primária única |
-| `employee_id` | VARCHAR(10) | FK para core.employees (UNIQUE) |
-| `hp_employee_id` | VARCHAR(50) | ID específico do funcionário na HP |
-| `has_previous_hp_experience` | BOOLEAN | Se funcionário já atuou em projetos HP antes |
-| `previous_hp_account_id` | VARCHAR(50) | ID HP anterior (se já atuou) |
-| `previous_hp_period_start` | VARCHAR(20) | Início período anterior (MM/AAAA) |
-| `previous_hp_period_end` | VARCHAR(20) | Fim período anterior (MM/AAAA) |
-| `is_manager` | BOOLEAN | Se funcionário é gerente de projetos |
-| `created_at` | TIMESTAMP | Data de criação |
-| `updated_at` | TIMESTAMP | Data de atualização |
-
-#### TABELA: hp_portfolio.roles_hp
-
-**Papéis/funções disponíveis:**
-
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| `id` | UUID | Chave primária única |
-| `name` | VARCHAR(100) | Nome do papel/função (UNIQUE) |
-| `category` | VARCHAR(50) | Categoria (Management, Engineering, etc.) |
-| `sort_order` | INTEGER | Ordem de exibição |
-| `created_at` | TIMESTAMP | Data de criação |
-
-#### CAMPOS ATUALIZADOS: core.employees
-
-**Campos de função e dados pessoais:**
-
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| `funcao_atlantico` | VARCHAR(50) | Função contratada no Atlântico (renomeado de 'role') |
-| `cpf` | VARCHAR(14) | CPF no formato ###.###.###-## |
-| `rg` | VARCHAR(20) | RG (formato variável) |
-| `data_nascimento` | DATE | Data de nascimento |
-| `nivel_escolaridade` | TEXT | Nível de escolaridade (texto livre) |
-| `formacao` | TEXT | Formação acadêmica (texto livre) |
-
-#### CAMPOS: hp_portfolio.projects
-
-**Campos específicos de projeto:**
-
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| `sow_pt` | VARCHAR(50) | Statement of Work/Purchase Order (UNIQUE) |
-| `gerente_hp` | VARCHAR(100) | Gerente HP stakeholder externo |
-| `gerente_ia` | VARCHAR(100) | Email do gerente responsável (Atlântico) |
-| `project_type` | VARCHAR(50) | Tipo do projeto (interno/externo/misto) |
-
----
-
-## MUDANÇAS ESTRUTURAIS IMPLEMENTADAS
-
-### ❌ REMOVIDO:
-- Tabela `hp_portfolio.project_managers` (overhead desnecessário)
-
-### ✅ ADICIONADO:
-- Campo `is_manager` em `hp_employee_profiles` (identifica gestores)
-- Campo `funcao_atlantico` em `employees` (renomeado de 'role')
-- Campo `gerente_ia` em `projects` (email do gerente responsável do Atlântico)
-
-### 🔄 RENOMEADO:
-- `hp_portfolio.roles` → `hp_portfolio.roles_hp` (clareza de propósito)
-| `gerente_hp` | VARCHAR(100) | Gerente HP stakeholder externo |
+- **Autenticação:** users.email deve existir em hp_portfolio.employees.email_ia
+- **is_manager:** Inferido de projeto='Gestão' OR perfil contém 'PM', 'GP', 'TPM', 'PGM'
+- **employee_id:** movements e hp_employee_profiles referenciam hp_portfolio.employees.matricula_ia
+- **CPF/RG:** Campos opcionais preenchidos sob demanda via TOTVS
+- **Sync BDI:** Full sync substitui todos os dados em hp_portfolio.employees
