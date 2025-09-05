@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { auth, projects as projectsApi } from '../../services/api'
+import { auth } from '../../services/api'
 
 const headerStyle = {
   backgroundColor: '#374151',
@@ -19,42 +19,16 @@ const titleStyle = {
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    projectId: ''
+    confirmPassword: ''
   })
-  const [projects, setProjects] = useState([])
-  const [projectsLoading, setProjectsLoading] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   
   const navigate = useNavigate()
   const { login } = useAuth()
-
-  // Load projects on component mount
-  useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        setProjectsLoading(true)
-        const response = await projectsApi.getAll()
-        if (response.success) {
-          setProjects(response.data)
-        } else {
-          setError('Erro ao carregar projetos')
-        }
-      } catch (err) {
-        console.error('Error loading projects:', err)
-        setError('Erro ao carregar projetos. Verifique sua conexão.')
-      } finally {
-        setProjectsLoading(false)
-      }
-    }
-    
-    loadProjects()
-  }, [])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -73,12 +47,6 @@ const Register = () => {
     setSuccess('')
 
     // Basic validation
-    if (!formData.name.trim()) {
-      setError('O nome é obrigatório')
-      setIsLoading(false)
-      return
-    }
-
     if (!formData.email.includes('@')) {
       setError('Por favor, insira um email válido')
       setIsLoading(false)
@@ -97,19 +65,11 @@ const Register = () => {
       return
     }
 
-    if (!formData.projectId) {
-      setError('Por favor, selecione um projeto')
-      setIsLoading(false)
-      return
-    }
-
     try {
-      // Send only the required fields to the backend
+      // Send only email and password to the backend
       const registrationData = {
-        name: formData.name,
         email: formData.email,
-        password: formData.password,
-        projectId: formData.projectId
+        password: formData.password
       }
 
       const data = await auth.register(registrationData)
@@ -119,11 +79,9 @@ const Register = () => {
         
         // Clear form
         setFormData({
-          name: '',
           email: '',
           password: '',
-          confirmPassword: '',
-          projectId: ''
+          confirmPassword: ''
         })
         
         // If backend returns a token, automatically log the user in
@@ -179,30 +137,12 @@ const Register = () => {
       <main className="main-content">
         <div className="container">
           <div className="text-center mb-lg">
-            <h2>Criar Conta</h2>
-            <p>Preencha os dados abaixo para criar sua conta no sistema</p>
+            <h2>Criar Credenciais de Login</h2>
+            <p>Digite seu email e senha para criar acesso ao sistema</p>
           </div>
           
           <div style={{ maxWidth: '400px', margin: '0 auto' }}>
             <form onSubmit={handleSubmit} className="form">
-              <div className="form-group">
-                <label htmlFor="name" className="form-label">
-                  Nome Completo
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="form-field"
-                  required
-                  disabled={isLoading}
-                  placeholder="Digite seu nome completo"
-                  minLength="2"
-                />
-              </div>
-
               <div className="form-group">
                 <label htmlFor="email" className="form-label">
                   Email
@@ -218,30 +158,6 @@ const Register = () => {
                   disabled={isLoading}
                   placeholder="Digite seu email"
                 />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="projectId" className="form-label">
-                  Projeto
-                </label>
-                <select
-                  id="projectId"
-                  name="projectId"
-                  value={formData.projectId}
-                  onChange={handleChange}
-                  className="form-field"
-                  required
-                  disabled={isLoading || projectsLoading}
-                >
-                  <option value="">
-                    {projectsLoading ? 'Carregando projetos...' : 'Selecione um projeto'}
-                  </option>
-                  {projects.map((project) => (
-                    <option key={project.id} value={project.id}>
-                      {project.name}
-                    </option>
-                  ))}
-                </select>
               </div>
 
               <div className="form-group">
@@ -312,7 +228,7 @@ const Register = () => {
                 disabled={isLoading}
                 style={{ width: '100%', marginBottom: '1rem' }}
               >
-                {isLoading ? 'Criando conta...' : 'Criar Conta'}
+                {isLoading ? 'Criando credenciais...' : 'Criar Credenciais'}
               </button>
 
               <div className="text-center">

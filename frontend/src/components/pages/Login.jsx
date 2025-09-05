@@ -70,7 +70,7 @@ const Login = () => {
   }
 
   const handleQuickLogin = () => {
-    setEmail('admin@admin.com')
+    setEmail('guilherme_viana@atlantico.com.br')
     setPassword('admin123')
   }
 
@@ -109,7 +109,7 @@ const Login = () => {
                 color: '#6b7280', 
                 margin: '0'
               }}>
-                Email: <strong>admin@admin.com</strong> | Senha: <strong>admin123</strong>
+                Email: <strong>guilherme_viana@atlantico.com.br</strong> | Senha: <strong>admin123</strong>
               </p>
             </div>
           </div>

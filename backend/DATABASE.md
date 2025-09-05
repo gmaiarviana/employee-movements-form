@@ -9,16 +9,29 @@ Sistema de gestão de movimentações com separação por fonte de dados.
 
 ## ESTRUTURA PRINCIPAL
 
-### core.users (AUTENTICAÇÃO)
+### core.users (AUTENTICAÇÃO - APENAS CREDENCIAIS)
 ```sql
 id UUID PK
-email TEXT                     -- Deve existir em hp_portfolio.employees.email_ia
+email TEXT                     -- Deve existir em core.employees
 password_hash TEXT
-name TEXT
-role TEXT                      -- 'admin' ou 'user'
+created_at TIMESTAMP
 ```
 
-### hp_portfolio.employees (HUB PRINCIPAL - FONTE: BDI)
+### core.employees (HUB PRINCIPAL - TODOS OS FUNCIONÁRIOS)
+```sql
+id VARCHAR(10) PK              -- Mesmo valor de matricula_ia
+name VARCHAR(100)              -- Nome completo
+email VARCHAR(100)             -- Email corporativo
+funcao_atlantico VARCHAR(50)   -- Função/perfil
+company VARCHAR(100)           -- Empresa (HP Portfolio, Instituto Atlântico, etc.)
+cpf VARCHAR(14)                -- TOTVS (opcional)
+rg VARCHAR(20)                 -- TOTVS (opcional)
+data_nascimento DATE           -- Data nascimento (opcional)
+nivel_escolaridade TEXT        -- Escolaridade (opcional)
+formacao TEXT                  -- Formação (opcional)
+created_at TIMESTAMP
+updated_at TIMESTAMP
+### hp_portfolio.employees (FONTE: BDI - SINCRONIZAÇÃO)
 ```sql
 matricula_ia VARCHAR(10) PK    -- Matrícula Instituto Atlântico
 nome VARCHAR(100)              -- Nome completo  
@@ -33,17 +46,6 @@ email_hp VARCHAR(100)          -- Email HP (quando aplicável)
 data_nascimento DATE
 escolaridade TEXT
 graduacao TEXT
-```
-
-### core.employees (DADOS CORPORATIVOS - FONTE: TOTVS)
-```sql
-id VARCHAR(10) PK              -- Mesmo valor de matricula_ia
-matricula_ia VARCHAR(10) FK    -- FK para hp_portfolio.employees
-name VARCHAR(100)              -- Copiado de hp_portfolio.employees
-email VARCHAR(100)             -- Copiado de hp_portfolio.employees  
-cpf VARCHAR(14)                -- TOTVS (formato ###.###.###-##)
-rg VARCHAR(20)                 -- TOTVS
-user_id UUID                   -- FK para core.users (GPs autenticados)
 ```
 
 ### hp_portfolio.hp_employee_profiles (DADOS FORMULÁRIOS UI)
