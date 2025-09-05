@@ -31,6 +31,16 @@ nivel_escolaridade TEXT        -- Escolaridade (opcional)
 formacao TEXT                  -- Formação (opcional)
 created_at TIMESTAMP
 updated_at TIMESTAMP
+```
+
+### hp_portfolio.managers_mapping (ALIASES DE GESTORES)
+```sql
+id UUID PK
+matricula_ia VARCHAR(10) FK     -- FK para hp_portfolio.employees.matricula_ia
+alias VARCHAR(100)              -- Alias usado na coluna 'gerente' (ex: 'Ricardo Paiva')
+created_at TIMESTAMP
+```
+
 ### hp_portfolio.employees (FONTE: BDI - SINCRONIZAÇÃO)
 ```sql
 matricula_ia VARCHAR(10) PK    -- Matrícula Instituto Atlântico
