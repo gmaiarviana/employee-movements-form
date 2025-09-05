@@ -11,8 +11,8 @@ require('dotenv').config();
 const CONFIG = {
   spreadsheet: {
     id: process.env.GOOGLE_SPREADSHEET_ID,
-    sheetName: 'Baseline Contratos',
-    range: process.env.GOOGLE_SHEET_RANGE || 'A:G',
+    sheetName: 'Atlantes',
+    range: process.env.GOOGLE_SHEET_RANGE || 'A:U',
   },
   serviceAccount: {
     keyPath: process.env.GOOGLE_SERVICE_ACCOUNT_PATH || '/app/credentials/service-account-key.json',

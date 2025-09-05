@@ -114,9 +114,9 @@ hp_portfolio.projects
 
 ## FLUXO DE DADOS
 
-**BDI Planilha → hp_portfolio.employees** (full sync)  
-**hp_portfolio.employees → core.employees** (UPSERT dados básicos)  
-**TOTVS → core.employees** (CPF/RG sob demanda)  
+**BDI Planilha → hp_portfolio.employees** (full sync - substitui todos os dados)  
+**hp_portfolio.employees → core.employees** (UPSERT - preserva dados de outras fontes)  
+**TOTVS → core.employees** (CPF/RG sob demanda - preservados)  
 **UI Formulários → hp_portfolio.hp_employee_profiles**  
 **Sistema → hp_portfolio.movements** (entradas/saídas manuais)
 
@@ -129,7 +129,7 @@ hp_portfolio.projects
 - Password: app_password
 
 **Autenticação Sistema:**
-- Email: admin@admin.com
+- Email: guilherme_viana@atlantico.com.br
 - Senha: admin123
 
 ## COMANDOS ESSENCIAIS

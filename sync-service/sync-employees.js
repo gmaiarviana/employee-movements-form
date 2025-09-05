@@ -41,12 +41,12 @@ const EMPLOYEES_CONFIG = {
 // =============================================================================
 
 /**
- * Remove duplicatas baseado no email
+ * Remove duplicatas baseado no email IA
  */
 function removeDuplicatesByEmail(employees) {
   const seen = new Set();
   return employees.filter(employee => {
-    const email = employee.email?.toLowerCase();
+    const email = employee.emailIa?.toLowerCase();
     if (!email || seen.has(email)) {
       return false;
     }
@@ -66,19 +66,21 @@ function mapSheetDataToDatabase(sheetData) {
   const headers = sheetData[0]; // Primeira linha contém os cabeçalhos
   const rows = sheetData.slice(1); // Demais linhas contêm os dados
 
-  // Mapear índices das colunas
+  console.log('📋 Headers encontrados na planilha:', headers);
+
+  // Mapear índices das colunas baseado nos headers reais
   const columnMap = {
-    id: headers.findIndex(h => h?.toLowerCase().includes('matricula ia')),
+    matriculaIa: headers.findIndex(h => h?.toLowerCase().includes('matricula ia')),
     nome: headers.findIndex(h => h?.toLowerCase().includes('nome')),
-    email: headers.findIndex(h => h?.toLowerCase().includes('email ia')),
-    funcao: headers.findIndex(h => h?.toLowerCase().includes('perfil')),
-    employeeIdHp: headers.findIndex(h => h?.toLowerCase().includes('employee id')),
+    emailIa: headers.findIndex(h => h?.toLowerCase().includes('email ia')),
+    emailHp: headers.findIndex(h => h?.toLowerCase().includes('e-mail hp')),
+    perfil: headers.findIndex(h => h?.toLowerCase().includes('perfil')),
+    employeeId: headers.findIndex(h => h?.toLowerCase().includes('employee id')),
+    projeto: headers.findIndex(h => h?.toLowerCase().includes('projeto')),
+    gerente: headers.findIndex(h => h?.toLowerCase().includes('gerente')),
     dataNascimento: headers.findIndex(h => h?.toLowerCase().includes('data de nascimento')),
     escolaridade: headers.findIndex(h => h?.toLowerCase().includes('escolaridade')),
-    formacao: headers.findIndex(h => h?.toLowerCase().includes('graduação')),
-    empresa: headers.findIndex(h => h?.toLowerCase().includes('empresa')),
-    cpf: headers.findIndex(h => h?.toLowerCase().includes('cpf')),
-    rg: headers.findIndex(h => h?.toLowerCase().includes('rg')),
+    graduacao: headers.findIndex(h => h?.toLowerCase().includes('graduação')),
     situacao: headers.findIndex(h => h?.toLowerCase().includes('situação') || h?.toLowerCase().includes('situacao'))
   };
 
@@ -86,31 +88,31 @@ function mapSheetDataToDatabase(sheetData) {
 
   return rows.map((row, index) => {
     const employee = {
-      id: row[columnMap.id] || '',
+      matriculaIa: row[columnMap.matriculaIa] || '',
       nome: row[columnMap.nome] || '',
-      email: row[columnMap.email] || '',
-      funcao: row[columnMap.funcao] || '',
-      employeeIdHp: row[columnMap.employeeIdHp] || '',
+      emailIa: row[columnMap.emailIa] || '',
+      emailHp: row[columnMap.emailHp] || '',
+      perfil: row[columnMap.perfil] || '',
+      employeeIdHp: row[columnMap.employeeId] || '',
+      projeto: row[columnMap.projeto] || '',
+      gerente: row[columnMap.gerente] || '',
       dataNascimento: row[columnMap.dataNascimento] || '',
       escolaridade: row[columnMap.escolaridade] || '',
-      formacao: row[columnMap.formacao] || '',
-      empresa: row[columnMap.empresa] || '',
-      cpf: row[columnMap.cpf] || '',
-      rg: row[columnMap.rg] || '',
+      graduacao: row[columnMap.graduacao] || '',
       situacao: row[columnMap.situacao] || ''
     };
 
-    // Garantir que o id seja único e baseado na Matricula IA
-    if (!employee.id && employee.email) {
-      // Fallback: usar email se Matricula IA não estiver disponível
-      employee.id = employee.email.split('@')[0].substring(0, 10).toLowerCase();
-    } else if (!employee.id) {
-      // Fallback final: usar índice
-      employee.id = `emp_${index + 1}`;
-    }
+    // Determinar se é manager baseado no projeto ou perfil
+    const isManager = employee.projeto?.toLowerCase().includes('gestão') || 
+                     employee.perfil?.toLowerCase().includes('pm') ||
+                     employee.perfil?.toLowerCase().includes('gp') ||
+                     employee.perfil?.toLowerCase().includes('tpm') ||
+                     employee.perfil?.toLowerCase().includes('pgm');
+
+    employee.isManager = isManager;
 
     return employee;
-  }).filter(emp => emp.email && emp.id); // Filtrar apenas registros com email e id
+  }).filter(emp => emp.emailIa && emp.matriculaIa); // Filtrar apenas registros com email IA e matrícula
 }
 
 /**
@@ -205,64 +207,126 @@ async function syncEmployees() {
     const uniqueEmployees = removeDuplicatesByEmail(activeEmployees);
     console.log(`🎯 Funcionários únicos após remoção de duplicatas: ${uniqueEmployees.length}`);
 
-    // 7. Full sync: apagar dados existentes
-    console.log('\n🗑️  Executando FULL SYNC - removendo dados existentes...');
-    await dbClient.query('DELETE FROM hp_portfolio.movements');
-    await dbClient.query('DELETE FROM core.employees');
-    console.log('✅ Dados existentes removidos de ambas as tabelas (movements e employees)');
+    // 7. Full sync apenas para hp_portfolio - core.employees será atualizado via UPSERT
+    console.log('\n🗑️  Executando FULL SYNC apenas para hp_portfolio (dados BDI)...');
+    await dbClient.query('DELETE FROM hp_portfolio.movements WHERE employee_id IN (SELECT matricula_ia FROM hp_portfolio.employees)');
+    await dbClient.query('DELETE FROM hp_portfolio.hp_employee_profiles WHERE employee_id IN (SELECT matricula_ia FROM hp_portfolio.employees)');
+    await dbClient.query('DELETE FROM hp_portfolio.employees');
+    console.log('✅ Dados hp_portfolio removidos (core.employees preservado para outras fontes)');
 
-    // 8. Inserir novos dados
-    console.log('\n💾 Inserindo novos funcionários...');
-    let insertedCount = 0;
-    let errorCount = 0;
+    // 8. Inserir novos dados - PRIMEIRO em hp_portfolio.employees
+    console.log('\n💾 Inserindo funcionários em hp_portfolio.employees...');
+    let insertedHpCount = 0;
+    let errorHpCount = 0;
 
     for (const employee of uniqueEmployees) {
       try {
-        const insertQuery = `
-          INSERT INTO core.employees (id, name, email, funcao_atlantico, company, cpf, rg, data_nascimento, nivel_escolaridade, formacao)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        const insertHpQuery = `
+          INSERT INTO hp_portfolio.employees (
+            matricula_ia, nome, email_ia, perfil, is_manager, projeto, gerente, 
+            employee_id_hp, situacao, email_hp, data_nascimento, escolaridade, graduacao
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         `;
 
-        const values = [
-          employee.id,
+        const valuesHp = [
+          employee.matriculaIa,
           employee.nome,
-          employee.email.toLowerCase(),
-          employee.funcao,
-          'Instituto Atlântico', // company hardcoded como 'Instituto Atlântico'
-          null, // cpf hardcoded como null
-          null, // rg hardcoded como null
+          employee.emailIa.toLowerCase(),
+          employee.perfil,
+          employee.isManager,
+          employee.projeto || null,
+          employee.gerente || null,
+          employee.employeeIdHp || null,
+          employee.situacao || null,
+          employee.emailHp || null,
           formatDateOfBirth(employee.dataNascimento),
           employee.escolaridade || null,
-          employee.formacao || null
+          employee.graduacao || null
         ];
 
-        await dbClient.query(insertQuery, values);
-        insertedCount++;
+        await dbClient.query(insertHpQuery, valuesHp);
+        insertedHpCount++;
         
-        if (insertedCount % 10 === 0) {
-          console.log(`📝 Inseridos: ${insertedCount}/${uniqueEmployees.length}`);
+        if (insertedHpCount % 10 === 0) {
+          console.log(`� HP Portfolio - Inseridos: ${insertedHpCount}/${uniqueEmployees.length}`);
         }
       } catch (error) {
-        errorCount++;
-        console.error(`❌ Erro ao inserir funcionário ${employee.nome} (${employee.email}):`, error.message);
+        errorHpCount++;
+        console.error(`❌ Erro ao inserir funcionário HP ${employee.nome} (${employee.emailIa}):`, error.message);
       }
     }
 
-    // 9. Resumo da sincronização
+    // 9. UPSERT dados básicos para core.employees (preserva dados de outras fontes)
+    console.log('\n💾 Atualizando core.employees via UPSERT (preserva outras fontes)...');
+    let upsertedCoreCount = 0;
+    let errorCoreCount = 0;
+
+    for (const employee of uniqueEmployees) {
+      try {
+        const upsertCoreQuery = `
+          INSERT INTO core.employees (
+            id, name, email, funcao_atlantico, company, 
+            cpf, rg, data_nascimento, nivel_escolaridade, formacao,
+            created_at, updated_at
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+          ON CONFLICT (id) 
+          DO UPDATE SET 
+            name = EXCLUDED.name,
+            email = EXCLUDED.email,
+            funcao_atlantico = EXCLUDED.funcao_atlantico,
+            company = EXCLUDED.company,
+            data_nascimento = EXCLUDED.data_nascimento,
+            nivel_escolaridade = EXCLUDED.nivel_escolaridade,
+            formacao = EXCLUDED.formacao,
+            updated_at = NOW()
+          -- CPF e RG são preservados (podem vir de TOTVS)
+        `;
+
+        const valuesCoreValues = [
+          employee.matriculaIa,
+          employee.nome,
+          employee.emailIa.toLowerCase(),
+          employee.perfil,
+          'Instituto Atlântico',
+          null, // CPF preservado se existir  
+          null, // RG preservado se existir
+          formatDateOfBirth(employee.dataNascimento),
+          employee.escolaridade || null,
+          employee.graduacao || null
+        ];
+
+        await dbClient.query(upsertCoreQuery, valuesCoreValues);
+        upsertedCoreCount++;
+        
+        if (upsertedCoreCount % 10 === 0) {
+          console.log(`📝 Core UPSERT - Processados: ${upsertedCoreCount}/${uniqueEmployees.length}`);
+        }
+      } catch (error) {
+        errorCoreCount++;
+        console.error(`❌ Erro ao fazer UPSERT funcionário Core ${employee.nome} (${employee.emailIa}):`, error.message);
+      }
+    }
+
+    // 10. Resumo da sincronização
     console.log('\n📊 RESUMO DA SINCRONIZAÇÃO');
     console.log('='.repeat(50));
     console.log(`📖 Total de linhas lidas da planilha: ${sheetData.length - 1}`); // -1 para excluir cabeçalho
     console.log(`🗺️  Funcionários mapeados: ${mappedEmployees.length}`);
     console.log(`✅ Funcionários ativos filtrados: ${activeEmployees.length}`);
     console.log(`🎯 Funcionários únicos (sem duplicatas): ${uniqueEmployees.length}`);
-    console.log(`💾 Funcionários inseridos com sucesso: ${insertedCount}`);
-    console.log(`❌ Erros durante inserção: ${errorCount}`);
+    console.log(`💾 hp_portfolio.employees inseridos: ${insertedHpCount}`);
+    console.log(`💾 core.employees sincronizados via UPSERT: ${upsertedCoreCount}`);
+    console.log(`❌ Erros HP Portfolio: ${errorHpCount}`);
+    console.log(`❌ Erros Core: ${errorCoreCount}`);
     console.log('='.repeat(50));
     
-    if (insertedCount > 0) {
+    if (insertedHpCount > 0 && upsertedCoreCount > 0) {
       console.log('🎉 Sincronização concluída com sucesso!');
+      console.log('✅ Dados de outras fontes em core.employees foram preservados');
     } else {
-      console.log('⚠️  Sincronização concluída, mas nenhum funcionário foi inserido.');
+      console.log('⚠️  Sincronização concluída, mas houve problemas na inserção.');
     }
 
   } catch (error) {

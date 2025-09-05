@@ -56,24 +56,35 @@ GOOGLE_SHEET_RANGE=A:Q
 ## ⚡ Executar sincronização
 
 ```powershell
-# Sincronizar dados (automático)
-docker-compose run --rm sync
+# Sync funcionários apenas
+docker-compose --profile sync run --rm sync node sync-employees.js
 
-# Ver logs detalhados
-docker-compose run --rm sync
+# Sync projetos apenas  
+docker-compose --profile sync run --rm sync node sync-projects.js
+
+# Sync completo (funcionários + projetos)
+docker-compose --profile sync run --rm sync node run-all-syncs.js
 ```
 
 ## 📊 Estrutura esperada da planilha
 
-**Campos obrigatórios para sincronização:**
+**Aba "Atlantes" (funcionários):**
+- **Matricula IA**: Matrícula única do funcionário
+- **Nome**: Nome completo
+- **Email IA**: Email @atlantico.com.br  
+- **Perfil**: Função técnica (Fullstack, PM, QA, etc.)
+- **Situação**: Deve ser "Atuando no Projeto" para sincronizar
+- **Projeto**: Projeto atual (opcional)
+- **Gerente**: Gerente responsável (opcional)
 
+**Aba "Baseline Contratos" (projetos):**
 - **projeto**: Nome do projeto
 - **sow/pt**: Código SOW/PT (único)
 - **ano base**: Deve ser "2025" para sincronizar
 - **gerente hp**: Nome do gerente HP (opcional)
 - **tipo de projeto**: Tipo do projeto (opcional)
 
-*Nota: A planilha possui múltiplas colunas, mas apenas estes campos são processados.*
+*Nota: A sincronização de funcionários usa UPSERT em core.employees para preservar dados de outras fontes (ex: CPF/RG do TOTVS).*
 
 ## 🔧 Configurações avançadas
 

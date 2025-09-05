@@ -153,11 +153,11 @@ const auth = {
     }
     
     // Store token if login successful
-    if (response.success && response.data && response.data.token) {
+    if (response.success && response.token) {
       if (process.env.NODE_ENV === 'development') {
         console.log('💾 Storing token in localStorage');
       }
-      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('token', response.token);
     } else {
       if (process.env.NODE_ENV === 'development') {
         console.log('❌ No token received in login response');

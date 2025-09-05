@@ -17,20 +17,20 @@ function cleanValue(value) {
 // =============================================================================
 
 async function syncProjectsFromSheets() {
-  let sheetsClient;
+  let client;
   let dbClient;
   const startTime = Date.now();
 
   try {
-    sheetsClient = new GoogleSheetsClient();
+    client = new GoogleSheetsClient();
     dbClient = new DatabaseClient();
     await dbClient.connect();
 
     // Fetch data from Google Sheets
-    console.log(`⏳ Buscando dados da planilha '${CONFIG.spreadsheet.sheetName}'...`);
-    const response = await sheetsClient.getData(
+    console.log(`⏳ Buscando dados da planilha 'Baseline Contratos'...`);
+    const response = await client.getData(
       CONFIG.spreadsheet.id,
-      `${CONFIG.spreadsheet.sheetName}!${CONFIG.spreadsheet.range}`
+      `Baseline Contratos!${CONFIG.spreadsheet.range}`
     );
 
     const rows = response.data.values;

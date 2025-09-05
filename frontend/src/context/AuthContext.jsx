@@ -99,11 +99,11 @@ export const AuthContextProvider = ({ children }) => {
 
       const data = await auth.login(email, password)
 
-      if (!data.success || !data.data || !data.data.token) {
+      if (!data.success || !data.token) {
         throw new Error(data.message || 'Resposta inválida do servidor: token ausente ou estrutura incorreta.')
       }
 
-      const token = data.data.token
+      const token = data.token
 
       if (!isValidToken(token)) {
         throw new Error('Token inválido recebido do servidor')
@@ -111,19 +111,29 @@ export const AuthContextProvider = ({ children }) => {
 
       setIsAuthenticated(true)
       
-      // Decode the token payload to get user data
+      // Use user data from response and token payload
       try {
         const parts = token.split('.')
         const payload = JSON.parse(atob(parts[1]))
+        
+        // Combine data from response and token payload
         setCurrentUser({
-          username: payload.username || payload.email, // Use username do payload ou email como fallback
-          email: payload.email || null
+          username: data.user?.employee?.name || payload.email, // Use employee name or email as fallback
+          email: payload.email || data.user?.email || null,
+          employee: data.user?.employee || null,
+          isManager: payload.isManager || false
         })
       } catch (decodeError) {
         if (process.env.NODE_ENV === 'development') {
           console.error('Error decoding token payload during login:', decodeError);
         }
-        setCurrentUser(null)
+        // Fallback to just the response data if token decode fails
+        setCurrentUser({
+          username: data.user?.employee?.name || data.user?.email,
+          email: data.user?.email || null,
+          employee: data.user?.employee || null,
+          isManager: false
+        })
       }
       
       if (process.env.NODE_ENV === 'development') {
